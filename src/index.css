@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 160rem;
+  --breakpoint-5xl: 240rem;
+
+  --color-brand-brown: #7a4833;
+  --color-pastel-brown-bg: #faf9f6;
+  --color-on-light-black: #313131;
+  --color-on-light-grey: #666666;
+  --color-on-light-stroke: rgba(0, 0, 0, 0.2);
+  --color-on-light-highlight-brown: rgba(122, 72, 51, 0.06);
+
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Caveat", "Ocean Trace", "Brush Script MT", cursive;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  color: var(--color-on-light-black);
+  background: #ffffff;
+}
