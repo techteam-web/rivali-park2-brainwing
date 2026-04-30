@@ -7,7 +7,7 @@ const visionaries = [
 ]
 
 const VisionaryCard = ({ name, role, image, className = '' }) => (
-  <article className="w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 overflow-hidden">
+  <article className="w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 overflow-hidden">
     <div className="aspect-square w-full overflow-hidden">
       <img
         src={image}
@@ -16,11 +16,11 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
         loading="lazy"
       />
     </div>
-    <div className="px-3 pt-4 pb-2">
-      <p className="font-medium text-[13px] tracking-[1.4px] uppercase text-center text-on-light-black mb-2">
+    <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1">
+      <p className="font-medium text-[13px] lg:text-[11px] tracking-[1.4px] lg:tracking-[1.2px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5">
         {name}
       </p>
-      <p className="text-[12.5px] text-on-light-grey text-center leading-[1.6]">
+      <p className="text-[12.5px] lg:text-[10px] text-on-light-grey text-center leading-[1.6]">
         {role}
       </p>
     </div>
@@ -29,19 +29,19 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
 
 const Visionaries = () => {
   return (
-    <section className="bg-white pt-20 lg:pt-28 pb-20 lg:pb-28 px-6 lg:px-10">
-      <div className="text-center mb-14 lg:mb-20">
-        <h2 className="font-normal text-[40px] lg:text-[52px] 3xl:text-[64px] leading-[1.2] -tracking-[1px] text-on-light-black">
+    <section className="bg-white pt-20 lg:pt-16 pb-20 lg:pb-16 px-6 lg:px-10">
+      <div className="text-center mb-14 lg:mb-10">
+        <h2 className="font-normal text-[40px] lg:text-[36px] 3xl:text-[64px] leading-[1.2] -tracking-[1px] text-on-light-black">
           The visionaries
         </h2>
         <img
           src="/about/led-by-legacy.svg"
           alt="led by legacy, fuelled by foresight"
-          className="mt-3 mx-auto h-auto w-[35rem]"
+          className="mt-3 mx-auto h-auto w-[35rem] lg:w-[22rem]"
         />
       </div>
 
-      <div className="max-w-[820px] 3xl:max-w-[920px] mx-auto grid grid-cols-12 gap-5 lg:gap-7">
+      <div className="max-w-[820px] lg:max-w-[620px] 3xl:max-w-[920px] mx-auto grid grid-cols-12 gap-5 lg:gap-4">
         <div className="col-span-4">
           <VisionaryCard {...visionaries[0]} />
         </div>

@@ -21,14 +21,14 @@ const Header = () => {
           type="button"
           aria-label="Go back"
           onClick={() => navigate(-1)}
-          className="grid place-items-center w-9 h-9 -ml-1 hover:opacity-60 transition-opacity"
+          className="grid place-items-center w-9 h-9 lg:w-7 lg:h-7 -ml-1 hover:opacity-60 transition-opacity"
         >
-          <img src="/about/icon-arrow-left.svg" alt="" className="w-5 h-5" />
+          <img src="/about/icon-arrow-left.svg" alt="" className="w-5 h-5 lg:w-4 lg:h-4" />
         </button>
-        <h1 className="font-medium text-[18px] lg:text-[20px] 3xl:text-[24px] tracking-[2.5px] lg:tracking-[2.88px] text-on-light-black uppercase">
+        <h1 className="font-medium text-[18px] lg:text-[13px] 3xl:text-[24px] tracking-[2.5px] lg:tracking-[2px] text-on-light-black uppercase">
           {title}
         </h1>
-        <div className="w-9 h-9" aria-hidden="true" />
+        <div className="w-9 h-9 lg:w-7 lg:h-7" aria-hidden="true" />
       </div>
     </header>
   )
