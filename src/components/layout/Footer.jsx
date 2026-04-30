@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="w-full overflow-hidden">
+    <footer className="w-full overflow-hidden bg-pastel-brown-bg">
       <img
         src="/about/about-footer.svg"
         alt="CCI Projects"
