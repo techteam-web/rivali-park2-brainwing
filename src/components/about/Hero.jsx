@@ -96,7 +96,7 @@ const Hero = () => {
             <div>
               <h2
                 data-hero-heading
-                className="invisible font-normal text-[40px] lg:text-[30px] xl:text-[42px] 2xl:text-[52px] 3xl:text-[66px] 4xl:text-[92px] 5xl:text-[138px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
+                className="invisible font-normal text-[40px] lg:text-[34px] xl:text-[46px] 2xl:text-[54px] 3xl:text-[67px] 4xl:text-[92px] 5xl:text-[138px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
               >
                 A Quiet Evolution
               </h2>
@@ -104,17 +104,17 @@ const Hero = () => {
                 src="/about/powering-india.svg"
                 aria-label="powering India to building homes"
                 data-hero-cursive
-                className="invisible mt-3 lg:mt-1 xl:mt-2 3xl:mt-3 4xl:mt-4 5xl:mt-6 h-[28px] lg:h-[32px] xl:h-[40px] 2xl:h-[44px] 3xl:h-[50px] 4xl:h-[68px] 5xl:h-[100px] w-auto lg:w-[17.5rem] xl:w-[23rem] 2xl:w-[28rem] 3xl:w-[35rem] 4xl:w-[48rem] 5xl:w-[72rem]"
+                className="invisible mt-3 lg:mt-1 xl:mt-2 3xl:mt-3 4xl:mt-4 5xl:mt-6 h-[28px] lg:h-[32px] xl:h-[40px] 2xl:h-[44px] 3xl:h-[55px] 4xl:h-[71px] 5xl:h-[120px] w-auto lg:w-[20rem] xl:w-[27.5rem] 2xl:w-[32rem] 3xl:w-[40.5rem] 4xl:w-[56rem] 5xl:w-[83rem]"
               />
               <div
                 data-hero-body
-                className="mt-10 lg:mt-5 xl:mt-6 2xl:mt-7 3xl:mt-9 4xl:mt-12 5xl:mt-16 space-y-5 lg:space-y-3 xl:space-y-4 2xl:space-y-5 3xl:space-y-6 4xl:space-y-7 5xl:space-y-10 text-on-light-black/85 text-[13px] lg:text-[10.5px] xl:text-[14px] 2xl:text-[17px] 3xl:text-[20px] 4xl:text-[27px] 5xl:text-[40px] leading-[1.85] max-w-[500px] 3xl:max-w-[600px] 4xl:max-w-[760px] 5xl:max-w-[1180px]"
+                className="mt-10 lg:mt-5 xl:mt-6 2xl:mt-7 3xl:mt-9 4xl:mt-12 5xl:mt-16 space-y-5 lg:space-y-3 xl:space-y-4 2xl:space-y-5 3xl:space-y-6 4xl:space-y-7 5xl:space-y-10 text-on-light-black/85 text-[13px] lg:text-[11.5px] xl:text-[16px] 2xl:text-[19px] 3xl:text-[23px] 4xl:text-[31px] 5xl:text-[48px] leading-[1.85] max-w-[500px] 2xl:max-w-[600px] 3xl:max-w-[700px] 4xl:max-w-[1260px] 5xl:max-w-[1480px]"
               >
                 <p>
                   Owned by the Khataus, with decades of experience in
                   infrastructure across India (Cable Corporation of India).
                 </p>
-                <p className="max-w-[400px] lg:max-w-[280px] xl:max-w-[340px] 2xl:max-w-[400px] 3xl:max-w-[460px] 4xl:max-w-[580px] 5xl:max-w-[920px]">
+                <p className="max-w-[400px] lg:max-w-[280px] xl:max-w-[440px] 2xl:max-w-[500px] 3xl:max-w-[560px] 4xl:max-w-[880px] 5xl:max-w-[1320px]">
                   Corporate turned developer with long-standing credibility and
                   process oriented.
                 </p>

@@ -145,7 +145,7 @@ const DesignedByMasters = () => {
             <div className="col-span-12 lg:col-span-7">
               <h2
                 data-dbm-heading
-                className="invisible font-normal text-[36px] lg:text-[34px] xl:text-[48px] 2xl:text-[58px] 3xl:text-[66px] 4xl:text-[92px] 5xl:text-[138px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
+                className="invisible font-normal text-[36px] lg:text-[34px] xl:text-[42px] 2xl:text-[47.7px] 3xl:text-[58.5px] 4xl:text-[77px] 5xl:text-[108px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
               >
                 Designed By Masters
               </h2>
@@ -157,7 +157,7 @@ const DesignedByMasters = () => {
               />
               <p
                 data-dbm-body
-                className="text-on-light-black/85 text-[13px] lg:text-[10.5px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[19px] 4xl:text-[26px] 5xl:text-[38px] leading-[1.85] mt-7 lg:mt-5 xl:mt-7 2xl:mt-8 3xl:mt-9 4xl:mt-12 5xl:mt-16 max-w-[600px] 4xl:max-w-[760px] 5xl:max-w-[1480px]"
+                className="text-on-light-black/85 text-[13px] lg:text-[12px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[21px] 4xl:text-[28px] 5xl:text-[39px] leading-[1.85] mt-7 lg:mt-5 xl:mt-7 2xl:mt-8 3xl:mt-9 4xl:mt-12 5xl:mt-16 max-w-[600px] lg:max-w-[580px] xl:max-w-[630px] 3xl:max-w-[800px] 4xl:max-w-[1060px] 5xl:max-w-[1480px]"
               >
                 Crafted with vision by three acclaimed design houses, including
                 the legendary Architect Hafeez Contractor, Rivali Park 2 is a
