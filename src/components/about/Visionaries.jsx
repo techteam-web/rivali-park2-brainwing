@@ -1,3 +1,8 @@
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
+import InlineSVG from './InlineSVG'
+
 const visionaries = [
   { name: 'Rohan Khatau', role: 'Director', image: '/about/visionary-rohan.jpg', className:"object-[100%_0%]" },
   { name: 'Shijil Meledath', role: 'Chief Operating Officer', image: '/about/visionary-shijil.jpg', className:"object-[100%_0%]" },
@@ -7,7 +12,10 @@ const visionaries = [
 ]
 
 const VisionaryCard = ({ name, role, image, className = '' }) => (
-  <article className="w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 xl:pb-3 2xl:pb-4 3xl:pb-5 4xl:pb-7 5xl:pb-10 overflow-hidden">
+  <article
+    data-visionary-card
+    className="invisible w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 xl:pb-3 2xl:pb-4 3xl:pb-5 4xl:pb-7 5xl:pb-10 overflow-hidden"
+  >
     <div className="aspect-square w-full overflow-hidden">
       <img
         src={image}
@@ -28,16 +36,85 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
 )
 
 const Visionaries = () => {
+  const sectionRef = useRef(null)
+
+  useGSAP(
+    (_context, contextSafe) => {
+      const scope = sectionRef.current
+      if (!scope) return
+
+      const setup = contextSafe(() => {
+        const headingEl = scope.querySelector('[data-visionaries-heading]')
+        const cursiveEl = scope.querySelector('[data-visionaries-cursive]')
+        const cards = scope.querySelectorAll('[data-visionary-card]')
+
+        const cursivePaths = cursiveEl ? cursiveEl.querySelectorAll('svg path') : []
+
+        const headingSplit = headingEl
+          ? SplitText.create(headingEl, {
+              type: 'words',
+              wordsClass: 'inline-block will-change-transform',
+            })
+          : null
+
+        gsap.set(headingEl, { autoAlpha: 1 })
+        if (headingSplit) {
+          gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
+        }
+        gsap.set(cursiveEl, { autoAlpha: 1 })
+        gsap.set(cursivePaths, { autoAlpha: 0 })
+        gsap.set(cards, { y: 28, autoAlpha: 0 })
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: scope,
+            start: 'top 80%',
+            once: true,
+          },
+          defaults: { ease: 'power3.out' },
+        })
+
+        if (headingSplit) {
+          tl.to(
+            headingSplit.words,
+            { yPercent: 0, autoAlpha: 1, stagger: 0.04, duration: 0.55 },
+            0,
+          )
+        }
+
+        tl.to(
+          cursivePaths,
+          { autoAlpha: 1, stagger: 0.008, duration: 0.4, ease: 'power2.out' },
+          0.35,
+        ).to(
+          cards,
+          { y: 0, autoAlpha: 1, stagger: 0.07, duration: 0.55 },
+          0.5,
+        )
+      })
+
+      aboutReveal(scope).then(setup)
+    },
+    { scope: sectionRef },
+  )
+
   return (
-    <section className="bg-white pt-20 lg:pt-16 xl:pt-20 2xl:pt-24 3xl:pt-28 4xl:pt-36 5xl:pt-52 pb-20 lg:pb-16 xl:pb-20 2xl:pb-24 3xl:pb-28 4xl:pb-36 5xl:pb-52 px-6 lg:px-[18%] xl:px-[18%] 2xl:px-[18%] 3xl:px-[18%] 4xl:px-[18%] 5xl:px-[18%]">
+    <section
+      ref={sectionRef}
+      className="bg-white pt-20 lg:pt-16 xl:pt-20 2xl:pt-24 3xl:pt-28 4xl:pt-36 5xl:pt-52 pb-20 lg:pb-16 xl:pb-20 2xl:pb-24 3xl:pb-28 4xl:pb-36 5xl:pb-52 px-6 lg:px-[18%] xl:px-[18%] 2xl:px-[18%] 3xl:px-[18%] 4xl:px-[18%] 5xl:px-[18%]"
+    >
       <div className="text-center mb-14 lg:mb-10 xl:mb-14 2xl:mb-16 3xl:mb-20 4xl:mb-28 5xl:mb-44">
-        <h2 className="font-normal text-[40px] lg:text-[36px] xl:text-[50px] 2xl:text-[62px] 3xl:text-[78px] 4xl:text-[108px] 5xl:text-[156px] leading-[1.2] -tracking-[1px] text-on-light-black">
+        <h2
+          data-visionaries-heading
+          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[50px] 2xl:text-[62px] 3xl:text-[78px] 4xl:text-[108px] 5xl:text-[156px] leading-[1.2] -tracking-[1px] text-on-light-black"
+        >
           The visionaries
         </h2>
-        <img
+        <InlineSVG
           src="/about/led-by-legacy.svg"
-          alt="led by legacy, fuelled by foresight"
-          className="mt-3 mx-auto h-auto w-[35rem] lg:w-[22rem] xl:w-[30rem] 2xl:w-[37rem] 3xl:w-[44rem] 4xl:w-[60rem] 5xl:w-[90rem]"
+          aria-label="led by legacy, fuelled by foresight"
+          data-visionaries-cursive
+          className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[22rem] xl:w-[30rem] 2xl:w-[37rem] 3xl:w-[44rem] 4xl:w-[60rem] 5xl:w-[90rem]"
         />
       </div>
 

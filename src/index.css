@@ -22,3 +22,19 @@ body {
   color: var(--color-on-light-black);
   background: #ffffff;
 }
+
+[data-inline-svg] {
+  display: inline-block;
+  line-height: 0;
+}
+
+[data-inline-svg] > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+[data-inline-svg-fill-block] > svg {
+  width: 100%;
+  height: 100%;
+}
