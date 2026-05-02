@@ -1,5 +1,5 @@
-import StubPage from '../components/layout/StubPage'
+import TowersCarousel from '../components/towers/TowersCarousel'
 
-const Towers = () => <StubPage title="Towers" />
+const Towers = () => <TowersCarousel />
 
 export default Towers

@@ -1,8 +1,22 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 
 const Layout = () => {
+  const { pathname } = useLocation()
+  const isTowers = pathname === '/towers'
+
+  if (isTowers) {
+    return (
+      <div className="bg-white overflow-x-hidden">
+        <Header />
+        <main className="-mt-22">
+          <Outlet />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
       <Header />
