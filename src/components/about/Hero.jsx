@@ -22,9 +22,15 @@ const Hero = () => {
         const drawSel =
           'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
 
-        const cursivePaths = cursiveEl ? cursiveEl.querySelectorAll('svg path') : []
         const cloudPaths = cloudEl ? cloudEl.querySelectorAll(drawSel) : []
-        const cranePaths = craneEl ? craneEl.querySelectorAll(drawSel) : []
+        const cranePathsRaw = craneEl ? craneEl.querySelectorAll(drawSel) : []
+        const cranePaths = Array.from(cranePathsRaw).sort((a, b) => {
+          try {
+            return a.getBBox().x - b.getBBox().x
+          } catch {
+            return 0
+          }
+        })
 
         const headingSplit = headingEl
           ? SplitText.create(headingEl, {
@@ -37,12 +43,11 @@ const Hero = () => {
         if (headingSplit) {
           gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
         }
-        gsap.set(cursiveEl, { autoAlpha: 1 })
-        gsap.set(cursivePaths, { autoAlpha: 0 })
+        gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cloudEl, { autoAlpha: 1 })
         gsap.set(cloudPaths, { drawSVG: 0 })
         gsap.set(craneEl, { autoAlpha: 1 })
-        gsap.set(cranePaths, { drawSVG: 0 })
+        gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
         gsap.set(bodyParas, { y: 18, autoAlpha: 0 })
         gsap.set(heroImg, { autoAlpha: 0, scale: 0.97, transformOrigin: '50% 50%' })
 
@@ -66,8 +71,8 @@ const Hero = () => {
         }
 
         tl.to(
-          cursivePaths,
-          { autoAlpha: 1, stagger: 0.008, duration: 0.4, ease: 'power2.out' },
+          cursiveEl,
+          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
           0.45,
         )
           .to(bodyParas, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.45 }, 0.55)
@@ -78,7 +83,13 @@ const Hero = () => {
           )
           .to(
             cranePaths,
-            { drawSVG: '0% 100%', stagger: 0.012, duration: 0.55, ease: 'power1.inOut' },
+            {
+              drawSVG: '0% 100%',
+              fillOpacity: 1,
+              stagger: 0.012,
+              duration: 0.55,
+              ease: 'power1.inOut',
+            },
             0.95,
           )
       })
@@ -134,7 +145,7 @@ const Hero = () => {
               className="relative w-full lg:w-[400px] xl:w-[560px] 2xl:w-[700px] 3xl:w-[860px] 4xl:w-[1140px] 5xl:w-[1700px] aspect-[611/404] overflow-hidden self-start"
             >
               <img
-                src="/about/hero-industrial.png"
+                src="/about/hero-industrial.webp"
                 alt="CCI heritage industrial scene"
                 className="absolute inset-0 w-full h-full object-cover"
               />

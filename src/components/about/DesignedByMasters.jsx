@@ -8,19 +8,19 @@ const masters = [
   {
     name: 'Hafeez Contractor',
     role: 'Master Design & Architecture',
-    image: '/about/master-hafeez.png',
+    image: '/about/master-hafeez.webp',
     className: "object-[50%_0%] origin-center translate-y-[5%] scale-130",
   },
   {
     name: 'Landscape Architects 49',
     role: 'Landscaping',
-    image: '/about/master-predapond.jpg',
+    image: '/about/master-predapond.webp',
     className: "object-[50%_0%] origin-top -translate-y-[5%] scale-135",
   },
   {
     name: 'August Design Consultant',
     role: 'Amenities',
-    image: '/about/master-augustdesign.png',
+    image: '/about/master-augustdesign.webp',
     className: "object-[10%_0%] origin-top -translate-y-[3%] scale-135",
   },
 ]
@@ -34,8 +34,9 @@ const MasterCard = ({ name, role, image, className = '' }) => (
       <img
         src={image}
         alt={name}
+        loading="eager"
+        decoding="async"
         className={`w-full h-full object-cover ${className}`}
-        loading="lazy"
       />
     </div>
     <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1 xl:px-3 xl:pt-4 xl:pb-2 2xl:px-4 2xl:pt-5 2xl:pb-3 3xl:px-5 3xl:pt-6 3xl:pb-4 4xl:px-7 4xl:pt-8 4xl:pb-5 5xl:px-10 5xl:pt-12 5xl:pb-7 bg-pastel-brown-bg border-t border-on-light-stroke">
@@ -67,7 +68,6 @@ const DesignedByMasters = () => {
         const drawSel =
           'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
 
-        const cursivePaths = cursiveEl ? cursiveEl.querySelectorAll('svg path') : []
         const buildingPaths = buildingsEl ? buildingsEl.querySelectorAll(drawSel) : []
 
         const headingSplit = headingEl
@@ -81,20 +81,26 @@ const DesignedByMasters = () => {
         if (headingSplit) {
           gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
         }
-        gsap.set(cursiveEl, { autoAlpha: 1 })
-        gsap.set(cursivePaths, { autoAlpha: 0 })
+        gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(buildingsEl, { autoAlpha: 1 })
         gsap.set(buildingPaths, { drawSVG: 0 })
         gsap.set(bodyEl, { y: 18, autoAlpha: 0 })
-        gsap.set(cards, { y: 28, autoAlpha: 0 })
+        gsap.set(cards, {
+          y: 28,
+          autoAlpha: 0,
+          willChange: 'transform, opacity',
+        })
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: scope,
-            start: 'top 80%',
+            start: 'top 20%',
             once: true,
           },
           defaults: { ease: 'power3.out' },
+          onComplete: () => {
+            gsap.set(cards, { willChange: 'auto' })
+          },
         })
 
         if (headingSplit) {
@@ -106,8 +112,8 @@ const DesignedByMasters = () => {
         }
 
         tl.to(
-          cursivePaths,
-          { autoAlpha: 1, stagger: 0.008, duration: 0.4, ease: 'power2.out' },
+          cursiveEl,
+          { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power1.inOut' },
           0.3,
         )
           .to(bodyEl, { y: 0, autoAlpha: 1, duration: 0.5 }, 0.45)
@@ -128,7 +134,20 @@ const DesignedByMasters = () => {
           )
       })
 
-      aboutReveal(scope).then(setup)
+      const cardImages = scope.querySelectorAll('[data-master-card] img')
+      const decodes = Array.from(cardImages).map((img) => {
+        if (img.complete && img.decode) return img.decode().catch(() => {})
+        if (img.decode)
+          return new Promise((res) => {
+            img.addEventListener('load', () => img.decode().then(res, res), {
+              once: true,
+            })
+            img.addEventListener('error', () => res(), { once: true })
+          })
+        return Promise.resolve()
+      })
+
+      Promise.all([aboutReveal(scope), ...decodes]).then(setup)
     },
     { scope: sectionRef },
   )

@@ -4,11 +4,11 @@ import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
 import InlineSVG from './InlineSVG'
 
 const visionaries = [
-  { name: 'Rohan Khatau', role: 'Director', image: '/about/visionary-rohan.jpg', className:"object-[100%_0%]" },
-  { name: 'Shijil Meledath', role: 'Chief Operating Officer', image: '/about/visionary-shijil.jpg', className:"object-[100%_0%]" },
-  { name: 'Raunaq Rathi', role: 'VP, Strategy and Business', image: '/about/visionary-raunaq.jpg', className:"object-[100%_0%]" },
-  { name: 'Vatsal Vazir', role: 'Head of Design', image: '/about/visionary-vatsal.jpg', className:"object-[100%_0%]" },
-  { name: 'Harshil Shah', role: 'Head of Customer Experience', image: '/about/visionary-harshil.jpg', className:"object-[100%_0%]" },
+  { name: 'Rohan Khatau', role: 'Director', image: '/about/visionary-rohan.webp', className:"object-[100%_0%]" },
+  { name: 'Shijil Meledath', role: 'Chief Operating Officer', image: '/about/visionary-shijil.webp', className:"object-[100%_0%]" },
+  { name: 'Raunaq Rathi', role: 'VP, Strategy and Business', image: '/about/visionary-raunaq.webp', className:"object-[100%_0%]" },
+  { name: 'Vatsal Vazir', role: 'Head of Design', image: '/about/visionary-vatsal.webp', className:"object-[100%_0%]" },
+  { name: 'Harshil Shah', role: 'Head of Customer Experience', image: '/about/visionary-harshil.webp', className:"object-[100%_0%]" },
 ]
 
 const VisionaryCard = ({ name, role, image, className = '' }) => (
@@ -20,8 +20,9 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
       <img
         src={image}
         alt={name}
+        loading="eager"
+        decoding="async"
         className={`w-full h-full object-cover ${className} scale-115 `}
-        loading="lazy"
       />
     </div>
     <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1 xl:px-3 xl:pt-4 xl:pb-2 2xl:px-4 2xl:pt-5 2xl:pb-3 3xl:px-5 3xl:pt-6 3xl:pb-4 4xl:px-7 4xl:pt-8 4xl:pb-5 5xl:px-10 5xl:pt-12 5xl:pb-7">
@@ -48,8 +49,6 @@ const Visionaries = () => {
         const cursiveEl = scope.querySelector('[data-visionaries-cursive]')
         const cards = scope.querySelectorAll('[data-visionary-card]')
 
-        const cursivePaths = cursiveEl ? cursiveEl.querySelectorAll('svg path') : []
-
         const headingSplit = headingEl
           ? SplitText.create(headingEl, {
               type: 'words',
@@ -61,17 +60,23 @@ const Visionaries = () => {
         if (headingSplit) {
           gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
         }
-        gsap.set(cursiveEl, { autoAlpha: 1 })
-        gsap.set(cursivePaths, { autoAlpha: 0 })
-        gsap.set(cards, { y: 28, autoAlpha: 0 })
+        gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
+        gsap.set(cards, {
+          y: 28,
+          autoAlpha: 0,
+          willChange: 'transform, opacity',
+        })
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: scope,
-            start: 'top 80%',
+            start: 'top 25%',
             once: true,
           },
           defaults: { ease: 'power3.out' },
+          onComplete: () => {
+            gsap.set(cards, { willChange: 'auto' })
+          },
         })
 
         if (headingSplit) {
@@ -83,8 +88,8 @@ const Visionaries = () => {
         }
 
         tl.to(
-          cursivePaths,
-          { autoAlpha: 1, stagger: 0.008, duration: 0.4, ease: 'power2.out' },
+          cursiveEl,
+          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
           0.35,
         ).to(
           cards,
@@ -93,7 +98,20 @@ const Visionaries = () => {
         )
       })
 
-      aboutReveal(scope).then(setup)
+      const cardImages = scope.querySelectorAll('[data-visionary-card] img')
+      const decodes = Array.from(cardImages).map((img) => {
+        if (img.complete && img.decode) return img.decode().catch(() => {})
+        if (img.decode)
+          return new Promise((res) => {
+            img.addEventListener('load', () => img.decode().then(res, res), {
+              once: true,
+            })
+            img.addEventListener('error', () => res(), { once: true })
+          })
+        return Promise.resolve()
+      })
+
+      Promise.all([aboutReveal(scope), ...decodes]).then(setup)
     },
     { scope: sectionRef },
   )

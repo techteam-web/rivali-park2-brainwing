@@ -5,6 +5,7 @@ import RaggedyDivider from "./RaggedyDivider";
 import InlineSVG from "./InlineSVG";
 
 const TimelineCard = ({
+  pos,
   year,
   caption,
   image,
@@ -15,12 +16,15 @@ const TimelineCard = ({
 }) => (
   <article
     data-journey-card
+    data-card-pos={pos}
     className="invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px] xl:min-h-[250px] 2xl:min-h-[290px] 3xl:min-h-[345px] 4xl:min-h-[470px] 5xl:min-h-[690px]"
   >
     <div className="relative aspect-[260/180] overflow-hidden bg-on-light-highlight-brown shrink-0">
       <img
         src={image}
         alt=""
+        loading="eager"
+        decoding="async"
         className={`absolute inset-0 w-full h-full ${contain ? "object-contain p-3" : "object-cover"} ${imageClass}`}
       />
       {badge && (
@@ -28,6 +32,8 @@ const TimelineCard = ({
           src={badge}
           alt=""
           aria-hidden="true"
+          loading="eager"
+          decoding="async"
           className={`absolute left-1/2 top-2/5 -translate-x-1/2 -translate-y-1/2 w-auto ${badgeClass}`}
         />
       )}
@@ -54,21 +60,21 @@ const JourneyThroughTime = () => {
       const setup = contextSafe(() => {
         const headingEl = scope.querySelector("[data-journey-heading]");
         const cursiveEl = scope.querySelector("[data-journey-cursive]");
-        const topRowCards = scope.querySelectorAll(
-          "[data-journey-top] [data-journey-card]",
-        );
-        const bottomRowCards = scope.querySelectorAll(
-          "[data-journey-bottom] [data-journey-card]",
-        );
         const barEl = scope.querySelector("[data-journey-bar]");
+        const allCards = scope.querySelectorAll("[data-journey-card]");
 
-        const drawSel =
-          "svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect";
+        const barRect = barEl ? barEl.querySelector("[data-bar]") : null;
+        const allTicks = barEl ? barEl.querySelectorAll("[data-tick]") : [];
+        const allDots = barEl ? barEl.querySelectorAll("[data-dot]") : [];
 
-        const cursivePaths = cursiveEl
-          ? cursiveEl.querySelectorAll("svg path")
-          : [];
-        const barPaths = barEl ? barEl.querySelectorAll(drawSel) : [];
+        const slots = [1, 2, 3, 4, 5].map((n) => ({
+          n,
+          card: scope.querySelector(`[data-card-pos="${n}"]`),
+          tick: barEl ? barEl.querySelector(`[data-tick="${n}"]`) : null,
+          dot: barEl ? barEl.querySelector(`[data-dot="${n}"]`) : null,
+        }));
+
+        const barWidthAtDot = [0, 199, 474, 676, 935];
 
         const headingSplit = headingEl
           ? SplitText.create(headingEl, {
@@ -81,58 +87,108 @@ const JourneyThroughTime = () => {
         if (headingSplit) {
           gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 });
         }
-        gsap.set(cursiveEl, { autoAlpha: 1 });
-        gsap.set(cursivePaths, { autoAlpha: 0 });
+        gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
         gsap.set(barEl, { autoAlpha: 1 });
-        gsap.set(barPaths, { drawSVG: 0 });
-        gsap.set(topRowCards, { y: 24, autoAlpha: 0 });
-        gsap.set(bottomRowCards, { y: 24, autoAlpha: 0 });
+        if (barRect) gsap.set(barRect, { attr: { width: 0 } });
+        if (allTicks.length) gsap.set(allTicks, { drawSVG: "100% 100%" });
+        if (allDots.length)
+          gsap.set(allDots, {
+            autoAlpha: 0,
+            scale: 0,
+            transformOrigin: "50% 50%",
+          });
+        gsap.set(allCards, {
+          y: 24,
+          autoAlpha: 0,
+          willChange: "transform, opacity",
+        });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: scope,
-            start: "top 80%",
+            start: "top 25%",
             once: true,
           },
           defaults: { ease: "power3.out" },
+          onComplete: () => {
+            gsap.set(allCards, { willChange: "auto" });
+          },
         });
 
+        // Phase 1 — heading + cursive (0 → ~0.43s)
         if (headingSplit) {
           tl.to(
             headingSplit.words,
-            { yPercent: 0, autoAlpha: 1, stagger: 0.04, duration: 0.55 },
+            { yPercent: 0, autoAlpha: 1, stagger: 0.025, duration: 0.35 },
             0,
           );
         }
-
         tl.to(
-          cursivePaths,
-          { autoAlpha: 1, stagger: 0.008, duration: 0.4, ease: "power2.out" },
-          0.35,
-        )
-          .to(
-            topRowCards,
-            { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.5 },
-            0.5,
-          )
-          .to(
-            barPaths,
-            {
-              drawSVG: "0% 100%",
-              stagger: 0.02,
-              duration: 0.55,
-              ease: "power1.inOut",
-            },
-            0.75,
-          )
-          .to(
-            bottomRowCards,
-            { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.5 },
-            0.95,
-          );
+          cursiveEl,
+          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
+          0.2,
+        );
+
+        // Phase 2 — cards left-to-right with synced bar growth (0.45 → 1.5s)
+        const cardStart = 0.45;
+        const slotDur = 0.18;
+
+        slots.forEach((slot, i) => {
+          const t = cardStart + i * slotDur;
+          if (slot.card) {
+            tl.to(slot.card, { y: 0, autoAlpha: 1, duration: 0.32 }, t);
+          }
+          if (slot.tick) {
+            tl.to(
+              slot.tick,
+              { drawSVG: "0% 100%", duration: 0.28, ease: "power2.out" },
+              t,
+            );
+          }
+          if (slot.dot) {
+            tl.to(
+              slot.dot,
+              {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.28,
+                ease: "back.out(2)",
+              },
+              t,
+            );
+          }
+        });
+
+        // Bar grows segment-by-segment between consecutive dots
+        if (barRect) {
+          for (let i = 1; i < barWidthAtDot.length; i++) {
+            tl.to(
+              barRect,
+              {
+                attr: { width: barWidthAtDot[i] },
+                duration: slotDur,
+                ease: "none",
+              },
+              cardStart + (i - 1) * slotDur,
+            );
+          }
+        }
       });
 
-      aboutReveal(scope).then(setup);
+      const cardImages = scope.querySelectorAll("[data-journey-card] img");
+      const decodes = Array.from(cardImages).map((img) => {
+        if (img.complete && img.decode) return img.decode().catch(() => {});
+        if (img.decode)
+          return new Promise((res) => {
+            img.addEventListener("load", () => img.decode().then(res, res), {
+              once: true,
+            });
+            img.addEventListener("error", () => res(), { once: true });
+          });
+        return Promise.resolve();
+      });
+
+      Promise.all([aboutReveal(scope), ...decodes]).then(setup);
     },
     { scope: sectionRef },
   );
@@ -166,27 +222,30 @@ const JourneyThroughTime = () => {
           >
             <div className="col-span-4 flex justify-center">
               <TimelineCard
+                pos={1}
                 year="2001"
                 caption="CCI Projects is formed"
-                image="/about/timeline-image-36.png"
+                image="/about/timeline-image-36.webp"
                 imageClass="object-[center_0%] origin-top scale-140"
-                badge="/about/cci-logo.png"
+                badge="/about/cci-logo.webp"
                 badgeClass="h-[35%] max-w-100"
               />
             </div>
             <div className="col-span-4 flex justify-center">
               <TimelineCard
+                pos={3}
                 year="2016"
                 caption="Completion of  Whitespring"
-                image="/about/whitespring.png"
+                image="/about/whitespring.webp"
                 imageClass="object-right origin-top-right translate-y-[0%]"
               />
             </div>
             <div className="col-span-4 flex justify-center">
               <TimelineCard
+                pos={5}
                 year="2023"
                 caption="Launch of Rivali Park 2"
-                image="/about/central-courtyard.jpg"
+                image="/about/central-courtyard.webp"
               />
             </div>
           </div>
@@ -204,19 +263,21 @@ const JourneyThroughTime = () => {
           >
             <div className="col-span-4 col-start-3 flex justify-center">
               <TimelineCard
+                pos={2}
                 year="2001 - 2010"
                 caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
-                image="/about/timeline-image-36.png"
+                image="/about/timeline-image-36.webp"
                 imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
-                badge="/about/rivali-park-white.png"
+                badge="/about/rivali-park-white.webp"
                 badgeClass="h-[40%] max-w-100"
               />
             </div>
             <div className="col-span-4 col-start-7 flex justify-center">
               <TimelineCard
+                pos={4}
                 year="2021"
                 caption="Completion of Wintergreen"
-                image="/about/rivali-transformation.jpg"
+                image="/about/rivali-transformation.webp"
                 imageClass="object-center origin-top scale-110 translate-y-[0%]"
               />
             </div>
