@@ -1,6 +1,6 @@
-import { useRef } from 'react'
+import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
+import { gsap, aboutReveal } from '../../lib/gsap'
 import InlineSVG from './InlineSVG'
 
 const visionaries = [
@@ -36,8 +36,11 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
   </article>
 )
 
-const Visionaries = () => {
+const Visionaries = forwardRef((_props, ref) => {
   const sectionRef = useRef(null)
+  const tlRef = useRef(null)
+  const isReadyRef = useRef(false)
+  const queuedActionRef = useRef(null)
 
   useGSAP(
     (_context, contextSafe) => {
@@ -49,17 +52,7 @@ const Visionaries = () => {
         const cursiveEl = scope.querySelector('[data-visionaries-cursive]')
         const cards = scope.querySelectorAll('[data-visionary-card]')
 
-        const headingSplit = headingEl
-          ? SplitText.create(headingEl, {
-              type: 'words',
-              wordsClass: 'inline-block will-change-transform',
-            })
-          : null
-
-        gsap.set(headingEl, { autoAlpha: 1 })
-        if (headingSplit) {
-          gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
-        }
+        gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cards, {
           y: 28,
@@ -68,34 +61,36 @@ const Visionaries = () => {
         })
 
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: scope,
-            start: 'top 25%',
-            once: true,
-          },
+          paused: true,
           defaults: { ease: 'power3.out' },
           onComplete: () => {
             gsap.set(cards, { willChange: 'auto' })
           },
         })
 
-        if (headingSplit) {
-          tl.to(
-            headingSplit.words,
-            { yPercent: 0, autoAlpha: 1, stagger: 0.04, duration: 0.55 },
-            0,
+        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0)
+          .to(
+            cursiveEl,
+            { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
+            0.35,
           )
-        }
+          .to(
+            cards,
+            { y: 0, autoAlpha: 1, stagger: 0.07, duration: 0.55 },
+            0.5,
+          )
 
-        tl.to(
-          cursiveEl,
-          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
-          0.35,
-        ).to(
-          cards,
-          { y: 0, autoAlpha: 1, stagger: 0.07, duration: 0.55 },
-          0.5,
-        )
+        tlRef.current = tl
+        isReadyRef.current = true
+
+        const queued = queuedActionRef.current
+        queuedActionRef.current = null
+        if (queued === 'in') {
+          gsap.set(scope, { autoAlpha: 1 })
+          tl.timeScale(1).play(0)
+        } else if (queued === 'out') {
+          tl.timeScale(2.5).reverse()
+        }
       })
 
       const cardImages = scope.querySelectorAll('[data-visionary-card] img')
@@ -116,10 +111,34 @@ const Visionaries = () => {
     { scope: sectionRef },
   )
 
+  useImperativeHandle(ref, () => ({
+    prepare: () => {
+      if (!isReadyRef.current || !tlRef.current) return
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).pause(0)
+    },
+    playIn: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'in'
+        return
+      }
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).play(0)
+    },
+    playOut: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'out'
+        return
+      }
+      tlRef.current.timeScale(2.5).reverse()
+      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    },
+  }))
+
   return (
     <section
       ref={sectionRef}
-      className="bg-white pt-20 lg:pt-16 xl:pt-20 2xl:pt-24 3xl:pt-28 4xl:pt-36 5xl:pt-52 pb-20 lg:pb-16 xl:pb-20 2xl:pb-24 3xl:pb-28 4xl:pb-36 5xl:pb-52 px-6 lg:px-[18%] xl:px-[18%] 2xl:px-[18%] 3xl:px-[18%] 4xl:px-[18%] 5xl:px-[18%]"
+      className="bg-white w-full h-full px-6 lg:px-[18%] xl:px-[18%] 2xl:px-[18%] 3xl:px-[18%] 4xl:px-[18%] 5xl:px-[18%]"
     >
       <div className="text-center mb-14 lg:mb-10 xl:mb-14 2xl:mb-16 3xl:mb-20 4xl:mb-28 5xl:mb-44">
         <h2
@@ -155,6 +174,8 @@ const Visionaries = () => {
       </div>
     </section>
   )
-}
+})
+
+Visionaries.displayName = 'Visionaries'
 
 export default Visionaries

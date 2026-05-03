@@ -1,7 +1,6 @@
-import { useRef } from 'react'
+import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
-import RaggedyDivider from './RaggedyDivider'
+import { gsap, aboutReveal } from '../../lib/gsap'
 import InlineSVG from './InlineSVG'
 
 const masters = [
@@ -50,8 +49,11 @@ const MasterCard = ({ name, role, image, className = '' }) => (
   </article>
 )
 
-const DesignedByMasters = () => {
+const DesignedByMasters = forwardRef((_props, ref) => {
   const sectionRef = useRef(null)
+  const tlRef = useRef(null)
+  const isReadyRef = useRef(false)
+  const queuedActionRef = useRef(null)
 
   useGSAP(
     (_context, contextSafe) => {
@@ -70,17 +72,7 @@ const DesignedByMasters = () => {
 
         const buildingPaths = buildingsEl ? buildingsEl.querySelectorAll(drawSel) : []
 
-        const headingSplit = headingEl
-          ? SplitText.create(headingEl, {
-              type: 'words',
-              wordsClass: 'inline-block will-change-transform',
-            })
-          : null
-
-        gsap.set(headingEl, { autoAlpha: 1 })
-        if (headingSplit) {
-          gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
-        }
+        gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(buildingsEl, { autoAlpha: 1 })
         gsap.set(buildingPaths, { drawSVG: 0 })
@@ -92,24 +84,14 @@ const DesignedByMasters = () => {
         })
 
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: scope,
-            start: 'top 20%',
-            once: true,
-          },
+          paused: true,
           defaults: { ease: 'power3.out' },
           onComplete: () => {
             gsap.set(cards, { willChange: 'auto' })
           },
         })
 
-        if (headingSplit) {
-          tl.to(
-            headingSplit.words,
-            { yPercent: 0, autoAlpha: 1, stagger: 0.04, duration: 0.55 },
-            0,
-          )
-        }
+        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0)
 
         tl.to(
           cursiveEl,
@@ -132,6 +114,18 @@ const DesignedByMasters = () => {
             { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.55 },
             0.85,
           )
+
+        tlRef.current = tl
+        isReadyRef.current = true
+
+        const queued = queuedActionRef.current
+        queuedActionRef.current = null
+        if (queued === 'in') {
+          gsap.set(scope, { autoAlpha: 1 })
+          tl.timeScale(1).play(0)
+        } else if (queued === 'out') {
+          tl.timeScale(2.5).reverse()
+        }
       })
 
       const cardImages = scope.querySelectorAll('[data-master-card] img')
@@ -152,57 +146,80 @@ const DesignedByMasters = () => {
     { scope: sectionRef },
   )
 
-  return (
-    <>
-      <RaggedyDivider />
-      <section
-        ref={sectionRef}
-        className="bg-pastel-brown-bg pt-2 pb-24 lg:pb-20 xl:pb-24 2xl:pb-28 3xl:pb-32 4xl:pb-40 5xl:pb-56 px-6 lg:px-[10%] xl:px-[10%] 2xl:px-[10%] 3xl:px-[10%] 4xl:px-[10%] 5xl:px-[10%]"
-      >
-        <div className="max-w-[1180px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto">
-          <div className="grid grid-cols-12 gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 3xl:gap-14 4xl:gap-18 5xl:gap-24 items-end mb-14 lg:mb-16 xl:mb-20 2xl:mb-24 3xl:mb-28 4xl:mb-36 5xl:mb-52">
-            <div className="col-span-12 lg:col-span-7">
-              <h2
-                data-dbm-heading
-                className="invisible font-normal text-[36px] lg:text-[34px] xl:text-[42px] 2xl:text-[47.7px] 3xl:text-[58.5px] 4xl:text-[77px] 5xl:text-[108px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
-              >
-                Designed By Masters
-              </h2>
-              <InlineSVG
-                src="/about/inspired-by-life.svg"
-                aria-label="inspired by life"
-                data-dbm-cursive
-                className="invisible mt-3 h-6.5 lg:h-5.5 xl:h-8 2xl:h-9 3xl:h-11 4xl:h-15 5xl:h-22 w-auto"
-              />
-              <p
-                data-dbm-body
-                className="text-on-light-black/85 text-[13px] lg:text-[12px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[21px] 4xl:text-[28px] 5xl:text-[39px] leading-[1.85] mt-7 lg:mt-5 xl:mt-7 2xl:mt-8 3xl:mt-9 4xl:mt-12 5xl:mt-16 max-w-[600px] lg:max-w-[580px] xl:max-w-[630px] 3xl:max-w-[800px] 4xl:max-w-[1060px] 5xl:max-w-[1480px]"
-              >
-                Crafted with vision by three acclaimed design houses, including
-                the legendary Architect Hafeez Contractor, Rivali Park 2 is a
-                celebration of intentionally designed spaces, landscapes, and
-                life-enhancing amenities.
-              </p>
-            </div>
-            <div className="col-span-12 lg:col-span-5 flex lg:justify-end">
-              <InlineSVG
-                src="/about/designed-clouds-buildings.svg"
-                aria-hidden="true"
-                data-dbm-buildings
-                className="invisible block w-full max-w-105 lg:max-w-[260px] xl:max-w-[400px] 2xl:max-w-[480px] 3xl:max-w-[580px] 4xl:max-w-[800px] 5xl:max-w-[1180px] h-auto"
-              />
-            </div>
-          </div>
+  useImperativeHandle(ref, () => ({
+    prepare: () => {
+      if (!isReadyRef.current || !tlRef.current) return
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).pause(0)
+    },
+    playIn: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'in'
+        return
+      }
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).play(0)
+    },
+    playOut: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'out'
+        return
+      }
+      tlRef.current.timeScale(2.5).reverse()
+      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    },
+  }))
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-18">
-            {masters.map((m) => (
-              <MasterCard key={m.name} {...m} />
-            ))}
+  return (
+    <section
+      ref={sectionRef}
+      className="bg-pastel-brown-bg w-full h-full px-6 lg:px-[10%] xl:px-[10%] 2xl:px-[10%] 3xl:px-[10%] 4xl:px-[10%] 5xl:px-[10%]"
+    >
+      <div className="max-w-[1180px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto">
+        <div className="grid grid-cols-12 gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 3xl:gap-14 4xl:gap-18 5xl:gap-24 items-end mb-14 lg:mb-16 xl:mb-20 2xl:mb-24 3xl:mb-28 4xl:mb-36 5xl:mb-52">
+          <div className="col-span-12 lg:col-span-7">
+            <h2
+              data-dbm-heading
+              className="invisible font-normal text-[36px] lg:text-[34px] xl:text-[42px] 2xl:text-[47.7px] 3xl:text-[58.5px] 4xl:text-[77px] 5xl:text-[108px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
+            >
+              Designed By Masters
+            </h2>
+            <InlineSVG
+              src="/about/inspired-by-life.svg"
+              aria-label="inspired by life"
+              data-dbm-cursive
+              className="invisible mt-3 h-6.5 lg:h-5.5 xl:h-8 2xl:h-9 3xl:h-11 4xl:h-15 5xl:h-22 w-auto"
+            />
+            <p
+              data-dbm-body
+              className="text-on-light-black/85 text-[13px] lg:text-[12px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[21px] 4xl:text-[28px] 5xl:text-[39px] leading-[1.85] mt-7 lg:mt-5 xl:mt-7 2xl:mt-8 3xl:mt-9 4xl:mt-12 5xl:mt-16 max-w-[600px] lg:max-w-[580px] xl:max-w-[630px] 3xl:max-w-[800px] 4xl:max-w-[1060px] 5xl:max-w-[1480px]"
+            >
+              Crafted with vision by three acclaimed design houses, including
+              the legendary Architect Hafeez Contractor, Rivali Park 2 is a
+              celebration of intentionally designed spaces, landscapes, and
+              life-enhancing amenities.
+            </p>
+          </div>
+          <div className="col-span-12 lg:col-span-5 flex lg:justify-end">
+            <InlineSVG
+              src="/about/designed-clouds-buildings.svg"
+              aria-hidden="true"
+              data-dbm-buildings
+              className="invisible block w-full max-w-105 lg:max-w-[260px] xl:max-w-[400px] 2xl:max-w-[480px] 3xl:max-w-[580px] 4xl:max-w-[800px] 5xl:max-w-[1180px] h-auto"
+            />
           </div>
         </div>
-      </section>
-    </>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-10 4xl:gap-12 5xl:gap-18">
+          {masters.map((m) => (
+            <MasterCard key={m.name} {...m} />
+          ))}
+        </div>
+      </div>
+    </section>
   )
-}
+})
+
+DesignedByMasters.displayName = 'DesignedByMasters'
 
 export default DesignedByMasters

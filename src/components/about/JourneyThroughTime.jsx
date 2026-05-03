@@ -1,7 +1,6 @@
-import { useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, SplitText, aboutReveal } from "../../lib/gsap";
-import RaggedyDivider from "./RaggedyDivider";
+import { gsap, aboutReveal } from "../../lib/gsap";
 import InlineSVG from "./InlineSVG";
 
 const TimelineCard = ({
@@ -49,8 +48,11 @@ const TimelineCard = ({
   </article>
 );
 
-const JourneyThroughTime = () => {
+const JourneyThroughTime = forwardRef((_props, ref) => {
   const sectionRef = useRef(null);
+  const tlRef = useRef(null);
+  const isReadyRef = useRef(false);
+  const queuedActionRef = useRef(null);
 
   useGSAP(
     (_context, contextSafe) => {
@@ -76,20 +78,15 @@ const JourneyThroughTime = () => {
 
         const barWidthAtDot = [0, 199, 474, 676, 935];
 
-        const headingSplit = headingEl
-          ? SplitText.create(headingEl, {
-              type: "words",
-              wordsClass: "inline-block will-change-transform",
-            })
-          : null;
-
-        gsap.set(headingEl, { autoAlpha: 1 });
-        if (headingSplit) {
-          gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 });
-        }
+        gsap.set(headingEl, { autoAlpha: 0, y: 18 });
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
         gsap.set(barEl, { autoAlpha: 1 });
-        if (barRect) gsap.set(barRect, { attr: { width: 0 } });
+        if (barRect)
+          gsap.set(barRect, {
+            transformBox: 'fill-box',
+            transformOrigin: '0% 50%',
+            scaleX: 0,
+          });
         if (allTicks.length) gsap.set(allTicks, { drawSVG: "100% 100%" });
         if (allDots.length)
           gsap.set(allDots, {
@@ -104,32 +101,20 @@ const JourneyThroughTime = () => {
         });
 
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: scope,
-            start: "top 25%",
-            once: true,
-          },
+          paused: true,
           defaults: { ease: "power3.out" },
           onComplete: () => {
             gsap.set(allCards, { willChange: "auto" });
           },
         });
 
-        // Phase 1 — heading + cursive (0 → ~0.43s)
-        if (headingSplit) {
-          tl.to(
-            headingSplit.words,
-            { yPercent: 0, autoAlpha: 1, stagger: 0.025, duration: 0.35 },
-            0,
-          );
-        }
+        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.5 }, 0);
         tl.to(
           cursiveEl,
           { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
           0.2,
         );
 
-        // Phase 2 — cards left-to-right with synced bar growth (0.45 → 1.5s)
         const cardStart = 0.45;
         const slotDur = 0.18;
 
@@ -159,19 +144,31 @@ const JourneyThroughTime = () => {
           }
         });
 
-        // Bar grows segment-by-segment between consecutive dots
         if (barRect) {
+          const barFullWidth = barWidthAtDot[barWidthAtDot.length - 1];
           for (let i = 1; i < barWidthAtDot.length; i++) {
             tl.to(
               barRect,
               {
-                attr: { width: barWidthAtDot[i] },
+                scaleX: barWidthAtDot[i] / barFullWidth,
                 duration: slotDur,
                 ease: "none",
               },
               cardStart + (i - 1) * slotDur,
             );
           }
+        }
+
+        tlRef.current = tl;
+        isReadyRef.current = true;
+
+        const queued = queuedActionRef.current;
+        queuedActionRef.current = null;
+        if (queued === "in") {
+          gsap.set(scope, { autoAlpha: 1 });
+          tl.timeScale(1).play(0);
+        } else if (queued === "out") {
+          tl.timeScale(2.5).reverse();
         }
       });
 
@@ -193,100 +190,122 @@ const JourneyThroughTime = () => {
     { scope: sectionRef },
   );
 
+  useImperativeHandle(ref, () => ({
+    prepare: () => {
+      if (!isReadyRef.current || !tlRef.current) return;
+      gsap.set(sectionRef.current, { autoAlpha: 1 });
+      tlRef.current.timeScale(1).pause(0);
+    },
+    playIn: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = "in";
+        return;
+      }
+      gsap.set(sectionRef.current, { autoAlpha: 1 });
+      tlRef.current.timeScale(1).play(0);
+    },
+    playOut: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = "out";
+        return;
+      }
+      tlRef.current.timeScale(2.5).reverse();
+      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: "power2.out" });
+    },
+  }));
+
   return (
-    <>
-      <RaggedyDivider />
-      <section
-        ref={sectionRef}
-        className="bg-pastel-brown-bg pt-2 px-6 lg:px-[9%] xl:px-[9%] 2xl:px-[9%] 3xl:px-[9%] 4xl:px-[9%] 5xl:px-[9%]"
-      >
-        <div className="text-center lg:-mt-[120px] lg:min-h-[150px] lg:flex lg:flex-col lg:items-center lg:justify-center xl:-mt-[160px] xl:min-h-[300px] 2xl:-mt-[200px] 2xl:min-h-[360px] 3xl:-mt-[240px] 3xl:min-h-[440px] 4xl:-mt-[320px] 4xl:min-h-[560px] 5xl:-mt-[460px] 5xl:min-h-[800px]">
-          <h2
-            data-journey-heading
-            className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[44px] 2xl:text-[52px] 3xl:text-[60px] 4xl:text-[78px] 5xl:text-[116px] leading-[1.2] -tracking-[1px] text-on-light-black"
-          >
-            A journey through time
-          </h2>
-          <InlineSVG
-            src="/about/shaping-a-legacy.svg"
-            aria-label="shaping a legacy of innovation"
-            data-journey-cursive
-            className="invisible mx-auto mt-3 h-6.5 lg:h-7 xl:h-8 2xl:h-9 3xl:h-10 4xl:h-14 5xl:h-20 w-auto"
-          />
-        </div>
+    <section
+      ref={sectionRef}
+      className="bg-pastel-brown-bg w-full h-full px-6 lg:px-[9%] xl:px-[9%] 2xl:px-[9%] 3xl:px-[9%] 4xl:px-[9%] 5xl:px-[9%]"
+    >
+      <div className="text-center">
+        <h2
+          data-journey-heading
+          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[44px] 2xl:text-[52px] 3xl:text-[60px] 4xl:text-[78px] 5xl:text-[116px] leading-[1.2] -tracking-[1px] text-on-light-black"
+        >
+          A journey through time
+        </h2>
+        <InlineSVG
+          src="/about/shaping-a-legacy.svg"
+          aria-label="shaping a legacy of innovation"
+          data-journey-cursive
+          className="invisible mx-auto mt-3 h-6.5 lg:h-7 xl:h-8 2xl:h-9 3xl:h-10 4xl:h-14 5xl:h-20 w-auto"
+        />
+      </div>
 
-        <div className="relative max-w-[1080px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto">
-          <div
-            data-journey-top
-            className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
-          >
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                pos={1}
-                year="2001"
-                caption="CCI Projects is formed"
-                image="/about/timeline-image-36.webp"
-                imageClass="object-[center_0%] origin-top scale-140"
-                badge="/about/cci-logo.webp"
-                badgeClass="h-[35%] max-w-100"
-              />
-            </div>
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                pos={3}
-                year="2016"
-                caption="Completion of  Whitespring"
-                image="/about/whitespring.webp"
-                imageClass="object-right origin-top-right translate-y-[0%]"
-              />
-            </div>
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                pos={5}
-                year="2023"
-                caption="Launch of Rivali Park 2"
-                image="/about/central-courtyard.webp"
-              />
-            </div>
+      <div className="relative max-w-[1080px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto mt-8 lg:mt-10 xl:mt-12 2xl:mt-14 3xl:mt-16 4xl:mt-20 5xl:mt-28">
+        <div
+          data-journey-top
+          className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
+        >
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={1}
+              year="2001"
+              caption="CCI Projects is formed"
+              image="/about/timeline-image-36.webp"
+              imageClass="object-[center_0%] origin-top scale-140"
+              badge="/about/cci-logo.webp"
+              badgeClass="h-[35%] max-w-100"
+            />
           </div>
-
-          <InlineSVG
-            src="/about/journey-bar.svg"
-            aria-hidden="true"
-            data-journey-bar
-            className="invisible block w-full lg:w-[105%] lg:-mx-[2.5%] lg:max-w-none xl:w-[110%] xl:-mx-[5%] 2xl:w-[112%] 2xl:-mx-[6%] 3xl:w-[114%] 3xl:-mx-[7%] 4xl:w-[116%] 4xl:-mx-[8%] 5xl:w-[118%] 5xl:-mx-[9%] h-auto my-10 lg:my-3 xl:my-5 2xl:my-6 3xl:my-8 4xl:my-10 5xl:my-14"
-          />
-
-          <div
-            data-journey-bottom
-            className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
-          >
-            <div className="col-span-4 col-start-3 flex justify-center">
-              <TimelineCard
-                pos={2}
-                year="2001 - 2010"
-                caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
-                image="/about/timeline-image-36.webp"
-                imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
-                badge="/about/rivali-park-white.webp"
-                badgeClass="h-[40%] max-w-100"
-              />
-            </div>
-            <div className="col-span-4 col-start-7 flex justify-center">
-              <TimelineCard
-                pos={4}
-                year="2021"
-                caption="Completion of Wintergreen"
-                image="/about/rivali-transformation.webp"
-                imageClass="object-center origin-top scale-110 translate-y-[0%]"
-              />
-            </div>
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={3}
+              year="2016"
+              caption="Completion of  Whitespring"
+              image="/about/whitespring.webp"
+              imageClass="object-right origin-top-right translate-y-[0%]"
+            />
+          </div>
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={5}
+              year="2023"
+              caption="Launch of Rivali Park 2"
+              image="/about/central-courtyard.webp"
+            />
           </div>
         </div>
-      </section>
-      <RaggedyDivider flipped />
-    </>
+
+        <InlineSVG
+          src="/about/journey-bar.svg"
+          aria-hidden="true"
+          data-journey-bar
+          className="invisible block w-full lg:w-[105%] lg:-mx-[2.5%] lg:max-w-none xl:w-[110%] xl:-mx-[5%] 2xl:w-[112%] 2xl:-mx-[6%] 3xl:w-[114%] 3xl:-mx-[7%] 4xl:w-[116%] 4xl:-mx-[8%] 5xl:w-[118%] 5xl:-mx-[9%] h-auto my-10 lg:my-3 xl:my-5 2xl:my-6 3xl:my-8 4xl:my-10 5xl:my-14"
+        />
+
+        <div
+          data-journey-bottom
+          className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
+        >
+          <div className="col-span-4 col-start-3 flex justify-center">
+            <TimelineCard
+              pos={2}
+              year="2001 - 2010"
+              caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
+              image="/about/timeline-image-36.webp"
+              imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
+              badge="/about/rivali-park-white.webp"
+              badgeClass="h-[40%] max-w-100"
+            />
+          </div>
+          <div className="col-span-4 col-start-7 flex justify-center">
+            <TimelineCard
+              pos={4}
+              year="2021"
+              caption="Completion of Wintergreen"
+              image="/about/rivali-transformation.webp"
+              imageClass="object-center origin-top scale-110 translate-y-[0%]"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   );
-};
+});
+
+JourneyThroughTime.displayName = "JourneyThroughTime";
 
 export default JourneyThroughTime;

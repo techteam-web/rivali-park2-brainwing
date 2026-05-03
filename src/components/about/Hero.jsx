@@ -1,10 +1,13 @@
-import { useRef } from 'react'
+import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
+import { gsap, aboutReveal } from '../../lib/gsap'
 import InlineSVG from './InlineSVG'
 
-const Hero = () => {
+const Hero = forwardRef((_props, ref) => {
   const sectionRef = useRef(null)
+  const tlRef = useRef(null)
+  const isReadyRef = useRef(false)
+  const queuedActionRef = useRef(null)
 
   useGSAP(
     (_context, contextSafe) => {
@@ -32,17 +35,7 @@ const Hero = () => {
           }
         })
 
-        const headingSplit = headingEl
-          ? SplitText.create(headingEl, {
-              type: 'words',
-              wordsClass: 'inline-block will-change-transform',
-            })
-          : null
-
-        gsap.set(headingEl, { autoAlpha: 1 })
-        if (headingSplit) {
-          gsap.set(headingSplit.words, { yPercent: 110, autoAlpha: 0 })
-        }
+        gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cloudEl, { autoAlpha: 1 })
         gsap.set(cloudPaths, { drawSVG: 0 })
@@ -52,23 +45,13 @@ const Hero = () => {
         gsap.set(heroImg, { autoAlpha: 0, scale: 0.97, transformOrigin: '50% 50%' })
 
         const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: scope,
-            start: 'top 80%',
-            once: true,
-          },
+          paused: true,
           defaults: { ease: 'power3.out' },
         })
 
         tl.to(heroImg, { autoAlpha: 1, scale: 1, duration: 0.75, ease: 'power2.out' }, 0)
 
-        if (headingSplit) {
-          tl.to(
-            headingSplit.words,
-            { yPercent: 0, autoAlpha: 1, stagger: 0.04, duration: 0.55 },
-            0.05,
-          )
-        }
+        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.05)
 
         tl.to(
           cursiveEl,
@@ -92,6 +75,18 @@ const Hero = () => {
             },
             0.95,
           )
+
+        tlRef.current = tl
+        isReadyRef.current = true
+
+        const queued = queuedActionRef.current
+        queuedActionRef.current = null
+        if (queued === 'in') {
+          gsap.set(scope, { autoAlpha: 1 })
+          tl.timeScale(1).play(0)
+        } else if (queued === 'out') {
+          tl.timeScale(2.5).reverse()
+        }
       })
 
       aboutReveal(scope).then(setup)
@@ -99,9 +94,33 @@ const Hero = () => {
     { scope: sectionRef },
   )
 
+  useImperativeHandle(ref, () => ({
+    prepare: () => {
+      if (!isReadyRef.current || !tlRef.current) return
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).pause(0)
+    },
+    playIn: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'in'
+        return
+      }
+      gsap.set(sectionRef.current, { autoAlpha: 1 })
+      tlRef.current.timeScale(1).play(0)
+    },
+    playOut: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = 'out'
+        return
+      }
+      tlRef.current.timeScale(2.5).reverse()
+      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    },
+  }))
+
   return (
-    <section ref={sectionRef} className="bg-white">
-      <div className="max-w-[1177px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto px-8 lg:px-[6%] xl:px-[6%] 2xl:px-[6%] 3xl:px-[6%] 4xl:px-[6%] 5xl:px-[6%] pt-12 lg:pt-20 xl:pt-24 2xl:pt-28 3xl:pt-32 4xl:pt-40 5xl:pt-56 pb-24 lg:pb-32 xl:pb-36 2xl:pb-44 3xl:pb-52 4xl:pb-64 5xl:pb-96">
+    <section ref={sectionRef} className="bg-white w-full h-full">
+      <div className="max-w-[1177px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto px-8 lg:px-[6%] xl:px-[6%] 2xl:px-[6%] 3xl:px-[6%] 4xl:px-[6%] 5xl:px-[6%]">
         <div className="grid grid-cols-12 gap-6 lg:gap-10 xl:gap-10 2xl:gap-12 3xl:gap-16 4xl:gap-20 5xl:gap-28 items-stretch">
           <div className="col-span-12 lg:col-span-5 flex flex-col justify-between">
             <div>
@@ -161,6 +180,8 @@ const Hero = () => {
       </div>
     </section>
   )
-}
+})
+
+Hero.displayName = 'Hero'
 
 export default Hero
