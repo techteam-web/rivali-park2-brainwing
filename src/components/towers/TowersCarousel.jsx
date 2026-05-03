@@ -1,17 +1,19 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { useGSAP } from '@gsap/react'
 import { towers, TOWER_ACCENTS } from '../../data/towers'
 import TowerPanel from './TowerPanel'
 import TowerProgress from './TowerProgress'
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
 
 const HIGHLIGHT_X = [1.73389, 55.5, 109.25, 163]
 
 const TowersCarousel = () => {
   const sectionRef = useRef(null)
+  const stageRef = useRef(null)
   const panelRefs = useRef([])
   const progressHighlightRef = useRef(null)
 
@@ -46,58 +48,79 @@ const TowersCarousel = () => {
         attr: { x: HIGHLIGHT_X[0], fill: TOWER_ACCENTS[0] },
       })
 
+      const transitions = towers.length - 1
+
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: stageRef.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 3}`,
+          end: () => `+=${transitions * window.innerHeight}`,
           pin: true,
-          scrub: 1,
-          snap: {
-            snapTo: [0, 1 / 3, 2 / 3, 1],
-            duration: { min: 0.2, max: 0.5 },
-            ease: 'power2.inOut',
-          },
+          pinSpacing: false,
+          scrub: true,
           invalidateOnRefresh: true,
         },
       })
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < transitions; i++) {
         const t = i
 
-        tl.to(
-          stages[i],
-          { autoAlpha: 0, y: -40, scale: 1.05, ease: 'power2.in' },
-          t,
-        )
-          .to(
-            texts[i],
-            { autoAlpha: 0, y: -15, ease: 'power2.in' },
-            t + 0.05,
-          )
-          .to(
-            stages[i + 1],
-            { autoAlpha: 1, y: 0, scale: 1, ease: 'power2.out' },
-            t + 0.15,
-          )
-          .to(
-            texts[i + 1],
-            { autoAlpha: 1, y: 0, ease: 'power2.out' },
-            t + 0.25,
-          )
+        tl.to(stages[i],     { autoAlpha: 0, y: -40, scale: 1.05, ease: 'power2.in' }, t)
+          .to(texts[i],      { autoAlpha: 0, y: -15, ease: 'power2.in' }, t + 0.05)
+          .to(stages[i + 1], { autoAlpha: 1, y: 0, scale: 1, ease: 'power2.out' }, t + 0.15)
+          .to(texts[i + 1],  { autoAlpha: 1, y: 0, ease: 'power2.out' }, t + 0.25)
           .to(
             progressHighlightRef.current,
-            {
-              attr: { x: HIGHLIGHT_X[i + 1], fill: TOWER_ACCENTS[i + 1] },
-              ease: 'power2.inOut',
-            },
+            { attr: { x: HIGHLIGHT_X[i + 1], fill: TOWER_ACCENTS[i + 1] }, ease: 'power2.inOut' },
             t + 0.1,
           )
       }
 
-      // Anchor the timeline's end at exactly 3 units so snap [0, 1/3, 2/3, 1]
-      // aligns with towers 0..3 fully landing.
-      tl.set({}, {}, 3)
+      tl.set({}, {}, transitions)
+
+      let isAnimating = false
+
+      const goToSection = (target) => {
+        if (isAnimating || target < 0 || target >= towers.length) return
+        isAnimating = true
+        const targetY = Math.min(
+          target * window.innerHeight,
+          ScrollTrigger.maxScroll(window),
+        )
+        gsap.to(window, {
+          scrollTo: { y: targetY, autoKill: false },
+          duration: 1,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            isAnimating = false
+          },
+        })
+      }
+
+      const snapTriggers = []
+      for (let i = 0; i < transitions; i++) {
+        snapTriggers.push(
+          ScrollTrigger.create({
+            start: () => i * window.innerHeight + 1,
+            end: () =>
+              Math.min(
+                (i + 1) * window.innerHeight - 1,
+                ScrollTrigger.maxScroll(window) - 1,
+              ),
+            onEnter: () => goToSection(i + 1),
+            onEnterBack: () => goToSection(i),
+            invalidateOnRefresh: true,
+          }),
+        )
+      }
+
+      const onResize = () => ScrollTrigger.refresh()
+      window.addEventListener('resize', onResize)
+
+      return () => {
+        snapTriggers.forEach((t) => t.kill())
+        window.removeEventListener('resize', onResize)
+      }
     },
     { scope: sectionRef },
   )
@@ -105,9 +128,13 @@ const TowersCarousel = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen overflow-hidden bg-white"
+      className="relative bg-white"
+      style={{ height: `${towers.length * 100}vh` }}
     >
-      <div className="relative w-full h-full">
+      <div
+        ref={stageRef}
+        className="absolute top-0 left-0 w-full h-screen overflow-hidden"
+      >
         {towers.map((tower, i) => (
           <TowerPanel
             key={tower.id}
