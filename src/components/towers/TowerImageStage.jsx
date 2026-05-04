@@ -11,7 +11,7 @@ const TowerImageStage = ({ tower }) => {
   const imageTransform = `translate(${imageOffsetX}, ${imageOffsetY}) scale(${imageScale})`
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div data-image-clip className="relative w-full h-full overflow-hidden">
       {/* Tower image — adjustments per tower come from data: imageAdjust = {
           width, objectPosition, scale, offsetX, offsetY } */}
       <img

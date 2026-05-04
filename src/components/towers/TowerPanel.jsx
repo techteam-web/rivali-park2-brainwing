@@ -14,6 +14,7 @@ const ArrowRight = () => (
 
 const StatCard = ({ label, value, accent, valueClassName = '' }) => (
   <div
+    data-stat-card
     className="flex-1 px-6 py-5 rounded-md"
     style={{ backgroundColor: `${accent}0A` }}
   >
@@ -21,6 +22,7 @@ const StatCard = ({ label, value, accent, valueClassName = '' }) => (
       {label}
     </p>
     <p
+      data-reveal
       className={`font-sans font-medium text-[26px] lg:text-[30px] 3xl:text-[36px] leading-tight text-on-light-black ${valueClassName}`}
     >
       {value}
@@ -40,10 +42,14 @@ const TowerPanel = forwardRef(({ tower }, ref) => {
           className="col-span-12 lg:col-span-5 flex flex-col justify-start gap-6 lg:gap-7 px-12 lg:px-20 3xl:px-28 pt-24 lg:pt-28 3xl:pt-36"
         >
           <div>
-            <h2 className="font-sans font-medium text-[44px] lg:text-[60px] 3xl:text-[80px] leading-none -tracking-[1px] text-on-light-black">
+            <h2
+              data-reveal
+              className="font-sans font-medium text-[44px] lg:text-[60px] 3xl:text-[80px] leading-none -tracking-[1px] text-on-light-black"
+            >
               {name}
             </h2>
             <p
+              data-reveal
               className="font-script text-[26px] lg:text-[30px] 3xl:text-[36px] mt-3.5 tracking-wider"
               style={{ color: accent }}
             >
@@ -67,22 +73,23 @@ const TowerPanel = forwardRef(({ tower }, ref) => {
                 key={i}
                 className="font-sans font-medium flex items-center gap-3 leading-none text-[14px] lg:text-[15px] 3xl:text-[17px] tracking-[1.6px] uppercase text-on-light-grey"
               >
-                <span style={{ color: accent }}>
+                <span data-feature-icon style={{ color: accent }}>
                   <FeatureIcon name={f.icon} className="w-5 h-5" />
                 </span>
-                <span>{f.text}</span>
+                <span data-reveal>{f.text}</span>
               </li>
             ))}
           </ul>
 
           <button
+            data-cta-button
             type="button"
             onClick={() => {}}
             className="font-sans self-start inline-flex items-center gap-3 px-6 py-3.5 mt-4 lg:mt-6 3xl:mt-8 text-[14px] 3xl:text-[15px] tracking-[2px] uppercase text-white"
             style={{ backgroundColor: accent }}
           >
             {/* TODO: route the construction-update CTA */}
-            <span>Construction Update</span>
+            <span data-reveal>Construction Update</span>
             <ArrowRight />
           </button>
         </div>
