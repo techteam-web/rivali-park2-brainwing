@@ -14,7 +14,7 @@ const visionaries = [
 const VisionaryCard = ({ name, role, image, className = '' }) => (
   <article
     data-visionary-card
-    className="invisible w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 xl:pb-3 2xl:pb-4 3xl:pb-5 4xl:pb-7 5xl:pb-10 overflow-hidden"
+    className="card-shine invisible w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 xl:pb-3 2xl:pb-4 3xl:pb-5 4xl:pb-7 5xl:pb-10 overflow-hidden"
   >
     <div className="aspect-square w-full overflow-hidden">
       <img
@@ -55,9 +55,9 @@ const Visionaries = forwardRef((_props, ref) => {
         gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cards, {
-          y: 28,
-          autoAlpha: 0,
-          willChange: 'transform, opacity',
+          autoAlpha: 1,
+          clipPath: 'inset(0 0 100% 0)',
+          willChange: 'clip-path',
         })
 
         const tl = gsap.timeline({
@@ -76,7 +76,12 @@ const Visionaries = forwardRef((_props, ref) => {
           )
           .to(
             cards,
-            { y: 0, autoAlpha: 1, stagger: 0.07, duration: 0.55 },
+            {
+              clipPath: 'inset(0 0 0% 0)',
+              stagger: 0.07,
+              duration: 0.7,
+              ease: 'power2.out',
+            },
             0.5,
           )
 

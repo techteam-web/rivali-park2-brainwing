@@ -9,10 +9,5 @@
 <rect data-dot="4" x="909" y="20.2665" width="13" height="13" rx="6.5" fill="#7A4833"/>
 <path data-tick="5" d="M1175.55 4.31005L1176.16 8.24072C1176.61 11.0658 1176.51 13.9491 1175.89 16.7403C1175.39 18.9768 1175.24 21.2756 1175.42 23.5594L1175.73 27.3448" stroke="#7A4833" stroke-width="4"/>
 <rect data-dot="5" x="1168" y="22.3563" width="13" height="13" rx="6.5" fill="#7A4833"/>
-<mask id="mask0_69_468" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-1244" y="15" width="4499" height="20">
-<path d="M-1243 27.7665L-925.94 18.2665L-612.632 30.7665L-254.298 23.2665L110.603 31.7665L684.286 23.2665L1326.71 32.2665L1969.14 23.2665L2611.57 32.2665L3254 27.7665" stroke="#CADDE7" stroke-width="5"/>
-</mask>
-<g mask="url(#mask0_69_468)">
-<rect data-bar="" x="240" y="-0.733521" width="940" height="57" rx="28.5" fill="#7A4833"/>
-</g>
+<path data-bar="" d="M240 29.853 L684.286 23.2665 L1180 30.215" stroke="#7A4833" stroke-width="5" fill="none"/>
 </svg>

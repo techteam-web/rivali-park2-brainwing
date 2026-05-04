@@ -16,7 +16,7 @@ const TimelineCard = ({
   <article
     data-journey-card
     data-card-pos={pos}
-    className="invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px] xl:min-h-[250px] 2xl:min-h-[290px] 3xl:min-h-[345px] 4xl:min-h-[470px] 5xl:min-h-[690px]"
+    className="card-shine invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px] xl:min-h-[250px] 2xl:min-h-[290px] 3xl:min-h-[345px] 4xl:min-h-[470px] 5xl:min-h-[690px]"
   >
     <div className="relative aspect-[260/180] overflow-hidden bg-on-light-highlight-brown shrink-0">
       <img
@@ -65,7 +65,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
         const barEl = scope.querySelector("[data-journey-bar]");
         const allCards = scope.querySelectorAll("[data-journey-card]");
 
-        const barRect = barEl ? barEl.querySelector("[data-bar]") : null;
+        const barPath = barEl ? barEl.querySelector("[data-bar]") : null;
         const allTicks = barEl ? barEl.querySelectorAll("[data-tick]") : [];
         const allDots = barEl ? barEl.querySelectorAll("[data-dot]") : [];
 
@@ -76,17 +76,15 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           dot: barEl ? barEl.querySelector(`[data-dot="${n}"]`) : null,
         }));
 
-        const barWidthAtDot = [0, 199, 474, 676, 935];
+        // Bar path spans x=240→1180 with a midpoint at x=684.29.
+        // Total path length ≈ 940. Dot x positions (247, 440, 714, 916, 1175)
+        // map to these % along the path:
+        const barPctAtDot = [0.75, 21.28, 50.43, 71.93, 99.47];
 
         gsap.set(headingEl, { autoAlpha: 0, y: 18 });
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
         gsap.set(barEl, { autoAlpha: 1 });
-        if (barRect)
-          gsap.set(barRect, {
-            transformBox: 'fill-box',
-            transformOrigin: '0% 50%',
-            scaleX: 0,
-          });
+        if (barPath) gsap.set(barPath, { drawSVG: `0% ${barPctAtDot[0]}%` });
         if (allTicks.length) gsap.set(allTicks, { drawSVG: "100% 100%" });
         if (allDots.length)
           gsap.set(allDots, {
@@ -95,9 +93,9 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             transformOrigin: "50% 50%",
           });
         gsap.set(allCards, {
-          y: 24,
-          autoAlpha: 0,
-          willChange: "transform, opacity",
+          autoAlpha: 1,
+          clipPath: "inset(0 0 100% 0)",
+          willChange: "clip-path",
         });
 
         const tl = gsap.timeline({
@@ -121,7 +119,11 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
         slots.forEach((slot, i) => {
           const t = cardStart + i * slotDur;
           if (slot.card) {
-            tl.to(slot.card, { y: 0, autoAlpha: 1, duration: 0.32 }, t);
+            tl.to(
+              slot.card,
+              { clipPath: "inset(0 0 0% 0)", duration: 0.6, ease: "power2.out" },
+              t,
+            );
           }
           if (slot.tick) {
             tl.to(
@@ -144,13 +146,12 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           }
         });
 
-        if (barRect) {
-          const barFullWidth = barWidthAtDot[barWidthAtDot.length - 1];
-          for (let i = 1; i < barWidthAtDot.length; i++) {
+        if (barPath) {
+          for (let i = 1; i < barPctAtDot.length; i++) {
             tl.to(
-              barRect,
+              barPath,
               {
-                scaleX: barWidthAtDot[i] / barFullWidth,
+                drawSVG: `0% ${barPctAtDot[i]}%`,
                 duration: slotDur,
                 ease: "none",
               },
@@ -269,12 +270,64 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           </div>
         </div>
 
-        <InlineSVG
-          src="/about/journey-bar.svg"
-          aria-hidden="true"
+        <div
           data-journey-bar
+          data-inline-svg=""
+          data-inline-svg-loaded="true"
+          aria-hidden="true"
           className="invisible block w-full lg:w-[105%] lg:-mx-[2.5%] lg:max-w-none xl:w-[110%] xl:-mx-[5%] 2xl:w-[112%] 2xl:-mx-[6%] 3xl:w-[114%] 3xl:-mx-[7%] 4xl:w-[116%] 4xl:-mx-[8%] 5xl:w-[118%] 5xl:-mx-[9%] h-auto my-10 lg:my-3 xl:my-5 2xl:my-6 3xl:my-8 4xl:my-10 5xl:my-14"
-        />
+        >
+          <svg
+            width="1440"
+            height="52"
+            viewBox="0 0 1440 52"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              data-tick="1"
+              d="M247.545 6.31005L248.162 10.2407C248.605 13.0658 248.514 15.9491 247.892 18.7403C247.394 20.9768 247.235 23.2756 247.422 25.5594L247.731 29.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="1" x="240" y="24.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="2"
+              d="M439.545 50.3128L440.162 46.3821C440.605 43.557 440.514 40.6737 439.892 37.8825C439.394 35.646 439.235 33.3472 439.422 31.0634L439.731 27.278"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="2" x="432" y="19.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="3"
+              d="M714.545 0.310052L715.162 4.24072C715.605 7.06581 715.514 9.94908 714.892 12.7403C714.394 14.9768 714.235 17.2756 714.422 19.5594L714.731 23.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="3" x="707" y="18.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="4"
+              d="M916.545 51.3128L917.162 47.3821C917.605 44.557 917.514 41.6737 916.892 38.8825C916.394 36.646 916.235 34.3472 916.422 32.0634L916.731 28.278"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="4" x="909" y="20.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="5"
+              d="M1175.55 4.31005L1176.16 8.24072C1176.61 11.0658 1176.51 13.9491 1175.89 16.7403C1175.39 18.9768 1175.24 21.2756 1175.42 23.5594L1175.73 27.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="5" x="1168" y="22.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-bar=""
+              d="M240 29.853 L684.286 23.2665 L1180 30.215"
+              stroke="#7A4833"
+              strokeWidth="5"
+              fill="none"
+            />
+          </svg>
+        </div>
 
         <div
           data-journey-bottom

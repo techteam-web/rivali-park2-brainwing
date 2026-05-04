@@ -27,7 +27,7 @@ const masters = [
 const MasterCard = ({ name, role, image, className = '' }) => (
   <article
     data-master-card
-    className="invisible w-full bg-white border border-on-light-stroke overflow-hidden"
+    className="card-shine invisible w-full bg-white border border-on-light-stroke overflow-hidden"
   >
     <div className="aspect-square w-full overflow-hidden">
       <img
@@ -78,9 +78,9 @@ const DesignedByMasters = forwardRef((_props, ref) => {
         gsap.set(buildingPaths, { drawSVG: 0 })
         gsap.set(bodyEl, { y: 18, autoAlpha: 0 })
         gsap.set(cards, {
-          y: 28,
-          autoAlpha: 0,
-          willChange: 'transform, opacity',
+          autoAlpha: 1,
+          clipPath: 'inset(0 0 100% 0)',
+          willChange: 'clip-path',
         })
 
         const tl = gsap.timeline({
@@ -111,7 +111,12 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           )
           .to(
             cards,
-            { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.55 },
+            {
+              clipPath: 'inset(0 0 0% 0)',
+              stagger: 0.08,
+              duration: 0.7,
+              ease: 'power2.out',
+            },
             0.85,
           )
 

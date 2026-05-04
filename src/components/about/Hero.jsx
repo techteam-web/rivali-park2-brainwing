@@ -42,14 +42,14 @@ const Hero = forwardRef((_props, ref) => {
         gsap.set(craneEl, { autoAlpha: 1 })
         gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
         gsap.set(bodyParas, { y: 18, autoAlpha: 0 })
-        gsap.set(heroImg, { autoAlpha: 0, scale: 0.97, transformOrigin: '50% 50%' })
+        gsap.set(heroImg, { autoAlpha: 1, clipPath: 'inset(0 100% 100% 0)' })
 
         const tl = gsap.timeline({
           paused: true,
           defaults: { ease: 'power3.out' },
         })
 
-        tl.to(heroImg, { autoAlpha: 1, scale: 1, duration: 0.75, ease: 'power2.out' }, 0)
+        tl.to(heroImg, { clipPath: 'inset(0 0% 0% 0)', duration: 1.0, ease: 'power2.out' }, 0)
 
         tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.05)
 
