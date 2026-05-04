@@ -34,21 +34,21 @@ const AboutUs = () => {
       key: 'journey',
       bg: 'bg-pastel-brown-bg',
       scale:
-        'scale-[0.7] lg:scale-[0.8] xl:scale-[0.85] 2xl:scale-[0.87] 3xl:scale-[0.93] 4xl:scale-[0.93] 5xl:scale-[0.95]',
+        'scale-[0.7] lg:scale-[0.67] xl:scale-[0.75] 2xl:scale-[0.75] 3xl:scale-[0.8] 4xl:scale-[0.8] 5xl:scale-[0.85]',
     },
     {
       Component: Visionaries,
       key: 'visionaries',
       bg: 'bg-white',
       scale:
-        'scale-[0.7] lg:scale-[0.75] xl:scale-[0.7] 2xl:scale-[0.7] 3xl:scale-[0.73] 4xl:scale-[0.73] 5xl:scale-[0.75]',
+        'scale-[0.7] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65] 3xl:scale-[0.63] 4xl:scale-[0.65] 5xl:scale-[0.7]',
     },
     {
       Component: DesignedByMasters,
       key: 'designed',
       bg: 'bg-pastel-brown-bg',
       scale:
-        'scale-[0.7] lg:scale-[0.8] xl:scale-[0.78] 2xl:scale-[0.78] 3xl:scale-[0.8] 4xl:scale-[0.8] 5xl:scale-[0.83]',
+        'scale-[0.7] lg:scale-[0.7] xl:scale-[0.68] 2xl:scale-[0.68] 3xl:scale-[0.65] 4xl:scale-[0.7] 5xl:scale-[0.73]',
     },
   ]
   const totalSlides = sections.length
