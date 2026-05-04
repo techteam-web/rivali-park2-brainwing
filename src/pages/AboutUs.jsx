@@ -5,17 +5,18 @@ import Hero from '../components/about/Hero'
 import JourneyThroughTime from '../components/about/JourneyThroughTime'
 import Visionaries from '../components/about/Visionaries'
 import DesignedByMasters from '../components/about/DesignedByMasters'
-import SectionSweeper from '../components/about/SectionSweeper'
-import { useDiagonalSweep } from '../hooks/useDiagonalSweep'
+import SectionCurtain from '../components/about/SectionCurtain'
+import { useDropCurtain } from '../hooks/useDropCurtain'
+import InlineSVG from '../components/about/InlineSVG'
 import Header from '../components/layout/Header'
 
 const AboutUs = () => {
   const containerRef = useRef(null)
   const slideRefs = useRef([])
   const sectionRefs = useRef([])
-  const sweeperRef = useRef(null)
+  const curtainRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const { playTransition, isAnimating } = useDiagonalSweep({ sweeperRef })
+  const { playTransition, isAnimating } = useDropCurtain({ curtainRef })
 
   // Per-slide scale per breakpoint and full-viewport background color.
   // `bg` paints the entire slide so colored sections (e.g. pastel brown)
@@ -74,6 +75,55 @@ const AboutUs = () => {
       sectionRefs.current[0]?.playIn()
     },
     { scope: containerRef },
+  )
+
+  // Footer SVG draw-in. Owned here (not in DesignedByMasters) because the
+  // footer is rendered at the page level. Tied directly to currentSlide so
+  // it can never drift out of sync with the visible slide. The InlineSVG is
+  // async — if its paths aren't ready yet, we poll until they are.
+  useGSAP(
+    () => {
+      const drawSel =
+        'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
+      let cancelled = false
+      const isDbm = currentSlide === sections.length - 1
+
+      const apply = () => {
+        const el = document.querySelector('[data-about-footer]')
+        if (!el || el.getAttribute('data-inline-svg-loaded') !== 'true') return false
+        const paths = el.querySelectorAll(drawSel)
+        if (!paths.length) return false
+        gsap.killTweensOf(paths)
+        if (isDbm) {
+          gsap.set(paths, { drawSVG: 0 })
+          gsap.to(paths, {
+            drawSVG: '0% 100%',
+            stagger: 0.01,
+            duration: 0.6,
+            ease: 'power1.inOut',
+            delay: 0.3,
+          })
+        } else {
+          gsap.set(paths, { drawSVG: 0 })
+        }
+        return true
+      }
+
+      if (apply()) return
+
+      const start = performance.now()
+      const tick = () => {
+        if (cancelled) return
+        if (apply() || performance.now() - start > 4000) return
+        requestAnimationFrame(tick)
+      }
+      tick()
+
+      return () => {
+        cancelled = true
+      }
+    },
+    { scope: containerRef, dependencies: [currentSlide] },
   )
 
   const goToSlide = (targetIndex) => {
@@ -187,17 +237,17 @@ const AboutUs = () => {
               </div>
             </div>
             {isLast && (
-              <img
+              <InlineSVG
                 src="/about/about-footer.svg"
-                alt=""
                 aria-hidden="true"
+                data-about-footer
                 className="absolute bottom-0 left-0 w-full h-auto opacity-50 select-none pointer-events-none"
               />
             )}
           </div>
         )
       })}
-      <SectionSweeper ref={sweeperRef} />
+      <SectionCurtain ref={curtainRef} />
     </div>
   )
 }

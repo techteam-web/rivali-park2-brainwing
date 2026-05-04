@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, aboutReveal } from "../../lib/gsap";
+import { gsap, SplitText, aboutReveal } from "../../lib/gsap";
 import InlineSVG from "./InlineSVG";
 
 const TimelineCard = ({
@@ -38,10 +38,16 @@ const TimelineCard = ({
       )}
     </div>
     <div className="flex-1 px-4 py-4 lg:px-3 lg:py-3 xl:px-3 xl:py-3 2xl:px-4 2xl:py-4 3xl:px-5 3xl:py-5 4xl:px-6 4xl:py-6 5xl:px-9 5xl:py-9">
-      <p className="font-medium text-[14px] lg:text-[11px] xl:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[21px] 5xl:text-[30px] text-on-light-black mb-1 lg:mb-0">
+      <p
+        data-card-title
+        className="font-medium text-[14px] lg:text-[11px] xl:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[21px] 5xl:text-[30px] text-on-light-black mb-1 lg:mb-0 perspective-distant"
+      >
         {year}
       </p>
-      <p className="text-[12.5px] lg:text-[10px] xl:text-[11px] 2xl:text-[13px] 3xl:text-[14px] 4xl:text-[19px] 5xl:text-[28px] text-on-light-grey leading-[1.55]">
+      <p
+        data-card-subtitle
+        className="text-[12.5px] lg:text-[10px] xl:text-[11px] 2xl:text-[13px] 3xl:text-[14px] 4xl:text-[19px] 5xl:text-[28px] text-on-light-grey leading-[1.55]"
+      >
         {caption}
       </p>
     </div>
@@ -51,6 +57,7 @@ const TimelineCard = ({
 const JourneyThroughTime = forwardRef((_props, ref) => {
   const sectionRef = useRef(null);
   const tlRef = useRef(null);
+  const splitsRef = useRef([]);
   const isReadyRef = useRef(false);
   const queuedActionRef = useRef(null);
 
@@ -84,7 +91,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
         gsap.set(headingEl, { autoAlpha: 0, y: 18 });
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
         gsap.set(barEl, { autoAlpha: 1 });
-        if (barPath) gsap.set(barPath, { drawSVG: `0% ${barPctAtDot[0]}%` });
+        if (barPath) gsap.set(barPath, { drawSVG: '0% 0%' });
         if (allTicks.length) gsap.set(allTicks, { drawSVG: "100% 100%" });
         if (allDots.length)
           gsap.set(allDots, {
@@ -96,6 +103,43 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           autoAlpha: 1,
           clipPath: "inset(0 0 100% 0)",
           willChange: "clip-path",
+        });
+
+        // Pre-split each card's title (chars) and subtitle (lines) so the text
+        // can animate in AFTER its card's clip-path reveal completes.
+        const cardSplits = slots.map((slot) => {
+          if (!slot.card) return { titleSplit: null, subtitleSplit: null };
+          const titleEl = slot.card.querySelector("[data-card-title]");
+          const subtitleEl = slot.card.querySelector("[data-card-subtitle]");
+          const titleSplit = titleEl
+            ? SplitText.create(titleEl, {
+                type: "chars,words",
+                charsClass: "card-title-char",
+              })
+            : null;
+          const subtitleSplit = subtitleEl
+            ? SplitText.create(subtitleEl, {
+                type: "lines",
+                linesClass: "card-subtitle-line",
+                mask: "lines",
+              })
+            : null;
+          return { titleSplit, subtitleSplit };
+        });
+        splitsRef.current = cardSplits;
+
+        cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
+          if (titleSplit) {
+            gsap.set(titleSplit.chars, {
+              yPercent: 100,
+              autoAlpha: 0,
+              rotateX: -50,
+              transformOrigin: "50% 100%",
+            });
+          }
+          if (subtitleSplit) {
+            gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 });
+          }
         });
 
         const tl = gsap.timeline({
@@ -116,12 +160,13 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
         const cardStart = 0.45;
         const slotDur = 0.18;
 
+        const cardClipDuration = 0.95;
         slots.forEach((slot, i) => {
           const t = cardStart + i * slotDur;
           if (slot.card) {
             tl.to(
               slot.card,
-              { clipPath: "inset(0 0 0% 0)", duration: 0.6, ease: "power2.out" },
+              { clipPath: "inset(0 0 0% 0)", duration: cardClipDuration, ease: "power2.out" },
               t,
             );
           }
@@ -142,6 +187,36 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
                 ease: "back.out(2)",
               },
               t,
+            );
+          }
+          // Title chars + subtitle lines reveal AFTER this slot's card clip-path.
+          const cardEnd = t + cardClipDuration;
+          const split = cardSplits[i];
+          if (split?.titleSplit) {
+            tl.to(
+              split.titleSplit.chars,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                rotateX: 0,
+                stagger: 0.03,
+                duration: 0.9,
+                ease: "power4.out",
+              },
+              cardEnd - 0.05,
+            );
+          }
+          if (split?.subtitleSplit) {
+            tl.to(
+              split.subtitleSplit.lines,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                stagger: 0.06,
+                duration: 0.7,
+                ease: "power3.out",
+              },
+              cardEnd + 0.15,
             );
           }
         });
@@ -187,6 +262,14 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
       });
 
       Promise.all([aboutReveal(scope), ...decodes]).then(setup);
+
+      return () => {
+        splitsRef.current.forEach(({ titleSplit, subtitleSplit }) => {
+          titleSplit?.revert?.();
+          subtitleSplit?.revert?.();
+        });
+        splitsRef.current = [];
+      };
     },
     { scope: sectionRef },
   );

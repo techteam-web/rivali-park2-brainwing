@@ -1,7 +1,8 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import { gsap, aboutReveal } from '../../lib/gsap'
+import { gsap, SplitText, aboutReveal } from '../../lib/gsap'
 import InlineSVG from './InlineSVG'
+import BuildingsSvg from './BuildingsSvg'
 
 const masters = [
   {
@@ -39,10 +40,16 @@ const MasterCard = ({ name, role, image, className = '' }) => (
       />
     </div>
     <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1 xl:px-3 xl:pt-4 xl:pb-2 2xl:px-4 2xl:pt-5 2xl:pb-3 3xl:px-5 3xl:pt-6 3xl:pb-4 4xl:px-7 4xl:pt-8 4xl:pb-5 5xl:px-10 5xl:pt-12 5xl:pb-7 bg-pastel-brown-bg border-t border-on-light-stroke">
-      <p className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6">
+      <p
+        data-card-title
+        className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6 perspective-distant"
+      >
         {name}
       </p>
-      <p className="text-[12.5px] lg:text-[10px] xl:text-[14px] 2xl:text-[17px] 3xl:text-[19px] 4xl:text-[26px] 5xl:text-[38px] text-on-light-grey text-center leading-[1.6]">
+      <p
+        data-card-subtitle
+        className="text-[12.5px] lg:text-[10px] xl:text-[14px] 2xl:text-[17px] 3xl:text-[19px] 4xl:text-[26px] 5xl:text-[38px] text-on-light-grey text-center leading-[1.6]"
+      >
         {role}
       </p>
     </div>
@@ -52,6 +59,8 @@ const MasterCard = ({ name, role, image, className = '' }) => (
 const DesignedByMasters = forwardRef((_props, ref) => {
   const sectionRef = useRef(null)
   const tlRef = useRef(null)
+  const splitsRef = useRef([])
+  const bodySplitRef = useRef(null)
   const isReadyRef = useRef(false)
   const queuedActionRef = useRef(null)
 
@@ -76,11 +85,57 @@ const DesignedByMasters = forwardRef((_props, ref) => {
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(buildingsEl, { autoAlpha: 1 })
         gsap.set(buildingPaths, { drawSVG: 0 })
-        gsap.set(bodyEl, { y: 18, autoAlpha: 0 })
         gsap.set(cards, {
           autoAlpha: 1,
           clipPath: 'inset(0 0 100% 0)',
           willChange: 'clip-path',
+        })
+
+        // Pre-split body copy into masked lines for a classy line-by-line rise.
+        const bodySplit = bodyEl
+          ? SplitText.create(bodyEl, {
+              type: 'lines',
+              linesClass: 'dbm-body-line',
+              mask: 'lines',
+            })
+          : null
+        bodySplitRef.current = bodySplit
+        if (bodySplit) {
+          gsap.set(bodyEl, { autoAlpha: 1 })
+          gsap.set(bodySplit.lines, { yPercent: 100, autoAlpha: 0 })
+        }
+
+        // Pre-split each card's title (chars) and subtitle (lines) so the text
+        // can animate in AFTER its card's clip-path reveal completes.
+        const cardSplits = Array.from(cards).map((card) => {
+          const titleEl = card.querySelector('[data-card-title]')
+          const subtitleEl = card.querySelector('[data-card-subtitle]')
+          const titleSplit = titleEl
+            ? SplitText.create(titleEl, { type: 'chars,words', charsClass: 'card-title-char' })
+            : null
+          const subtitleSplit = subtitleEl
+            ? SplitText.create(subtitleEl, {
+                type: 'lines',
+                linesClass: 'card-subtitle-line',
+                mask: 'lines',
+              })
+            : null
+          return { titleSplit, subtitleSplit }
+        })
+        splitsRef.current = cardSplits
+
+        cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
+          if (titleSplit) {
+            gsap.set(titleSplit.chars, {
+              yPercent: 100,
+              autoAlpha: 0,
+              rotateX: -50,
+              transformOrigin: '50% 100%',
+            })
+          }
+          if (subtitleSplit) {
+            gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 })
+          }
         })
 
         const tl = gsap.timeline({
@@ -98,7 +153,19 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power1.inOut' },
           0.3,
         )
-          .to(bodyEl, { y: 0, autoAlpha: 1, duration: 0.5 }, 0.45)
+          .to(
+            bodySplit ? bodySplit.lines : bodyEl,
+            bodySplit
+              ? {
+                  yPercent: 0,
+                  autoAlpha: 1,
+                  stagger: 0.09,
+                  duration: 0.85,
+                  ease: 'power3.out',
+                }
+              : { y: 0, autoAlpha: 1, duration: 0.5 },
+            0.45,
+          )
           .to(
             buildingPaths,
             {
@@ -114,11 +181,47 @@ const DesignedByMasters = forwardRef((_props, ref) => {
             {
               clipPath: 'inset(0 0 0% 0)',
               stagger: 0.08,
-              duration: 0.7,
+              duration: 1.0,
               ease: 'power2.out',
             },
             0.85,
           )
+
+        // Per-card text reveal AFTER each card's clip-path completes.
+        // card[i] starts at 0.85 + i*0.08, finishes at start + 1.0.
+        const cardStart = 0.85
+        const cardStagger = 0.08
+        const cardDuration = 1.0
+        cardSplits.forEach(({ titleSplit, subtitleSplit }, i) => {
+          const cardEnd = cardStart + i * cardStagger + cardDuration
+          if (titleSplit) {
+            tl.to(
+              titleSplit.chars,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                rotateX: 0,
+                stagger: 0.03,
+                duration: 0.9,
+                ease: 'power4.out',
+              },
+              cardEnd - 0.05,
+            )
+          }
+          if (subtitleSplit) {
+            tl.to(
+              subtitleSplit.lines,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                stagger: 0.06,
+                duration: 0.7,
+                ease: 'power3.out',
+              },
+              cardEnd + 0.15,
+            )
+          }
+        })
 
         tlRef.current = tl
         isReadyRef.current = true
@@ -147,6 +250,16 @@ const DesignedByMasters = forwardRef((_props, ref) => {
       })
 
       Promise.all([aboutReveal(scope), ...decodes]).then(setup)
+
+      return () => {
+        splitsRef.current.forEach(({ titleSplit, subtitleSplit }) => {
+          titleSplit?.revert?.()
+          subtitleSplit?.revert?.()
+        })
+        splitsRef.current = []
+        bodySplitRef.current?.revert?.()
+        bodySplitRef.current = null
+      }
     },
     { scope: sectionRef },
   )
@@ -206,12 +319,15 @@ const DesignedByMasters = forwardRef((_props, ref) => {
             </p>
           </div>
           <div className="col-span-12 lg:col-span-5 flex lg:justify-end">
-            <InlineSVG
-              src="/about/designed-clouds-buildings.svg"
-              aria-hidden="true"
+            <div
               data-dbm-buildings
+              data-inline-svg=""
+              data-inline-svg-loaded="true"
+              aria-hidden="true"
               className="invisible block w-full max-w-105 lg:max-w-[260px] xl:max-w-[400px] 2xl:max-w-[480px] 3xl:max-w-[580px] 4xl:max-w-[800px] 5xl:max-w-[1180px] h-auto"
-            />
+            >
+              <BuildingsSvg />
+            </div>
           </div>
         </div>
 

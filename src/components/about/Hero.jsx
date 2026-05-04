@@ -8,19 +8,35 @@ const Hero = forwardRef((_props, ref) => {
   const tlRef = useRef(null)
   const isReadyRef = useRef(false)
   const queuedActionRef = useRef(null)
+  const buildAndPlayRef = useRef(null)
 
   useGSAP(
-    (_context, contextSafe) => {
+    () => {
       const scope = sectionRef.current
       if (!scope) return
 
-      const setup = contextSafe(() => {
-        const headingEl = scope.querySelector('[data-hero-heading]')
-        const cursiveEl = scope.querySelector('[data-hero-cursive]')
-        const bodyParas = scope.querySelectorAll('[data-hero-body] p')
-        const heroImg = scope.querySelector('[data-hero-image]')
-        const cloudEl = scope.querySelector('[data-hero-cloud-tree]')
-        const craneEl = scope.querySelector('[data-hero-crane]')
+      // Rebuild the entire timeline from scratch every time we want to play.
+      // This is the only reliable way to avoid stale tween state, leftover
+      // reversed flags, plugin caches (drawSVG/clipPath), or DOM nodes that
+      // may have been replaced when InlineSVG re-renders. Each call freshly
+      // re-queries the DOM, applies gsap.set initial state, and creates a new
+      // GSAP timeline that plays forward from 0.
+      const buildAndPlay = () => {
+        if (!sectionRef.current) return
+        const s = sectionRef.current
+
+        // Tear down anything previously hooked up so we start clean.
+        if (tlRef.current) {
+          tlRef.current.kill()
+          tlRef.current = null
+        }
+
+        const headingEl = s.querySelector('[data-hero-heading]')
+        const cursiveEl = s.querySelector('[data-hero-cursive]')
+        const bodyParas = s.querySelectorAll('[data-hero-body] p')
+        const heroImg = s.querySelector('[data-hero-image]')
+        const cloudEl = s.querySelector('[data-hero-cloud-tree]')
+        const craneEl = s.querySelector('[data-hero-crane]')
 
         const drawSel =
           'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
@@ -35,35 +51,45 @@ const Hero = forwardRef((_props, ref) => {
           }
         })
 
+        gsap.killTweensOf(s)
+        gsap.set(s, { autoAlpha: 1 })
         gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cloudEl, { autoAlpha: 1 })
         gsap.set(cloudPaths, { drawSVG: 0 })
-        gsap.set(craneEl, { autoAlpha: 1 })
+        // craneEl starts hidden via autoAlpha (not just drawSVG: 0 on the
+        // inner paths). 18 of the crane's paths are filled (fill="#7A4833"),
+        // so drawSVG alone wouldn't hide them — fillOpacity: 0 is needed too,
+        // and that pair doesn't reset cleanly on re-entry after the timeline
+        // has already played once. The crane is also the only Hero element
+        // with no clipped ancestor and no autoAlpha gate, so any leak shows.
+        // Treating the container like headingEl (autoAlpha 0 → 1) is the
+        // robust fix: even if inner-path resets misfire, the container hides
+        // them. See peers: heroImg/cursive use clipPath, heading/body use
+        // autoAlpha; cloud is inside heroImg's clipPath so it's covered.
+        gsap.set(craneEl, { autoAlpha: 0 })
         gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
         gsap.set(bodyParas, { y: 18, autoAlpha: 0 })
         gsap.set(heroImg, { autoAlpha: 1, clipPath: 'inset(0 100% 100% 0)' })
 
         const tl = gsap.timeline({
-          paused: true,
           defaults: { ease: 'power3.out' },
         })
 
-        tl.to(heroImg, { clipPath: 'inset(0 0% 0% 0)', duration: 1.0, ease: 'power2.out' }, 0)
-
-        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.05)
-
-        tl.to(
-          cursiveEl,
-          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
-          0.45,
-        )
+        tl.to(heroImg, { clipPath: 'inset(0 0% 0% 0)', duration: 1.4, ease: 'power2.out' }, 0)
+          .to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.05)
+          .to(
+            cursiveEl,
+            { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
+            0.45,
+          )
           .to(bodyParas, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.45 }, 0.55)
           .to(
             cloudPaths,
             { drawSVG: '0% 100%', stagger: 0.025, duration: 0.55, ease: 'power1.inOut' },
             0.7,
           )
+          .to(craneEl, { autoAlpha: 1, duration: 0.25, ease: 'power2.out' }, 0.95)
           .to(
             cranePaths,
             {
@@ -77,43 +103,44 @@ const Hero = forwardRef((_props, ref) => {
           )
 
         tlRef.current = tl
-        isReadyRef.current = true
+      }
 
-        const queued = queuedActionRef.current
-        queuedActionRef.current = null
-        if (queued === 'in') {
-          gsap.set(scope, { autoAlpha: 1 })
-          tl.timeScale(1).play(0)
-        } else if (queued === 'out') {
-          tl.timeScale(2.5).reverse()
+      buildAndPlayRef.current = buildAndPlay
+
+      aboutReveal(scope).then(() => {
+        isReadyRef.current = true
+        if (queuedActionRef.current === 'in') {
+          queuedActionRef.current = null
+          buildAndPlay()
+        } else {
+          queuedActionRef.current = null
         }
       })
-
-      aboutReveal(scope).then(setup)
     },
     { scope: sectionRef },
   )
 
   useImperativeHandle(ref, () => ({
+    // prepare puts Hero in a "ready to animate" visual state: section visible,
+    // all child elements snapped to their initial pre-animation values. We do
+    // this by killing the previous timeline and re-running the gsap.set lines
+    // (reusing buildAndPlay would also play; we pause(0) immediately after).
     prepare: () => {
-      if (!isReadyRef.current || !tlRef.current) return
-      gsap.set(sectionRef.current, { autoAlpha: 1 })
-      tlRef.current.timeScale(1).pause(0)
+      if (!isReadyRef.current || !buildAndPlayRef.current) return
+      buildAndPlayRef.current()
+      if (tlRef.current) tlRef.current.pause(0)
     },
     playIn: () => {
-      if (!isReadyRef.current || !tlRef.current) {
+      if (!isReadyRef.current || !buildAndPlayRef.current) {
         queuedActionRef.current = 'in'
         return
       }
-      gsap.set(sectionRef.current, { autoAlpha: 1 })
-      tlRef.current.timeScale(1).play(0)
+      buildAndPlayRef.current()
+      // tl is freshly created and not paused → plays forward from 0.
     },
     playOut: () => {
-      if (!isReadyRef.current || !tlRef.current) {
-        queuedActionRef.current = 'out'
-        return
-      }
-      tlRef.current.timeScale(2.5).reverse()
+      // Just fade the section. The next prepare()/playIn() rebuilds the
+      // timeline from scratch, so we don't need to reverse anything.
       gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
     },
   }))
