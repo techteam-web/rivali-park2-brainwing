@@ -1,5 +1,4 @@
 import { forwardRef } from 'react'
-import TowerImageStage from './TowerImageStage'
 import FeatureIcon from './FeatureIcon'
 
 const ArrowRight = () => (
@@ -92,16 +91,6 @@ const TowerPanel = forwardRef(({ tower }, ref) => {
             <span data-reveal>Construction Update</span>
             <ArrowRight />
           </button>
-        </div>
-
-        {/* Right column — image stage, ~7/12 ≈ 58%, touches right viewport edge */}
-        <div
-          data-image-stage
-          className="col-span-12 lg:col-span-7 h-full"
-        >
-          <div className="relative w-full h-full min-h-[460px]">
-            <TowerImageStage tower={tower} />
-          </div>
         </div>
       </div>
     </div>

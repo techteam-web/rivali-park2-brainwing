@@ -1,19 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../gsap/Gsapconfig'
 import { towers, TOWER_ACCENTS } from '../../data/towers'
 import TowerPanel from './TowerPanel'
 import TowerProgress from './TowerProgress'
+import TowersCanvas from '../../three/TowersCanvas'
+import TowerDecorations from './TowerDecorations'
+import RaggedyEdge from './RaggedyEdge'
 
 const HIGHLIGHT_X = [1.73389, 55.5, 109.25, 163]
-
-// Skyleap (i=0): R→L, Moonrise (i=1): B→T, Stargaze (i=2): R→L, Sunburst (i=3): B→T
-const CLIP_CLOSED = [
-  'inset(0% 100% 0% 0%)',
-  'inset(100% 0% 0% 0%)',
-  'inset(0% 100% 0% 0%)',
-  'inset(100% 0% 0% 0%)',
-]
-const CLIP_OPEN = 'inset(0% 0% 0% 0%)'
 
 const SCROLL_PER_TRANSITION = 4.0 // multiplier of viewport height per panel transition
 
@@ -22,6 +16,8 @@ const TowersCarousel = () => {
   const stageRef = useRef(null)
   const panelRefs = useRef([])
   const progressHighlightRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const activeIndexRef = useRef(0)
 
   useEffect(() => {
     const body = document.body
@@ -43,7 +39,6 @@ const TowersCarousel = () => {
   useGSAP(
     (_context, contextSafe) => {
       const panels = panelRefs.current
-      const clips = panels.map((p) => p.querySelector('[data-image-clip]'))
 
       const heroFeatureIcons = Array.from(
         panels[0].querySelectorAll('[data-feature-icon]'),
@@ -56,11 +51,6 @@ const TowersCarousel = () => {
       gsap.set(progressHighlightRef.current, {
         attr: { x: HIGHLIGHT_X[0], fill: TOWER_ACCENTS[0] },
       })
-
-      gsap.set(clips[0], { clipPath: CLIP_OPEN })
-      clips.slice(1).forEach((el, idx) =>
-        gsap.set(el, { clipPath: CLIP_CLOSED[idx + 1] }),
-      )
 
       gsap.set(heroFeatureIcons, { color: TOWER_ACCENTS[0] })
       gsap.set(heroCtaButton, { backgroundColor: TOWER_ACCENTS[0] })
@@ -82,6 +72,10 @@ const TowersCarousel = () => {
           ease: 'power2.inOut',
           onComplete: () => {
             isAnimating = false
+            if (activeIndexRef.current !== target) {
+              activeIndexRef.current = target
+              setActiveIndex(target)
+            }
           },
         })
       }
@@ -147,8 +141,6 @@ const TowersCarousel = () => {
 
           tl.to(panelLines[i + 1],
                 { yPercent: 0, duration: 0.15, stagger: { each: 0.04, amount: 0.1 }, ease: 'expo.out' }, t + 0.75)
-            .to(clips[i + 1],
-                { clipPath: CLIP_OPEN, duration: 1.0, ease: 'power3.inOut' }, t)
         }
 
         tl.set({}, {}, transitions)
@@ -208,7 +200,17 @@ const TowersCarousel = () => {
           />
         ))}
 
-        <div className="absolute bottom-10 right-10 lg:right-16 3xl:right-24 z-10 pointer-events-none">
+        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-0">
+          <TowersCanvas activeIndex={activeIndex} />
+        </div>
+        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-10 pointer-events-none">
+          <TowerDecorations tower={towers[activeIndex]} />
+        </div>
+        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-20 pointer-events-none">
+          <RaggedyEdge />
+        </div>
+
+        <div className="absolute bottom-10 right-10 lg:right-16 3xl:right-24 z-30 pointer-events-none">
           <TowerProgress
             ref={progressHighlightRef}
             initialAccent={TOWER_ACCENTS[0]}

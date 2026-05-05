@@ -15,6 +15,7 @@ export const towers = [
       { icon: 'balconies', text: 'EXPANSIVE BALCONIES*' },
     ],
     image: '/towers/skyleap/Skyleap.webp',
+    depth: '/towers/skyleap/Skyleap.png',
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',
@@ -23,9 +24,9 @@ export const towers = [
       offsetY: '0',
     },
     decorations: [
-      { src: '/towers/skyleap/cloud.svg',  className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
-      { src: '/towers/skyleap/cloud2.svg', className: 'absolute top-[40%] right-[2%]  w-[25%]' },
-      { src: '/towers/skyleap/bird.svg',   className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
+      { src: '/towers/skyleap/cloud.svg',  depth: 0.3, className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
+      { src: '/towers/skyleap/cloud2.svg', depth: 0.4, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
+      { src: '/towers/skyleap/bird.svg',   depth: 0.7, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
     ],
   },
   {
@@ -44,6 +45,7 @@ export const towers = [
       { icon: 'balconies', text: 'EXPANSIVE BALCONIES*' },
     ],
     image: '/towers/moonrise/Moonrise.webp',
+    depth: '/towers/moonrise/Moonrise.png',
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',
@@ -52,8 +54,8 @@ export const towers = [
       offsetY: '0',
     },
     decorations: [
-      { src: '/towers/moonrise/clouds.svg', className: 'absolute top-[8%]  left-[6%] w-[40%]' },
-      { src: '/towers/moonrise/bird.svg',   className: 'absolute top-[64%] right-[12%] w-[10%]'  },
+      { src: '/towers/moonrise/clouds.svg', depth: 0.3, className: 'absolute top-[8%]  left-[6%] w-[40%]' },
+      { src: '/towers/moonrise/bird.svg',   depth: 0.7, className: 'absolute top-[64%] right-[12%] w-[10%]'  },
     ],
   },
   {
@@ -72,6 +74,7 @@ export const towers = [
       { icon: 'balconies', text: 'EXPANSIVE BALCONIES*' },
     ],
     image: '/towers/stargaze/Stargaze.webp',
+    depth: '/towers/stargaze/Stargaze.png',
     imageAdjust: {
       width: '90%',
       objectPosition: 'top',
@@ -80,9 +83,9 @@ export const towers = [
       offsetY: '0',
     },
     decorations: [
-      { src: '/towers/stargaze/leaves-left.svg',  className: 'absolute top-[2%]  left-[2%]  w-[22%]' },
-      { src: '/towers/stargaze/leaves-right.svg', className: 'absolute top-[6%]  right-[2%] w-[14%]' },
-      { src: '/towers/stargaze/bird.svg',         className: 'absolute top-[28%] left-[28%] w-[10%]' },
+      { src: '/towers/stargaze/leaves-left.svg',  depth: 0.9, className: 'absolute top-[2%]  left-[2%]  w-[22%]' },
+      { src: '/towers/stargaze/leaves-right.svg', depth: 0.9, className: 'absolute top-[6%]  right-[2%] w-[14%]' },
+      { src: '/towers/stargaze/bird.svg',         depth: 0.6, className: 'absolute top-[28%] left-[28%] w-[10%]' },
     ],
   },
   {
@@ -101,6 +104,7 @@ export const towers = [
       { icon: 'balconies', text: 'EXPANSIVE BALCONIES*' },
     ],
     image: '/towers/sunburst/Sunburst.webp',
+    depth: '/towers/sunburst/Sunburst.png',
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',
@@ -109,10 +113,10 @@ export const towers = [
       offsetY: '0',
     },
     decorations: [
-      { src: '/towers/sunburst/cloud.svg', className: 'absolute top-[8%]    left-[14%]  w-[18%]' },
-      { src: '/towers/sunburst/bird1.svg', className: 'absolute top-[16%]   right-[18%] w-[6%]'  },
-      { src: '/towers/sunburst/bird2.svg', className: 'absolute top-[24%]   right-[10%] w-[5%]'  },
-      { src: '/towers/sunburst/tree.svg',  className: 'absolute bottom-[8%] right-[2%]  w-[20%]' },
+      { src: '/towers/sunburst/cloud.svg', depth: 0.3,  className: 'absolute top-[8%]    left-[14%]  w-[18%]' },
+      { src: '/towers/sunburst/bird1.svg', depth: 0.7,  className: 'absolute top-[16%]   right-[18%] w-[6%]'  },
+      { src: '/towers/sunburst/bird2.svg', depth: 0.7,  className: 'absolute top-[24%]   right-[10%] w-[5%]'  },
+      { src: '/towers/sunburst/tree.svg',  depth: 0.95, className: 'absolute bottom-[8%] right-[2%]  w-[20%]' },
     ],
   },
 ]
