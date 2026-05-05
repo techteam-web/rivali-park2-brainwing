@@ -14,6 +14,7 @@ const visionaries = [
 const VisionaryCard = ({ name, role, image, className = '' }) => (
   <article
     data-visionary-card
+    data-fade-out="decor"
     className="card-shine invisible w-full bg-pastel-brown-bg border border-on-light-stroke pb-3 lg:pb-2 xl:pb-3 2xl:pb-4 3xl:pb-5 4xl:pb-7 5xl:pb-10 overflow-hidden"
   >
     <div className="aspect-square w-full overflow-hidden">
@@ -214,13 +215,11 @@ const Visionaries = forwardRef((_props, ref) => {
       gsap.set(sectionRef.current, { autoAlpha: 1 })
       tlRef.current.timeScale(1).play(0)
     },
-    playOut: () => {
-      if (!isReadyRef.current || !tlRef.current) {
-        queuedActionRef.current = 'out'
-        return
-      }
-      tlRef.current.timeScale(2.5).reverse()
-      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    // stop freezes the intro timeline at its current position so its tweens
+    // stop fighting the exit choreography. Tween references are preserved so
+    // pause(0) on the next visit can rewind cleanly.
+    stop: () => {
+      if (tlRef.current) tlRef.current.pause()
     },
   }))
 
@@ -232,6 +231,7 @@ const Visionaries = forwardRef((_props, ref) => {
       <div className="text-center mb-14 lg:mb-10 xl:mb-14 2xl:mb-16 3xl:mb-20 4xl:mb-28 5xl:mb-44">
         <h2
           data-visionaries-heading
+          data-fade-out="text"
           className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[50px] 2xl:text-[62px] 3xl:text-[78px] 4xl:text-[108px] 5xl:text-[156px] leading-[1.2] -tracking-[1px] text-on-light-black"
         >
           The visionaries
@@ -240,6 +240,8 @@ const Visionaries = forwardRef((_props, ref) => {
           src="/about/led-by-legacy.svg"
           aria-label="led by legacy, fuelled by foresight"
           data-visionaries-cursive
+          data-fade-out="decor"
+          data-clip-reverse
           className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[22rem] xl:w-[30rem] 2xl:w-[37rem] 3xl:w-[44rem] 4xl:w-[60rem] 5xl:w-[90rem]"
         />
       </div>

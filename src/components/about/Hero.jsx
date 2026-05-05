@@ -76,6 +76,13 @@ const Hero = forwardRef((_props, ref) => {
           defaults: { ease: 'power3.out' },
         })
 
+        // fromTo for DrawSVG paths is intentional: the gsap.set lines above
+        // can fail to reset drawSVG/fillOpacity on re-entry (a known
+        // DrawSVGPlugin caching quirk noted in the comment near the crane
+        // gsap.set). Without fromTo, the tween records whatever stale value
+        // the plugin holds — typically '0% 100%' from the previous intro —
+        // and animates 100→100 (no visible draw). fromTo forces the from-state
+        // at tween fire time, guaranteeing every re-entry animates fresh.
         tl.to(heroImg, { clipPath: 'inset(0 0% 0% 0)', duration: 1.4, ease: 'power2.out' }, 0)
           .to(headingEl, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.05)
           .to(
@@ -84,14 +91,21 @@ const Hero = forwardRef((_props, ref) => {
             0.45,
           )
           .to(bodyParas, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.45 }, 0.55)
-          .to(
+          .fromTo(
             cloudPaths,
+            { drawSVG: 0 },
             { drawSVG: '0% 100%', stagger: 0.025, duration: 0.55, ease: 'power1.inOut' },
             0.7,
           )
-          .to(craneEl, { autoAlpha: 1, duration: 0.25, ease: 'power2.out' }, 0.95)
-          .to(
+          .fromTo(
+            craneEl,
+            { autoAlpha: 0 },
+            { autoAlpha: 1, duration: 0.25, ease: 'power2.out' },
+            0.95,
+          )
+          .fromTo(
             cranePaths,
+            { drawSVG: 0, fillOpacity: 0 },
             {
               drawSVG: '0% 100%',
               fillOpacity: 1,
@@ -138,10 +152,13 @@ const Hero = forwardRef((_props, ref) => {
       buildAndPlayRef.current()
       // tl is freshly created and not paused → plays forward from 0.
     },
-    playOut: () => {
-      // Just fade the section. The next prepare()/playIn() rebuilds the
-      // timeline from scratch, so we don't need to reverse anything.
-      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    // stop freezes the in-flight intro timeline at its current position.
+    // Called by the controller at the start of an exit so the slide's intro
+    // tweens don't keep updating elements while exit choreography runs and
+    // crossfade hides the slide. Pausing (rather than killing) preserves the
+    // tween references so pause(0) on the next visit can rewind cleanly.
+    stop: () => {
+      if (tlRef.current) tlRef.current.pause()
     },
   }))
 
@@ -153,6 +170,7 @@ const Hero = forwardRef((_props, ref) => {
             <div>
               <h2
                 data-hero-heading
+                data-fade-out="text"
                 className="invisible font-normal text-[40px] lg:text-[34px] xl:text-[46px] 2xl:text-[54px] 3xl:text-[67px] 4xl:text-[92px] 5xl:text-[138px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
               >
                 A Quiet Evolution
@@ -161,10 +179,13 @@ const Hero = forwardRef((_props, ref) => {
                 src="/about/powering-india.svg"
                 aria-label="powering India to building homes"
                 data-hero-cursive
+                data-fade-out="decor"
+                data-clip-reverse
                 className="invisible mt-3 lg:mt-1 xl:mt-2 3xl:mt-3 4xl:mt-4 5xl:mt-6 h-[28px] lg:h-[32px] xl:h-[40px] 2xl:h-[44px] 3xl:h-[55px] 4xl:h-[71px] 5xl:h-[120px] w-auto lg:w-[20rem] xl:w-[27.5rem] 2xl:w-[32rem] 3xl:w-[40.5rem] 4xl:w-[56rem] 5xl:w-[83rem]"
               />
               <div
                 data-hero-body
+                data-fade-out="text"
                 className="mt-10 lg:mt-5 xl:mt-6 2xl:mt-7 3xl:mt-9 4xl:mt-12 5xl:mt-16 space-y-5 lg:space-y-3 xl:space-y-4 2xl:space-y-5 3xl:space-y-6 4xl:space-y-7 5xl:space-y-10 text-on-light-black/85 text-[13px] lg:text-[11.5px] xl:text-[16px] 2xl:text-[19px] 3xl:text-[23px] 4xl:text-[31px] 5xl:text-[48px] leading-[1.85] max-w-[500px] 2xl:max-w-[600px] 3xl:max-w-[700px] 4xl:max-w-[1260px] 5xl:max-w-[1480px]"
               >
                 <p>
@@ -181,6 +202,8 @@ const Hero = forwardRef((_props, ref) => {
               src="/about/crane-about-hero.svg"
               aria-hidden="true"
               data-hero-crane
+              data-fade-out="decor"
+              data-undraw
               className="invisible mt-12 lg:mt-8 xl:mt-10 2xl:mt-12 3xl:mt-16 4xl:mt-20 5xl:mt-28 w-[400px] lg:w-[260px] xl:w-[350px] 2xl:w-[430px] 3xl:w-[520px] 4xl:w-[720px] 5xl:w-[1080px] max-w-full h-auto"
             />
           </div>
@@ -188,6 +211,7 @@ const Hero = forwardRef((_props, ref) => {
           <div className="col-span-12 lg:col-span-7 lg:flex lg:justify-end">
             <div
               data-hero-image
+              data-fade-out="image"
               className="relative w-full lg:w-[400px] xl:w-[560px] 2xl:w-[700px] 3xl:w-[860px] 4xl:w-[1140px] 5xl:w-[1700px] aspect-[611/404] overflow-hidden self-start"
             >
               <img
@@ -199,6 +223,7 @@ const Hero = forwardRef((_props, ref) => {
                 src="/about/about-hero-cloud-tree.svg"
                 aria-hidden="true"
                 data-hero-cloud-tree
+                data-undraw
                 className="invisible absolute inset-x-0 top-[7%] w-[91.5%] h-auto pointer-events-none select-none"
               />
             </div>

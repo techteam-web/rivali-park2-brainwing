@@ -5,8 +5,7 @@ import Hero from '../components/about/Hero'
 import JourneyThroughTime from '../components/about/JourneyThroughTime'
 import Visionaries from '../components/about/Visionaries'
 import DesignedByMasters from '../components/about/DesignedByMasters'
-import SectionCurtain from '../components/about/SectionCurtain'
-import { useDropCurtain } from '../hooks/useDropCurtain'
+import { useSlideTransition } from '../hooks/useSlideTransition'
 import InlineSVG from '../components/about/InlineSVG'
 import Header from '../components/layout/Header'
 
@@ -14,9 +13,8 @@ const AboutUs = () => {
   const containerRef = useRef(null)
   const slideRefs = useRef([])
   const sectionRefs = useRef([])
-  const curtainRef = useRef(null)
+  const headerRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const { playTransition, isAnimating } = useDropCurtain({ curtainRef })
 
   // Per-slide scale per breakpoint and full-viewport background color.
   // `bg` paints the entire slide so colored sections (e.g. pastel brown)
@@ -53,29 +51,17 @@ const AboutUs = () => {
   ]
   const totalSlides = sections.length
 
-  // Initial setup: only slide 0 is visible. Other slides sit hidden and
-  // disabled until the sweeper transition reveals them.
-  useGSAP(
-    () => {
-      slideRefs.current.forEach((slide, index) => {
-        if (!slide) return
-        const isFirst = index === 0
-        gsap.set(slide, {
-          y: 0,
-          opacity: isFirst ? 1 : 0,
-          zIndex: isFirst ? 1 : 0,
-          pointerEvents: isFirst ? 'auto' : 'none',
-        })
-        slide.setAttribute('aria-hidden', isFirst ? 'false' : 'true')
-      })
+  const { attachTriggers } = useSlideTransition({
+    totalSlides,
+    slideRefs,
+    sectionRefs,
+    headerRef,
+    onSwap: setCurrentSlide,
+    initialIndex: 0,
+    wrap: true,
+  })
 
-      // Trigger slide 0's reveal animation. Section may not yet have built its
-      // timeline (it waits on aboutReveal + image decode). The section queues
-      // the action and runs it once ready.
-      sectionRefs.current[0]?.playIn()
-    },
-    { scope: containerRef },
-  )
+  useEffect(() => attachTriggers(containerRef), [attachTriggers])
 
   // Footer SVG draw-in. Owned here (not in DesignedByMasters) because the
   // footer is rendered at the page level. Tied directly to currentSlide so
@@ -126,98 +112,14 @@ const AboutUs = () => {
     { scope: containerRef, dependencies: [currentSlide] },
   )
 
-  const goToSlide = (targetIndex) => {
-    if (isAnimating()) return
-    let toIdx = targetIndex
-    if (toIdx < 0) toIdx = totalSlides - 1
-    if (toIdx >= totalSlides) toIdx = 0
-    if (toIdx === currentSlide) return
-
-    const fromIdx = currentSlide
-    const isForward = toIdx === (fromIdx + 1) % totalSlides
-    const direction = isForward ? 'forward' : 'backward'
-
-    playTransition({
-      fromIdx,
-      toIdx,
-      direction,
-      fromSlide: slideRefs.current[fromIdx],
-      toSlide: slideRefs.current[toIdx],
-      fromSection: sectionRefs.current[fromIdx],
-      toSection: sectionRefs.current[toIdx],
-      onSwap: (idx) => setCurrentSlide(idx),
-    })
-  }
-
-  // Wheel navigation
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-    let wheelLock = false
-    const handleWheel = (e) => {
-      if (isAnimating() || wheelLock) return
-      wheelLock = true
-      setTimeout(() => {
-        wheelLock = false
-      }, 100)
-      if (e.deltaY > 0) {
-        goToSlide(currentSlide + 1)
-      } else if (e.deltaY < 0) {
-        goToSlide(currentSlide - 1)
-      }
-    }
-    container.addEventListener('wheel', handleWheel, { passive: true })
-    return () => container.removeEventListener('wheel', handleWheel)
-  }, [currentSlide])
-
-  // Touch navigation
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-    let touchStartY = 0
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY
-    }
-    const handleTouchEnd = (e) => {
-      if (isAnimating()) return
-      const touchEndY = e.changedTouches[0].clientY
-      const diff = touchStartY - touchEndY
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) goToSlide(currentSlide + 1)
-        else goToSlide(currentSlide - 1)
-      }
-    }
-    container.addEventListener('touchstart', handleTouchStart, { passive: true })
-    container.addEventListener('touchend', handleTouchEnd, { passive: true })
-    return () => {
-      container.removeEventListener('touchstart', handleTouchStart)
-      container.removeEventListener('touchend', handleTouchEnd)
-    }
-  }, [currentSlide])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (isAnimating()) return
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') {
-        goToSlide(currentSlide + 1)
-      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        goToSlide(currentSlide - 1)
-      }
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [currentSlide])
-
   return (
     <div
       ref={containerRef}
       className="h-full w-full overflow-hidden relative"
     >
       <div
-        className={`absolute top-0 left-0 right-0 z-50 transition-opacity duration-500 ${
-          currentSlide === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        ref={headerRef}
+        className="absolute top-0 left-0 right-0 z-50"
       >
         <Header />
       </div>
@@ -241,13 +143,13 @@ const AboutUs = () => {
                 src="/about/about-footer.svg"
                 aria-hidden="true"
                 data-about-footer
+                data-undraw
                 className="absolute bottom-0 left-0 w-full h-auto opacity-50 select-none pointer-events-none"
               />
             )}
           </div>
         )
       })}
-      <SectionCurtain ref={curtainRef} />
     </div>
   )
 }

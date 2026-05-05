@@ -28,6 +28,7 @@ const masters = [
 const MasterCard = ({ name, role, image, className = '' }) => (
   <article
     data-master-card
+    data-fade-out="decor"
     className="card-shine invisible w-full bg-white border border-on-light-stroke overflow-hidden"
   >
     <div className="aspect-square w-full overflow-hidden">
@@ -278,13 +279,11 @@ const DesignedByMasters = forwardRef((_props, ref) => {
       gsap.set(sectionRef.current, { autoAlpha: 1 })
       tlRef.current.timeScale(1).play(0)
     },
-    playOut: () => {
-      if (!isReadyRef.current || !tlRef.current) {
-        queuedActionRef.current = 'out'
-        return
-      }
-      tlRef.current.timeScale(2.5).reverse()
-      gsap.to(sectionRef.current, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' })
+    // stop freezes the intro timeline at its current position so its tweens
+    // stop fighting the exit choreography. Tween references are preserved so
+    // pause(0) on the next visit can rewind cleanly.
+    stop: () => {
+      if (tlRef.current) tlRef.current.pause()
     },
   }))
 
@@ -298,6 +297,7 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           <div className="col-span-12 lg:col-span-7">
             <h2
               data-dbm-heading
+              data-fade-out="text"
               className="invisible font-normal text-[36px] lg:text-[34px] xl:text-[42px] 2xl:text-[47.7px] 3xl:text-[58.5px] 4xl:text-[77px] 5xl:text-[108px] leading-[1.16] -tracking-[0.5px] text-on-light-black"
             >
               Designed By Masters
@@ -306,10 +306,13 @@ const DesignedByMasters = forwardRef((_props, ref) => {
               src="/about/inspired-by-life.svg"
               aria-label="inspired by life"
               data-dbm-cursive
+              data-fade-out="decor"
+              data-clip-reverse
               className="invisible mt-3 h-6.5 lg:h-5.5 xl:h-8 2xl:h-9 3xl:h-11 4xl:h-15 5xl:h-22 w-auto"
             />
             <p
               data-dbm-body
+              data-fade-out="text"
               className="text-on-light-black/85 text-[13px] lg:text-[12px] xl:text-[15px] 2xl:text-[17px] 3xl:text-[21px] 4xl:text-[28px] 5xl:text-[39px] leading-[1.85] mt-7 lg:mt-5 xl:mt-7 2xl:mt-8 3xl:mt-9 4xl:mt-12 5xl:mt-16 max-w-[600px] lg:max-w-[580px] xl:max-w-[630px] 3xl:max-w-[800px] 4xl:max-w-[1060px] 5xl:max-w-[1480px]"
             >
               Crafted with vision by three acclaimed design houses, including
@@ -321,6 +324,7 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           <div className="col-span-12 lg:col-span-5 flex lg:justify-end">
             <div
               data-dbm-buildings
+              data-undraw
               data-inline-svg=""
               data-inline-svg-loaded="true"
               aria-hidden="true"
