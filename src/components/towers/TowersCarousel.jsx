@@ -202,20 +202,21 @@ const TowersCarousel = () => {
           />
         ))}
 
-        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-0">
+        <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-0">
           <TowersCanvas activeIndex={activeIndex} />
         </div>
-        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-10 pointer-events-none">
+        <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-10 pointer-events-none">
           <TowerDecorations tower={towers[activeIndex]} />
         </div>
-        <div className="absolute top-0 right-0 h-full w-[58.3333%] z-20 pointer-events-none">
+        <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-20 pointer-events-none">
           <RaggedyEdge />
         </div>
 
-        <div className="absolute bottom-10 right-10 lg:right-16 3xl:right-24 z-30 pointer-events-none">
+        <div className="absolute bottom-10 right-10 lg:right-16 3xl:right-16 z-30 pointer-events-none">
           <TowerProgress
             ref={progressHighlightRef}
             initialAccent={TOWER_ACCENTS[0]}
+            className="lg:w-35 lg:h-3.75 3xl:w-45 3xl:h-5"
           />
         </div>
       </div>
