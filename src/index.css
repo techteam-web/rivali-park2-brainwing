@@ -59,3 +59,13 @@ body {
   padding-block: 0.2em;
   margin-block: -0.2em;
 }
+
+/* SplitText injects a mask wrapper with overflow: clip around .reveal-line,
+   which clips script-font left-side glyph overhangs (e.g. Ocean Trace 'y').
+   Replace with a clip-path that only clips vertically so yPercent reveal
+   still hides translated lines, while horizontal overhangs render. */
+[data-reveal] :has(> .reveal-line),
+[data-reveal]:has(> .reveal-line) {
+  overflow: visible !important;
+  clip-path: inset(0 -1em);
+}

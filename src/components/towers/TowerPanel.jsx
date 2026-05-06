@@ -14,7 +14,7 @@ const ArrowRight = () => (
 const StatCard = ({ label, value, accent, valueClassName = '' }) => (
   <div
     data-stat-card
-    className="flex-1 px-6 py-5 rounded-md"
+    className="flex-1 basis-0 min-w-0 px-6 py-5 rounded-md"
     style={{ backgroundColor: `${accent}0A` }}
   >
     <p className="font-sans font-medium text-[15px] lg:text-[17px] 3xl:text-[19px] tracking-[2px] uppercase text-on-light-grey mb-1">
