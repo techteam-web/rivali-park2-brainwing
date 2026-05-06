@@ -8,7 +8,7 @@ const Layout = () => {
 
   if (isTowers) {
     return (
-      <div className="bg-white overflow-x-hidden">
+      <div className="bg-white overflow-x-clip">
         <Header />
         <main className="-mt-22">
           <Outlet />
@@ -18,7 +18,7 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-white overflow-x-clip">
       <Header />
       <main className="flex-1">
         <Outlet />

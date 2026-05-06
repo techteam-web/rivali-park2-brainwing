@@ -29,16 +29,22 @@ const StatCard = ({ label, value, accent, valueClassName = '' }) => (
   </div>
 )
 
-const TowerPanel = forwardRef(({ tower }, ref) => {
+const TowerPanel = forwardRef(({ tower, index, isActive }, ref) => {
   const { name, tagline, accent, possession, carpetArea, features } = tower
 
+  // Panel 0 owns the visible static UI (CTA, stat cards, feature icons) per the
+  // visibility:hidden rule in index.css, so its text-col must always accept
+  // pointer events. Other panels only need pointer events when they're the
+  // active tower so their data-reveal text can be selected/hovered.
+  const allowEvents = isActive || index === 0
+
   return (
-    <div ref={ref} className="absolute inset-0" data-tower-id={tower.id}>
+    <div ref={ref} className="absolute inset-0 pointer-events-none" data-tower-id={tower.id}>
       <div className="grid grid-cols-12 gap-0 items-stretch h-full">
         {/* Left column — text content, ~5/12 ≈ 42% */}
         <div
           data-text-col
-          className="col-span-12 lg:col-span-5 flex flex-col justify-start gap-6 lg:gap-7 px-12 lg:px-20 3xl:px-28 pt-24 lg:pt-28 3xl:pt-36"
+          className={`col-span-12 lg:col-span-5 flex flex-col justify-start gap-6 lg:gap-7 px-12 lg:px-20 3xl:px-28 pt-24 lg:pt-28 3xl:pt-36 ${allowEvents ? 'pointer-events-auto' : ''}`}
         >
           <div>
             <h2

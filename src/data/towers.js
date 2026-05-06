@@ -1,3 +1,19 @@
+import SkyleapCloud   from '../assets/towers/skyleap/cloud.svg?react'
+import SkyleapCloud2  from '../assets/towers/skyleap/cloud2.svg?react'
+import SkyleapBird    from '../assets/towers/skyleap/bird.svg?react'
+
+import MoonriseClouds from '../assets/towers/moonrise/clouds.svg?react'
+import MoonriseBird   from '../assets/towers/moonrise/bird.svg?react'
+
+import StargazeLeavesLeft  from '../assets/towers/stargaze/leaves-left.svg?react'
+import StargazeLeavesRight from '../assets/towers/stargaze/leaves-right.svg?react'
+import StargazeBird        from '../assets/towers/stargaze/bird.svg?react'
+
+import SunburstCloud from '../assets/towers/sunburst/cloud.svg?react'
+import SunburstBird1 from '../assets/towers/sunburst/bird1.svg?react'
+import SunburstBird2 from '../assets/towers/sunburst/bird2.svg?react'
+import SunburstTree  from '../assets/towers/sunburst/tree.svg?react'
+
 export const towers = [
   {
     id: 'skyleap',
@@ -20,9 +36,9 @@ export const towers = [
     // scaleX / scaleY > 1 zooms in on that axis; offsetX > 0 shifts image right; offsetY > 0 shifts image up
     framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.06, offsetY: 0.0 },
     decorations: [
-      { src: '/towers/skyleap/cloud.svg',  depth: 0.3, className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
-      { src: '/towers/skyleap/cloud2.svg', depth: 0.2, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
-      { src: '/towers/skyleap/bird.svg',   depth: 0.8, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
+      { Component: SkyleapCloud,  depth: 0.3, className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
+      { Component: SkyleapCloud2, depth: 0.2, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
+      { Component: SkyleapBird,   depth: 0.8, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
     ],
   },
   {
@@ -45,8 +61,8 @@ export const towers = [
     textureAspect: 2048 / 1326,
     framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.0, offsetY: 0.0 },
     decorations: [
-      { src: '/towers/moonrise/clouds.svg', depth: 0.3, className: 'absolute top-[8%]  left-[6%] w-[40%]' },
-      { src: '/towers/moonrise/bird.svg',   depth: 0.9, className: 'absolute top-[64%] right-[19%] w-[10%]'  },
+      { Component: MoonriseClouds, depth: 0.3, className: 'absolute top-[8%]  left-[6%] w-[40%]' },
+      { Component: MoonriseBird,   depth: 0.9, className: 'absolute top-[64%] right-[19%] w-[10%]'  },
     ],
   },
   {
@@ -69,9 +85,9 @@ export const towers = [
     textureAspect: 852 / 1046,
     framing: { scaleX: 1, scaleY: 0.75, offsetX: 0.08, offsetY: 0.009 },
     decorations: [
-      { src: '/towers/stargaze/leaves-left.svg',  depth: 0.9, className: 'absolute top-[14%]  left-[26%]  w-[10%]' },
-      { src: '/towers/stargaze/leaves-right.svg', depth: 0.9, className: 'absolute top-[12%]  -right-[1%] w-[5%]' },
-      { src: '/towers/stargaze/bird.svg',         depth: 0.6, className: 'absolute top-[36%] left-[38%] w-[18%]' },
+      { Component: StargazeLeavesLeft,  depth: 0.9, className: 'absolute top-[14%]  left-[26%]  w-[10%]' },
+      { Component: StargazeLeavesRight, depth: 0.9, className: 'absolute top-[12%]  -right-[1%] w-[5%]' },
+      { Component: StargazeBird,        depth: 0.6, className: 'absolute top-[36%] left-[38%] w-[18%]' },
     ],
   },
   {
@@ -94,10 +110,10 @@ export const towers = [
     textureAspect: 2048 / 1653,
     framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.0, offsetY: 0.0 },
     decorations: [
-      { src: '/towers/sunburst/cloud.svg', depth: 0.3,  className: 'absolute top-[28%]    left-[24%]  w-[16%]' },
-      { src: '/towers/sunburst/bird1.svg', depth: 0.7,  className: 'absolute top-[16%]   right-[25%] w-[4%]'  },
-      { src: '/towers/sunburst/bird2.svg', depth: 0.7,  className: 'absolute top-[24%]   right-[22%] w-[5%]'  },
-      { src: '/towers/sunburst/tree.svg',  depth: 0.98, className: 'absolute bottom-[8%] right-[10%]  w-[20%]' },
+      { Component: SunburstCloud, depth: 0.3,  className: 'absolute top-[28%]    left-[24%]  w-[16%]' },
+      { Component: SunburstBird1, depth: 0.7,  className: 'absolute top-[16%]   right-[25%] w-[4%]'  },
+      { Component: SunburstBird2, depth: 0.7,  className: 'absolute top-[24%]   right-[22%] w-[5%]'  },
+      { Component: SunburstTree,  depth: 0.98, className: 'absolute bottom-[8%] right-[10%]  w-[20%]' },
     ],
   },
 ]

@@ -194,6 +194,8 @@ const TowersCarousel = () => {
           <TowerPanel
             key={tower.id}
             tower={tower}
+            index={i}
+            isActive={i === activeIndex}
             ref={(el) => {
               panelRefs.current[i] = el
             }}
