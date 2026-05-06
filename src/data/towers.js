@@ -38,7 +38,7 @@ export const towers = [
     decorations: [
       { Component: SkyleapCloud,  depth: 0.3, className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
       { Component: SkyleapCloud2, depth: 0.2, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
-      { Component: SkyleapBird,   depth: 0.8, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
+      { Component: SkyleapBird,   depth: 0.8, drawDuration: 0.7, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
     ],
   },
   {
@@ -87,7 +87,7 @@ export const towers = [
     decorations: [
       { Component: StargazeLeavesLeft,  depth: 0.9, className: 'absolute top-[14%]  left-[26%]  w-[10%]' },
       { Component: StargazeLeavesRight, depth: 0.9, className: 'absolute top-[12%]  -right-[1%] w-[5%]' },
-      { Component: StargazeBird,        depth: 0.6, className: 'absolute top-[36%] left-[38%] w-[18%]' },
+      { Component: StargazeBird,        depth: 0.6, drawDuration: 0.7, className: 'absolute top-[36%] left-[38%] w-[18%]' },
     ],
   },
   {
