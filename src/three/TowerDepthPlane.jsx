@@ -32,9 +32,17 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
     const u = mat.uniforms
 
     if (prevTowerIdRef.current === tower.id) {
-      // First mount — install initial tower's aspect (factory defaulted to PLANE_ASPECT).
+      // First mount — install initial tower's aspect + framing
+      // (factory defaulted to identity / PLANE_ASPECT).
       u.uColorAspect.value = tower.textureAspect
       u.uPrevColorAspect.value = tower.textureAspect
+      u.uFraming.value.set(
+        tower.framing.scaleX,
+        tower.framing.scaleY,
+        tower.framing.offsetX,
+        tower.framing.offsetY,
+      )
+      u.uPrevFraming.value.copy(u.uFraming.value)
       return
     }
     if (u.uColor.value === color && u.uDepth.value === depth) return
@@ -42,10 +50,17 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
     u.uPrevColor.value = u.uColor.value
     u.uPrevDepth.value = u.uDepth.value
     u.uPrevColorAspect.value = u.uColorAspect.value
+    u.uPrevFraming.value.copy(u.uFraming.value)
 
     u.uColor.value = color
     u.uDepth.value = depth
     u.uColorAspect.value = tower.textureAspect
+    u.uFraming.value.set(
+      tower.framing.scaleX,
+      tower.framing.scaleY,
+      tower.framing.offsetX,
+      tower.framing.offsetY,
+    )
 
     // Start at a tiny non-zero value so the first rendered frame routes into
     // the dissolve branch (showing prev), not the else fast-path.

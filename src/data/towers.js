@@ -17,17 +17,12 @@ export const towers = [
     image: '/towers/skyleap/Skyleap.webp',
     depth: '/towers/skyleap/Skyleap.png',
     textureAspect: 2048 / 1534,
-    imageAdjust: {
-      width: '90%',
-      objectPosition: 'center',
-      scale: 1.04,
-      offsetX: '0',
-      offsetY: '0',
-    },
+    // scaleX / scaleY > 1 zooms in on that axis; offsetX > 0 shifts image right; offsetY > 0 shifts image up
+    framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.06, offsetY: 0.0 },
     decorations: [
       { src: '/towers/skyleap/cloud.svg',  depth: 0.3, className: 'absolute top-[18%]  left-[0%]    w-[20%]' },
-      { src: '/towers/skyleap/cloud2.svg', depth: 0.4, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
-      { src: '/towers/skyleap/bird.svg',   depth: 0.7, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
+      { src: '/towers/skyleap/cloud2.svg', depth: 0.2, className: 'absolute top-[40%] right-[2%]  w-[25%]' },
+      { src: '/towers/skyleap/bird.svg',   depth: 0.8, className: 'absolute top-[15%] right-[10%]  w-[7%]'  },
     ],
   },
   {
@@ -48,16 +43,10 @@ export const towers = [
     image: '/towers/moonrise/Moonrise.webp',
     depth: '/towers/moonrise/Moonrise.png',
     textureAspect: 2048 / 1326,
-    imageAdjust: {
-      width: '90%',
-      objectPosition: 'center',
-      scale: 1.02,
-      offsetX: '0',
-      offsetY: '0',
-    },
+    framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.0, offsetY: 0.0 },
     decorations: [
       { src: '/towers/moonrise/clouds.svg', depth: 0.3, className: 'absolute top-[8%]  left-[6%] w-[40%]' },
-      { src: '/towers/moonrise/bird.svg',   depth: 0.7, className: 'absolute top-[64%] right-[12%] w-[10%]'  },
+      { src: '/towers/moonrise/bird.svg',   depth: 0.9, className: 'absolute top-[64%] right-[19%] w-[10%]'  },
     ],
   },
   {
@@ -78,17 +67,11 @@ export const towers = [
     image: '/towers/stargaze/Stargaze.webp',
     depth: '/towers/stargaze/Stargaze.png',
     textureAspect: 852 / 1046,
-    imageAdjust: {
-      width: '90%',
-      objectPosition: 'top',
-      scale: 1,
-      offsetX: '0',
-      offsetY: '0',
-    },
+    framing: { scaleX: 1, scaleY: 0.75, offsetX: 0.08, offsetY: 0.009 },
     decorations: [
-      { src: '/towers/stargaze/leaves-left.svg',  depth: 0.9, className: 'absolute top-[2%]  left-[2%]  w-[22%]' },
-      { src: '/towers/stargaze/leaves-right.svg', depth: 0.9, className: 'absolute top-[6%]  right-[2%] w-[14%]' },
-      { src: '/towers/stargaze/bird.svg',         depth: 0.6, className: 'absolute top-[28%] left-[28%] w-[10%]' },
+      { src: '/towers/stargaze/leaves-left.svg',  depth: 0.9, className: 'absolute top-[14%]  left-[26%]  w-[10%]' },
+      { src: '/towers/stargaze/leaves-right.svg', depth: 0.9, className: 'absolute top-[12%]  -right-[1%] w-[5%]' },
+      { src: '/towers/stargaze/bird.svg',         depth: 0.6, className: 'absolute top-[36%] left-[38%] w-[18%]' },
     ],
   },
   {
@@ -109,18 +92,12 @@ export const towers = [
     image: '/towers/sunburst/Sunburst.webp',
     depth: '/towers/sunburst/Sunburst.png',
     textureAspect: 2048 / 1653,
-    imageAdjust: {
-      width: '90%',
-      objectPosition: 'center',
-      scale: 1,
-      offsetX: '0',
-      offsetY: '0',
-    },
+    framing: { scaleX: 1.0, scaleY: 1.0, offsetX: 0.0, offsetY: 0.0 },
     decorations: [
-      { src: '/towers/sunburst/cloud.svg', depth: 0.3,  className: 'absolute top-[8%]    left-[14%]  w-[18%]' },
-      { src: '/towers/sunburst/bird1.svg', depth: 0.7,  className: 'absolute top-[16%]   right-[18%] w-[6%]'  },
-      { src: '/towers/sunburst/bird2.svg', depth: 0.7,  className: 'absolute top-[24%]   right-[10%] w-[5%]'  },
-      { src: '/towers/sunburst/tree.svg',  depth: 0.95, className: 'absolute bottom-[8%] right-[2%]  w-[20%]' },
+      { src: '/towers/sunburst/cloud.svg', depth: 0.3,  className: 'absolute top-[28%]    left-[24%]  w-[16%]' },
+      { src: '/towers/sunburst/bird1.svg', depth: 0.7,  className: 'absolute top-[16%]   right-[25%] w-[4%]'  },
+      { src: '/towers/sunburst/bird2.svg', depth: 0.7,  className: 'absolute top-[24%]   right-[22%] w-[5%]'  },
+      { src: '/towers/sunburst/tree.svg',  depth: 0.98, className: 'absolute bottom-[8%] right-[10%]  w-[20%]' },
     ],
   },
 ]

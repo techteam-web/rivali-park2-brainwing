@@ -20,6 +20,8 @@ export const towerDepthFragment = /* glsl */ `
   uniform float uColorAspect;
   uniform float uPrevColorAspect;
   uniform float uPlaneAspect;
+  uniform vec4  uFraming;      // xy = scale, zw = offset (UV units)
+  uniform vec4  uPrevFraming;
   varying vec2 vUv;
 
   vec2 mirrored(vec2 v) {
@@ -47,14 +49,22 @@ export const towerDepthFragment = /* glsl */ `
     );
   }
 
+  // per-image scale + offset on top of cover-fit. scale > 1 zooms in,
+  // offset.x > 0 shifts the image right, offset.y > 0 shifts it up.
+  vec2 applyFraming(vec2 uv, vec4 framing) {
+    vec2 scale  = framing.xy;
+    vec2 offset = framing.zw;
+    return (uv - 0.5) / scale + 0.5 - offset;
+  }
+
   void main() {
-    vec2 uvCur = coverUv(vUv, uPlaneAspect, uColorAspect);
+    vec2 uvCur = applyFraming(coverUv(vUv, uPlaneAspect, uColorAspect), uFraming);
     vec4 dCur = texture2D(uDepth, mirrored(uvCur));
     vec2 fake3dCur = uvCur + (uMouse / uDepthStrength) * dCur.r;
     vec4 colorCur = texture2D(uColor, mirrored(fake3dCur));
 
     if (uTransition > 0.0 && uTransition < 1.0) {
-      vec2 uvPrev = coverUv(vUv, uPlaneAspect, uPrevColorAspect);
+      vec2 uvPrev = applyFraming(coverUv(vUv, uPlaneAspect, uPrevColorAspect), uPrevFraming);
       vec4 dPrev = texture2D(uPrevDepth, mirrored(uvPrev));
       vec2 fake3dPrev = uvPrev + (uMouse / uDepthStrength) * dPrev.r;
       vec4 colorPrev = texture2D(uPrevColor, mirrored(fake3dPrev));
@@ -78,6 +88,8 @@ export const makeTowerDepthMaterial = (colorMap, depthMap) =>
       uPrevColor:       { value: colorMap },
       uPrevDepth:       { value: depthMap },
       uPrevColorAspect: { value: 1.0 },
+      uFraming:         { value: new THREE.Vector4(1, 1, 0, 0) },
+      uPrevFraming:     { value: new THREE.Vector4(1, 1, 0, 0) },
       uMouse:            { value: new THREE.Vector2(0, 0) },
       uDepthStrength:    { value: 7.0 },
       uTransition:       { value: 1.0 },
