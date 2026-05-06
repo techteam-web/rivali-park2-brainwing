@@ -9,7 +9,7 @@ const POINTER_LERP = 0.08
 const POINTER_RETURN_TO_REST = 0.04
 const RAGGEDY_UV_THRESHOLD = 0.14
 
-const TRANSITION_DURATION = 1.4
+const TRANSITION_DURATION = 2.2
 const TRANSITION_EASE = 'power2.inOut'
 
 const TowerDepthPlane = ({ tower, color, depth }) => {

@@ -62,20 +62,20 @@ const TowersCarousel = () => {
       const goToSection = (target) => {
         if (isAnimating || target < 0 || target >= towers.length) return
         isAnimating = true
+        if (activeIndexRef.current !== target) {
+          activeIndexRef.current = target
+          setActiveIndex(target)
+        }
         const targetY = Math.min(
           target * SCROLL_PER_TRANSITION * window.innerHeight,
           ScrollTrigger.maxScroll(window),
         )
         gsap.to(window, {
           scrollTo: { y: targetY, autoKill: false },
-          duration: 1,
+          duration: 2.4,
           ease: 'power2.inOut',
           onComplete: () => {
             isAnimating = false
-            if (activeIndexRef.current !== target) {
-              activeIndexRef.current = target
-              setActiveIndex(target)
-            }
           },
         })
       }
@@ -140,7 +140,7 @@ const TowersCarousel = () => {
                 { yPercent: -110, duration: 0.35, stagger: { each: 0.04, amount: 0.4 }, ease: 'power3.in' }, t)
 
           tl.to(panelLines[i + 1],
-                { yPercent: 0, duration: 0.15, stagger: { each: 0.04, amount: 0.1 }, ease: 'expo.out' }, t + 0.75)
+                { yPercent: 0, duration: 0.35, stagger: { each: 0.08, amount: 0.45 }, ease: 'expo.out' }, t + 0.5)
         }
 
         tl.set({}, {}, transitions)

@@ -9,9 +9,9 @@ const PX_PER_UNIT = MAX_PIXEL_OFFSET / POINTER_AMPLITUDE
 // Draw timing — draw-out retracts current paths, then draw-in strokes the new
 // tower's decorations. The retraction itself provides the gap before draw-in,
 // so no separate delay is stacked on top.
-const DRAW_DURATION = 1.4
+const DRAW_DURATION = 1.8
 const DRAW_EASE = 'power2.inOut'
-const DRAW_OUT_DURATION = 0.5
+const DRAW_OUT_DURATION = 0.7
 const DRAW_OUT_EASE = 'power2.in'
 
 const TowerDecorations = ({ tower }) => {
