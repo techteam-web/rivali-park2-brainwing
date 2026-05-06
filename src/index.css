@@ -39,6 +39,17 @@ body {
   height: 100%;
 }
 
+[data-inline-svg].svg-hit-painted,
+[data-inline-svg].svg-hit-painted > svg {
+  height: auto;
+  pointer-events: none;
+}
+
+[data-inline-svg].svg-hit-painted > svg * {
+  pointer-events: visiblePainted;
+  cursor: pointer;
+}
+
 .card-shine {
   position: relative;
   overflow: hidden;

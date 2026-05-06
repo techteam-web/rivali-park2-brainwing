@@ -4,9 +4,9 @@ import Footer from './Footer'
 
 const Layout = () => {
   const { pathname } = useLocation()
-  const isAbout = pathname === '/about'
+  const isFullscreen = pathname === '/about' || pathname.startsWith('/gallery')
 
-  if (isAbout) {
+  if (isFullscreen) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">
