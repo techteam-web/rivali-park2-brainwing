@@ -1,6 +1,10 @@
-import RaggedyDivider from "./RaggedyDivider";
+import { forwardRef, useImperativeHandle, useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap, SplitText, aboutReveal } from "../../lib/gsap";
+import InlineSVG from "./InlineSVG";
 
 const TimelineCard = ({
+  pos,
   year,
   caption,
   image,
@@ -9,11 +13,18 @@ const TimelineCard = ({
   contain = false,
   imageClass = "",
 }) => (
-  <article className="w-full max-w-[260px] lg:max-w-[200px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px]">
+  <article
+    data-journey-card
+    data-card-pos={pos}
+    data-fade-out="decor"
+    className="card-shine invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px] xl:min-h-[250px] 2xl:min-h-[290px] 3xl:min-h-[345px] 4xl:min-h-[470px] 5xl:min-h-[690px]"
+  >
     <div className="relative aspect-[260/180] overflow-hidden bg-on-light-highlight-brown shrink-0">
       <img
         src={image}
         alt=""
+        loading="eager"
+        decoding="async"
         className={`absolute inset-0 w-full h-full ${contain ? "object-contain p-3" : "object-cover"} ${imageClass}`}
       />
       {badge && (
@@ -21,98 +32,446 @@ const TimelineCard = ({
           src={badge}
           alt=""
           aria-hidden="true"
+          loading="eager"
+          decoding="async"
           className={`absolute left-1/2 top-2/5 -translate-x-1/2 -translate-y-1/2 w-auto ${badgeClass}`}
         />
       )}
     </div>
-    <div className="flex-1 px-4 py-4 lg:px-3 lg:py-3">
-      <p className="font-medium text-[14px] lg:text-[11px] text-on-light-black mb-1 lg:mb-0">
+    <div className="flex-1 px-4 py-4 lg:px-3 lg:py-3 xl:px-3 xl:py-3 2xl:px-4 2xl:py-4 3xl:px-5 3xl:py-5 4xl:px-6 4xl:py-6 5xl:px-9 5xl:py-9">
+      <p
+        data-card-title
+        className="font-medium text-[14px] lg:text-[11px] xl:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[21px] 5xl:text-[30px] text-on-light-black mb-1 lg:mb-0 perspective-distant"
+      >
         {year}
       </p>
-      <p className="text-[12.5px] lg:text-[10px] text-on-light-grey leading-[1.55]">
+      <p
+        data-card-subtitle
+        className="text-[12.5px] lg:text-[10px] xl:text-[11px] 2xl:text-[13px] 3xl:text-[14px] 4xl:text-[19px] 5xl:text-[28px] text-on-light-grey leading-[1.55]"
+      >
         {caption}
       </p>
     </div>
   </article>
 );
 
-const JourneyThroughTime = () => {
-  return (
-    <>
-      <RaggedyDivider />
-      <section className="bg-pastel-brown-bg pt-2 pb-24 lg:pb-20 px-6 lg:px-10">
-        <div className="text-center mb-14 lg:mb-12">
-          <h2 className="font-normal text-[40px] lg:text-[36px] 3xl:text-[64px] 4xl:text-5xl leading-[1.2] -tracking-[1px] text-on-light-black">
-            A journey through time
-          </h2>
-          <img
-            src="/about/shaping-a-legacy.svg"
-            alt="shaping a legacy of innovation"
-            className="mx-auto mt-3 h-6.5 lg:h-7 3xl:h-9 w-auto"
-          />
-        </div>
+const JourneyThroughTime = forwardRef((_props, ref) => {
+  const sectionRef = useRef(null);
+  const tlRef = useRef(null);
+  const splitsRef = useRef([]);
+  const isReadyRef = useRef(false);
+  const queuedActionRef = useRef(null);
 
-        <div className="relative max-w-[1080px] lg:max-w-[760px] 3xl:max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-12 gap-4 lg:gap-5">
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                year="2001"
-                caption="CCI Projects is formed"
-                image="/about/timeline-image-36.png"
-                imageClass="object-[center_0%] origin-top scale-140"
-                badge="/about/cci-logo.png"
-                badgeClass="h-[35%] max-w-100"
-              />
-            </div>
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                year="2016"
-                caption="Completion of  Whitespring"
-                image="/about/whitespring.png"
-                imageClass="object-right origin-top-right translate-y-[0%]"
-              />
-            </div>
-            <div className="col-span-4 flex justify-center">
-              <TimelineCard
-                year="2023"
-                caption="Launch of Rivali Park 2"
-                image="/about/central-courtyard.jpg"
-              />
-            </div>
-          </div>
+  useGSAP(
+    (_context, contextSafe) => {
+      const scope = sectionRef.current;
+      if (!scope) return;
 
-          <img
-            src="/about/journey-bar.svg"
-            alt=""
-            aria-hidden="true"
-            className="block w-full h-auto my-10 lg:my-3"
-          />
+      const setup = contextSafe(() => {
+        const headingEl = scope.querySelector("[data-journey-heading]");
+        const cursiveEl = scope.querySelector("[data-journey-cursive]");
+        const barEl = scope.querySelector("[data-journey-bar]");
+        const allCards = scope.querySelectorAll("[data-journey-card]");
 
-          <div className="grid grid-cols-12 gap-4 lg:gap-5">
-            <div className="col-span-4 col-start-3 flex justify-center">
-              <TimelineCard
-                year="2001 - 2010"
-                caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
-                image="/about/timeline-image-36.png"
-                imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
-                badge="/about/rivali-park-white.png"
-                badgeClass="h-[40%] max-w-100"
-              />
-            </div>
-            <div className="col-span-4 col-start-7 flex justify-center">
-              <TimelineCard
-                year="2021"
-                caption="Completion of Wintergreen"
-                image="/about/rivali-transformation.jpg"
-                imageClass="object-center origin-top scale-110 translate-y-[0%]"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-      <RaggedyDivider flipped />
-    </>
+        const barPath = barEl ? barEl.querySelector("[data-bar]") : null;
+        const allTicks = barEl ? barEl.querySelectorAll("[data-tick]") : [];
+        const allDots = barEl ? barEl.querySelectorAll("[data-dot]") : [];
+
+        const slots = [1, 2, 3, 4, 5].map((n) => ({
+          n,
+          card: scope.querySelector(`[data-card-pos="${n}"]`),
+          tick: barEl ? barEl.querySelector(`[data-tick="${n}"]`) : null,
+          dot: barEl ? barEl.querySelector(`[data-dot="${n}"]`) : null,
+        }));
+
+        // Bar path spans x=240→1180 with a midpoint at x=684.29.
+        // Total path length ≈ 940. Dot x positions (247, 440, 714, 916, 1175)
+        // map to these % along the path:
+        const barPctAtDot = [0.75, 21.28, 50.43, 71.93, 99.47];
+
+        gsap.set(headingEl, { autoAlpha: 0, y: 18 });
+        gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
+        gsap.set(barEl, { autoAlpha: 1 });
+        if (barPath) gsap.set(barPath, { drawSVG: '0% 0%' });
+        if (allTicks.length) gsap.set(allTicks, { drawSVG: "100% 100%" });
+        if (allDots.length)
+          gsap.set(allDots, {
+            autoAlpha: 0,
+            scale: 0,
+            transformOrigin: "50% 50%",
+          });
+        gsap.set(allCards, {
+          autoAlpha: 1,
+          clipPath: "inset(0 0 100% 0)",
+          willChange: "clip-path",
+        });
+
+        const cardSplits = slots.map((slot) => {
+          if (!slot.card) return { titleSplit: null, subtitleSplit: null };
+          const titleEl = slot.card.querySelector("[data-card-title]");
+          const subtitleEl = slot.card.querySelector("[data-card-subtitle]");
+          const titleSplit = titleEl
+            ? SplitText.create(titleEl, {
+                type: "chars,words",
+                charsClass: "card-title-char",
+              })
+            : null;
+          const subtitleSplit = subtitleEl
+            ? SplitText.create(subtitleEl, {
+                type: "lines",
+                linesClass: "card-subtitle-line",
+                mask: "lines",
+              })
+            : null;
+          return { titleSplit, subtitleSplit };
+        });
+        splitsRef.current = cardSplits;
+
+        cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
+          if (titleSplit) {
+            gsap.set(titleSplit.chars, {
+              yPercent: 100,
+              autoAlpha: 0,
+              rotateX: -50,
+              transformOrigin: "50% 100%",
+            });
+          }
+          if (subtitleSplit) {
+            gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 });
+          }
+        });
+
+        const tl = gsap.timeline({
+          paused: true,
+          defaults: { ease: "power3.out" },
+          onComplete: () => {
+            gsap.set(allCards, { willChange: "auto" });
+          },
+        });
+
+        tl.to(headingEl, { autoAlpha: 1, y: 0, duration: 0.5 }, 0);
+        tl.to(
+          cursiveEl,
+          { clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'power1.inOut' },
+          0.2,
+        );
+
+        const barStart = 0.5;
+        const barDuration = 4.0;
+
+        if (barPath) {
+          tl.to(
+            barPath,
+            { drawSVG: "0% 100%", duration: barDuration, ease: "none" },
+            barStart,
+          );
+        }
+
+        slots.forEach((slot, i) => {
+          const anchor = barStart + barDuration * (barPctAtDot[i] / 100);
+          if (slot.dot) {
+            tl.to(
+              slot.dot,
+              {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.25,
+                ease: "back.out(2)",
+              },
+              anchor,
+            );
+          }
+          if (slot.tick) {
+            tl.to(
+              slot.tick,
+              { drawSVG: "0% 100%", duration: 0.30, ease: "power2.out" },
+              anchor + 0.20,
+            );
+          }
+          const cardDuration = 1.0;
+          const cardBodyStart = anchor + 0.35;
+          if (slot.card) {
+            tl.to(
+              slot.card,
+              {
+                clipPath: "inset(0 0 0% 0)",
+                duration: cardDuration,
+                ease: "power2.out",
+              },
+              cardBodyStart,
+            );
+          }
+          // Title chars + subtitle lines reveal AFTER this card's clipPath
+          // completes (matches the DBM rhythm: chars at end-0.05, lines at end+0.15).
+          const cardEnd = cardBodyStart + cardDuration;
+          const split = cardSplits[i];
+          if (split?.titleSplit) {
+            tl.to(
+              split.titleSplit.chars,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                rotateX: 0,
+                stagger: 0.03,
+                duration: 0.9,
+                ease: "power4.out",
+              },
+              cardEnd - 0.05,
+            );
+          }
+          if (split?.subtitleSplit) {
+            tl.to(
+              split.subtitleSplit.lines,
+              {
+                yPercent: 0,
+                autoAlpha: 1,
+                stagger: 0.06,
+                duration: 0.7,
+                ease: "power3.out",
+              },
+              cardEnd + 0.15,
+            );
+          }
+        });
+
+        tlRef.current = tl;
+        isReadyRef.current = true;
+
+        const queued = queuedActionRef.current;
+        queuedActionRef.current = null;
+        if (queued === "in") {
+          gsap.set(scope, { autoAlpha: 1 });
+          tl.timeScale(1).play(0);
+        } else if (queued === "out") {
+          tl.timeScale(2.5).reverse();
+        }
+      });
+
+      const cardImages = scope.querySelectorAll("[data-journey-card] img");
+      const decodes = Array.from(cardImages).map((img) => {
+        if (img.complete && img.decode) return img.decode().catch(() => {});
+        if (img.decode)
+          return new Promise((res) => {
+            img.addEventListener("load", () => img.decode().then(res, res), {
+              once: true,
+            });
+            img.addEventListener("error", () => res(), { once: true });
+          });
+        return Promise.resolve();
+      });
+
+      Promise.all([aboutReveal(scope), ...decodes]).then(setup);
+
+      return () => {
+        splitsRef.current.forEach(({ titleSplit, subtitleSplit }) => {
+          titleSplit?.revert?.();
+          subtitleSplit?.revert?.();
+        });
+        splitsRef.current = [];
+      };
+    },
+    { scope: sectionRef },
   );
-};
+
+  useImperativeHandle(ref, () => ({
+    prepare: () => {
+      if (!isReadyRef.current || !tlRef.current) return;
+      const scope = sectionRef.current;
+      gsap.set(scope, { autoAlpha: 1 });
+      tlRef.current.timeScale(1).pause(0);
+      // pause(0) only rewinds tweens whose start time is 0. Cards (clipPath)
+      // and dots animate later, so they don't auto-rewind. Re-snap to the
+      // pre-intro state so they don't leak in on re-entry.
+      if (!scope) return;
+      const cards = scope.querySelectorAll('[data-journey-card]');
+      if (cards.length) {
+        gsap.set(cards, {
+          autoAlpha: 1,
+          clipPath: "inset(0 0 100% 0)",
+          willChange: "clip-path",
+        });
+      }
+      const dots = scope.querySelectorAll('[data-dot]');
+      if (dots.length) gsap.set(dots, { autoAlpha: 0, scale: 0 });
+    },
+    playIn: () => {
+      if (!isReadyRef.current || !tlRef.current) {
+        queuedActionRef.current = "in";
+        return;
+      }
+      gsap.set(sectionRef.current, { autoAlpha: 1 });
+      tlRef.current.timeScale(1).play(0);
+    },
+    // stop freezes the intro timeline so its tweens stop fighting the exit
+    // choreography, and animates the dots out. Dots have data-no-undraw
+    // (filled rects can't drawSVG) and no data-fade-out, so without this they
+    // linger past the 0.5s bar-undraw and bleed through the wrapper crossfade.
+    stop: () => {
+      if (tlRef.current) tlRef.current.pause();
+      const scope = sectionRef.current;
+      if (!scope) return;
+      const dots = scope.querySelectorAll('[data-dot]');
+      if (dots.length) {
+        gsap.to(dots, {
+          autoAlpha: 0,
+          scale: 0,
+          duration: 0.5,
+          stagger: 0.005,
+          ease: 'power2.inOut',
+          overwrite: 'auto',
+        });
+      }
+    },
+  }));
+
+  return (
+    <section
+      ref={sectionRef}
+      className="bg-pastel-brown-bg w-full h-full px-6 lg:px-[9%] xl:px-[9%] 2xl:px-[9%] 3xl:px-[9%] 4xl:px-[9%] 5xl:px-[9%]"
+    >
+      <div className="text-center">
+        <h2
+          data-journey-heading
+          data-fade-out="text"
+          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[44px] 2xl:text-[52px] 3xl:text-[60px] 4xl:text-[78px] 5xl:text-[116px] leading-[1.2] -tracking-[1px] text-on-light-black"
+        >
+          A journey through time
+        </h2>
+        <InlineSVG
+          src="/about/shaping-a-legacy.svg"
+          aria-label="shaping a legacy of innovation"
+          data-journey-cursive
+          data-fade-out="decor"
+          data-clip-reverse
+          className="invisible mx-auto mt-3 h-6.5 lg:h-7 xl:h-8 2xl:h-9 3xl:h-10 4xl:h-14 5xl:h-20 w-auto"
+        />
+      </div>
+
+      <div className="relative max-w-[1080px] lg:max-w-none xl:max-w-none 2xl:max-w-none 3xl:max-w-none 4xl:max-w-none 5xl:max-w-none mx-auto mt-8 lg:mt-10 xl:mt-12 2xl:mt-14 3xl:mt-16 4xl:mt-20 5xl:mt-28">
+        <div
+          data-journey-top
+          className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
+        >
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={1}
+              year="2001"
+              caption="CCI Projects is formed"
+              image="/about/timeline-image-36.webp"
+              imageClass="object-[center_0%] origin-top scale-140"
+              badge="/about/cci-logo.webp"
+              badgeClass="h-[35%] max-w-100"
+            />
+          </div>
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={3}
+              year="2016"
+              caption="Completion of  Whitespring"
+              image="/about/whitespring.webp"
+              imageClass="object-right origin-top-right translate-y-[0%]"
+            />
+          </div>
+          <div className="col-span-4 flex justify-center">
+            <TimelineCard
+              pos={5}
+              year="2023"
+              caption="Launch of Rivali Park 2"
+              image="/about/central-courtyard.webp"
+            />
+          </div>
+        </div>
+
+        <div
+          data-journey-bar
+          data-undraw
+          data-inline-svg=""
+          data-inline-svg-loaded="true"
+          aria-hidden="true"
+          className="invisible block w-full lg:w-[105%] lg:-mx-[2.5%] lg:max-w-none xl:w-[110%] xl:-mx-[5%] 2xl:w-[112%] 2xl:-mx-[6%] 3xl:w-[114%] 3xl:-mx-[7%] 4xl:w-[116%] 4xl:-mx-[8%] 5xl:w-[118%] 5xl:-mx-[9%] h-auto my-10 lg:my-3 xl:my-5 2xl:my-6 3xl:my-8 4xl:my-10 5xl:my-14"
+        >
+          <svg
+            width="1440"
+            height="52"
+            viewBox="0 0 1440 52"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              data-tick="1"
+              d="M247.545 6.31005L248.162 10.2407C248.605 13.0658 248.514 15.9491 247.892 18.7403C247.394 20.9768 247.235 23.2756 247.422 25.5594L247.731 29.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="1" data-no-undraw x="240" y="24.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="2"
+              d="M439.545 50.3128L440.162 46.3821C440.605 43.557 440.514 40.6737 439.892 37.8825C439.394 35.646 439.235 33.3472 439.422 31.0634L439.731 27.278"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="2" data-no-undraw x="432" y="19.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="3"
+              d="M714.545 0.310052L715.162 4.24072C715.605 7.06581 715.514 9.94908 714.892 12.7403C714.394 14.9768 714.235 17.2756 714.422 19.5594L714.731 23.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="3" data-no-undraw x="707" y="18.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="4"
+              d="M916.545 51.3128L917.162 47.3821C917.605 44.557 917.514 41.6737 916.892 38.8825C916.394 36.646 916.235 34.3472 916.422 32.0634L916.731 28.278"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="4" data-no-undraw x="909" y="20.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-tick="5"
+              d="M1175.55 4.31005L1176.16 8.24072C1176.61 11.0658 1176.51 13.9491 1175.89 16.7403C1175.39 18.9768 1175.24 21.2756 1175.42 23.5594L1175.73 27.3448"
+              stroke="#7A4833"
+              strokeWidth="4"
+            />
+            <rect data-dot="5" data-no-undraw x="1168" y="22.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
+            <path
+              data-bar=""
+              d="M240 29.853 L684.286 23.2665 L1180 30.215"
+              stroke="#7A4833"
+              strokeWidth="5"
+              fill="none"
+            />
+          </svg>
+        </div>
+
+        <div
+          data-journey-bottom
+          className="grid grid-cols-12 gap-4 lg:gap-12 xl:gap-14 2xl:gap-16 3xl:gap-20 4xl:gap-26 5xl:gap-36"
+        >
+          <div className="col-span-4 col-start-3 flex justify-center">
+            <TimelineCard
+              pos={2}
+              year="2001 - 2010"
+              caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
+              image="/about/timeline-image-36.webp"
+              imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
+              badge="/about/rivali-park-white.webp"
+              badgeClass="h-[40%] max-w-100"
+            />
+          </div>
+          <div className="col-span-4 col-start-7 flex justify-center">
+            <TimelineCard
+              pos={4}
+              year="2021"
+              caption="Completion of Wintergreen"
+              image="/about/rivali-transformation.webp"
+              imageClass="object-center origin-top scale-110 translate-y-[0%]"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+});
+
+JourneyThroughTime.displayName = "JourneyThroughTime";
 
 export default JourneyThroughTime;

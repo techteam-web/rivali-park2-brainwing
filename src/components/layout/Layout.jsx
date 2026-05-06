@@ -5,12 +5,23 @@ import Footer from './Footer'
 const Layout = () => {
   const { pathname } = useLocation()
   const isTowers = pathname === '/towers'
+  const isAbout = pathname === '/about'
 
   if (isTowers) {
     return (
       <div className="bg-white overflow-x-clip">
         <Header />
         <main className="-mt-22">
+          <Outlet />
+        </main>
+      </div>
+    )
+  }
+
+  if (isAbout) {
+    return (
+      <div className="h-screen w-screen relative bg-white overflow-hidden">
+        <main className="absolute inset-0">
           <Outlet />
         </main>
       </div>
