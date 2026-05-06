@@ -17,6 +17,9 @@ export const towerDepthFragment = /* glsl */ `
   uniform float uDepthStrength;
   uniform float uTransition;
   uniform float uNoiseScale;
+  uniform float uColorAspect;
+  uniform float uPrevColorAspect;
+  uniform float uPlaneAspect;
   varying vec2 vUv;
 
   vec2 mirrored(vec2 v) {
@@ -30,24 +33,35 @@ export const towerDepthFragment = /* glsl */ `
     return fract((p.x + p.y) * p.x);
   }
 
+  // object-fit: cover for textures: maps plane UV [0,1] to a centered sub-range
+  // of texture UV so the texture fully fills the plane with crop on the longer
+  // axis instead of letterboxing.
+  vec2 coverUv(vec2 uv, float planeAspect, float texAspect) {
+    vec2 ratio = vec2(
+      min(planeAspect / texAspect, 1.0),
+      min(texAspect / planeAspect, 1.0)
+    );
+    return vec2(
+      uv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+      uv.y * ratio.y + (1.0 - ratio.y) * 0.5
+    );
+  }
+
   void main() {
-    vec4 dCur = texture2D(uDepth, mirrored(vUv));
-    vec2 fake3dCur = vUv + (uMouse / uDepthStrength) * dCur.r;
+    vec2 uvCur = coverUv(vUv, uPlaneAspect, uColorAspect);
+    vec4 dCur = texture2D(uDepth, mirrored(uvCur));
+    vec2 fake3dCur = uvCur + (uMouse / uDepthStrength) * dCur.r;
     vec4 colorCur = texture2D(uColor, mirrored(fake3dCur));
 
-    if (uTransition < 1.0) {
-      vec4 dPrev = texture2D(uPrevDepth, mirrored(vUv));
-      vec2 fake3dPrev = vUv + (uMouse / uDepthStrength) * dPrev.r;
+    if (uTransition > 0.0 && uTransition < 1.0) {
+      vec2 uvPrev = coverUv(vUv, uPlaneAspect, uPrevColorAspect);
+      vec4 dPrev = texture2D(uPrevDepth, mirrored(uvPrev));
+      vec2 fake3dPrev = uvPrev + (uMouse / uDepthStrength) * dPrev.r;
       vec4 colorPrev = texture2D(uPrevColor, mirrored(fake3dPrev));
 
       float noise = (hash(vUv * uNoiseScale) - 0.5) * 0.08;
       float threshold = dPrev.r + noise;
-      // Remap [0, 1] to [-0.1, 1.1] so the smoothstep saturates fully at the
-      // endpoints — at uTransition=0 every pixel reads as prev, at =1 every
-      // pixel reads as new. Without this, foreground pixels (depth.r near 0)
-      // would partially blend at uTransition=0 and produce a one-frame flash.
-      float t = mix(-0.1, 1.1, uTransition);
-      float reveal = smoothstep(t - 0.025, t + 0.025, threshold);
+      float reveal = smoothstep(uTransition - 0.025, uTransition + 0.025, threshold);
       gl_FragColor = mix(colorCur, colorPrev, reveal);
     } else {
       gl_FragColor = colorCur;
@@ -58,14 +72,17 @@ export const towerDepthFragment = /* glsl */ `
 export const makeTowerDepthMaterial = (colorMap, depthMap) =>
   new THREE.ShaderMaterial({
     uniforms: {
-      uColor:         { value: colorMap },
-      uDepth:         { value: depthMap },
-      uPrevColor:     { value: colorMap },
-      uPrevDepth:     { value: depthMap },
-      uMouse:         { value: new THREE.Vector2(0, 0) },
-      uDepthStrength: { value: 7.0 },
-      uTransition:    { value: 1.0 },
-      uNoiseScale:    { value: 8.0 },
+      uColor:           { value: colorMap },
+      uDepth:           { value: depthMap },
+      uColorAspect:     { value: 1.0 },
+      uPrevColor:       { value: colorMap },
+      uPrevDepth:       { value: depthMap },
+      uPrevColorAspect: { value: 1.0 },
+      uMouse:            { value: new THREE.Vector2(0, 0) },
+      uDepthStrength:    { value: 7.0 },
+      uTransition:       { value: 1.0 },
+      uNoiseScale:       { value: 8.0 },
+      uPlaneAspect:      { value: 1.0 },
     },
     vertexShader: towerDepthVertex,
     fragmentShader: towerDepthFragment,

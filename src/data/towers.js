@@ -16,6 +16,7 @@ export const towers = [
     ],
     image: '/towers/skyleap/Skyleap.webp',
     depth: '/towers/skyleap/Skyleap.png',
+    textureAspect: 2048 / 1534,
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',
@@ -46,6 +47,7 @@ export const towers = [
     ],
     image: '/towers/moonrise/Moonrise.webp',
     depth: '/towers/moonrise/Moonrise.png',
+    textureAspect: 2048 / 1326,
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',
@@ -75,6 +77,7 @@ export const towers = [
     ],
     image: '/towers/stargaze/Stargaze.webp',
     depth: '/towers/stargaze/Stargaze.png',
+    textureAspect: 852 / 1046,
     imageAdjust: {
       width: '90%',
       objectPosition: 'top',
@@ -105,6 +108,7 @@ export const towers = [
     ],
     image: '/towers/sunburst/Sunburst.webp',
     depth: '/towers/sunburst/Sunburst.png',
+    textureAspect: 2048 / 1653,
     imageAdjust: {
       width: '90%',
       objectPosition: 'center',

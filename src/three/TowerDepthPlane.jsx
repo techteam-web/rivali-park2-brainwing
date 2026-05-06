@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber'
-import { useMemo, useRef, useEffect, useState } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { gsap } from '../gsap/Gsapconfig'
 import { makeTowerDepthMaterial } from './towerDepthMaterial'
 import { pointerState } from './pointerState'
@@ -25,22 +25,28 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
   useEffect(() => () => material.dispose(), [material])
 
   const prevTowerIdRef = useRef(tower.id)
-  const [geometryAspect, setGeometryAspect] = useState(() =>
-    color.image ? color.image.width / color.image.height : 1,
-  )
 
   useEffect(() => {
     const mat = meshRef.current?.material
     if (!mat) return
     const u = mat.uniforms
 
-    if (prevTowerIdRef.current === tower.id) return
+    if (prevTowerIdRef.current === tower.id) {
+      // First mount — install initial tower's aspect (factory defaulted to PLANE_ASPECT).
+      u.uColorAspect.value = tower.textureAspect
+      u.uPrevColorAspect.value = tower.textureAspect
+      return
+    }
     if (u.uColor.value === color && u.uDepth.value === depth) return
 
     u.uPrevColor.value = u.uColor.value
     u.uPrevDepth.value = u.uDepth.value
+    u.uPrevColorAspect.value = u.uColorAspect.value
+
     u.uColor.value = color
     u.uDepth.value = depth
+    u.uColorAspect.value = tower.textureAspect
+
     // Start at a tiny non-zero value so the first rendered frame routes into
     // the dissolve branch (showing prev), not the else fast-path.
     u.uTransition.value = 0.001
@@ -50,11 +56,6 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
       duration: TRANSITION_DURATION,
       ease: TRANSITION_EASE,
       overwrite: 'auto',
-      onComplete: () => {
-        if (color.image) {
-          setGeometryAspect(color.image.width / color.image.height)
-        }
-      },
     })
 
     prevTowerIdRef.current = tower.id
@@ -64,15 +65,20 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
     }
   }, [tower, color, depth])
 
-  const { width: planeW, height: planeH } = useMemo(() => {
+  // Plane fills the visible frustum exactly — plane = canvas. Cover-cropping
+  // each tower's texture into this aspect happens in the fragment shader.
+  const { width: planeW, height: planeH, planeAspect } = useMemo(() => {
     const aspect = size.width / size.height
     const frustumH = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z
     const frustumW = frustumH * aspect
-    if (aspect > geometryAspect) {
-      return { width: frustumW, height: frustumW / geometryAspect }
-    }
-    return { width: frustumH * geometryAspect, height: frustumH }
-  }, [geometryAspect, size, camera])
+    return { width: frustumW, height: frustumH, planeAspect: aspect }
+  }, [size, camera])
+
+  useEffect(() => {
+    const mat = meshRef.current?.material
+    if (!mat) return
+    mat.uniforms.uPlaneAspect.value = planeAspect
+  }, [planeAspect])
 
   useFrame(() => {
     if (!meshRef.current) return
