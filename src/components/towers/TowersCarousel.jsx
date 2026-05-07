@@ -7,7 +7,7 @@ import TowersCanvas from '../../three/TowersCanvas'
 import TowerDecorations from './TowerDecorations'
 import RaggedyEdge from './RaggedyEdge'
 
-const HIGHLIGHT_X = [1.73389, 55.5, 109.25, 163, 1.73389]
+const HIGHLIGHT_X = [1.73389, 56.75, 111.77, 166.79, 1.73389]
 
 const SCROLL_PER_TRANSITION = 4.0 // multiplier of viewport height per panel transition
 
