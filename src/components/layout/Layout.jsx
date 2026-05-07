@@ -11,7 +11,7 @@ const Layout = () => {
     return (
       <div className="bg-white overflow-x-clip">
         <Header />
-        <main className="-mt-22">
+        <main className="-mt-22 4xl:-mt-26 5xl:-mt-36">
           <Outlet />
         </main>
       </div>
