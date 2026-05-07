@@ -9,7 +9,7 @@ const POINTER_LERP = 0.08
 const POINTER_RETURN_TO_REST = 0.04
 const RAGGEDY_UV_THRESHOLD = 0.14
 
-const TRANSITION_DURATION = 2.2
+const TRANSITION_DURATION = 3.5
 const TRANSITION_EASE = 'power2.inOut'
 
 const TowerDepthPlane = ({ tower, color, depth }) => {
@@ -82,18 +82,25 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
 
   // Plane fills the visible frustum exactly — plane = canvas. Cover-cropping
   // each tower's texture into this aspect happens in the fragment shader.
-  const { width: planeW, height: planeH, planeAspect } = useMemo(() => {
+  const { width: planeW, height: planeH, planeAspect, texelX, texelY } = useMemo(() => {
     const aspect = size.width / size.height
     const frustumH = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z
     const frustumW = frustumH * aspect
-    return { width: frustumW, height: frustumH, planeAspect: aspect }
+    return {
+      width: frustumW,
+      height: frustumH,
+      planeAspect: aspect,
+      texelX: 1 / size.width,
+      texelY: 1 / size.height,
+    }
   }, [size, camera])
 
   useEffect(() => {
     const mat = meshRef.current?.material
     if (!mat) return
     mat.uniforms.uPlaneAspect.value = planeAspect
-  }, [planeAspect])
+    mat.uniforms.uTexel.value.set(texelX, texelY)
+  }, [planeAspect, texelX, texelY])
 
   useFrame(() => {
     if (!meshRef.current) return
