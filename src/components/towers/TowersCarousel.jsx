@@ -72,7 +72,7 @@ const TowersCarousel = () => {
         )
         gsap.to(window, {
           scrollTo: { y: targetY, autoKill: false },
-          duration: 3.7,
+          duration: 5.2,
           ease: 'power2.inOut',
           onComplete: () => {
             isAnimating = false

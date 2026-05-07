@@ -9,7 +9,7 @@ const POINTER_LERP = 0.08
 const POINTER_RETURN_TO_REST = 0.04
 const RAGGEDY_UV_THRESHOLD = 0.14
 
-const TRANSITION_DURATION = 3.5
+const TRANSITION_DURATION = 5.0
 const TRANSITION_EASE = 'power2.inOut'
 
 const TowerDepthPlane = ({ tower, color, depth }) => {
@@ -102,8 +102,9 @@ const TowerDepthPlane = ({ tower, color, depth }) => {
     mat.uniforms.uTexel.value.set(texelX, texelY)
   }, [planeAspect, texelX, texelY])
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!meshRef.current) return
+    meshRef.current.material.uniforms.uTime.value = state.clock.elapsedTime
     const u = meshRef.current.material.uniforms.uMouse.value
     const lerp = isOver.current ? POINTER_LERP : POINTER_RETURN_TO_REST
     u.x += (target.current.x - u.x) * lerp
