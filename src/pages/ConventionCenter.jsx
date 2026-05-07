@@ -6,10 +6,13 @@ const BG_W = 1498
 const BG_H = 1068
 
 
+// `slug` (when present) wires the card to its detail slider page at
+// /gallery/convention-center/:slug. Cards without a slug are non-navigable
+// until their detail page assets land.
 const cards = [
-  { name: 'Restaurant',   src: '/gallery/svgs/convention center/restaurant.svg',    top: 0.347, left: 0.097 },
-  { name: 'Banquet hall', src: '/gallery/svgs/convention center/banquette hall.svg', top: 0.389, left: 0.500 },
-  { name: 'Guest rooms',  src: '/gallery/svgs/convention center/guest rooms.svg',   top: 0.342, left: 0.874 },
+  { name: 'Restaurant',   src: '/gallery/svgs/convention center/restaurant.svg',    top: 0.347, left: 0.097, slug: 'restaurant' },
+  { name: 'Banquet hall', src: '/gallery/svgs/convention center/banquette hall.svg', top: 0.389, left: 0.500, slug: 'banquet-hall' },
+  { name: 'Guest rooms',  src: '/gallery/svgs/convention center/guest rooms.svg',   top: 0.342, left: 0.874, slug: 'guest-rooms' },
 ]
 
 const decoratives = [
@@ -67,6 +70,7 @@ const ConventionCenter = () => {
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            onClick={c.slug ? () => exitTo(`/gallery/convention-center/${c.slug}`) : undefined}
             className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,

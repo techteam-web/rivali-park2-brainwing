@@ -6,12 +6,12 @@ const BG_W = 896
 const BG_H = 892
 
 const cards = [
-  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.242, left: 0.675 },
+  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.242, left: 0.675, slug: 'salon' },
   { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.282, left: 0.437 },
-  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.362, left: 0.306 },
-  { name: 'Sports bar',                  src: '/gallery/svgs/wellness club/sports bar.svg',                  top: 0.350, left: 0.683 },
+  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.362, left: 0.306, slug: 'spa' },
+  { name: 'Wellness bar',                src: '/gallery/svgs/wellness club/sports bar.svg',                  top: 0.350, left: 0.683, slug: 'wellness-bar' },
   { name: 'Dinning',                     src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.422, left: 0.47},
-  { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.568, left: 0.669 },
+  { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.568, left: 0.669, slug: 'gymnasium' },
 ]
 
 const decoratives = [
@@ -73,6 +73,7 @@ const WellnessClub = () => {
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            onClick={c.slug ? () => exitTo(`/gallery/wellness-club/${c.slug}`) : undefined}
             className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,

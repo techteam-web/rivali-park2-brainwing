@@ -6,14 +6,17 @@ import { useSocialClubHovers } from '../hooks/useSocialClubHovers'
 const BG_W = 1324
 const BG_H = 745
 
+// `slug` (when present) wires the card to its detail slider page at
+// /gallery/social-club/:slug. Cards without a slug are non-navigable
+// until their detail page assets land.
 const cards = [
   { name: 'Cafeteria',                 src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.360, left: 0.24 },
-  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.40, left: 0.36 },
+  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.40, left: 0.36, slug: 'screening-room' },
   { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.42, left: 0.57 },
   { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.39, left: 0.69 },
-  { name: 'Social media studio',       src: '/gallery/svgs/social club/social media studio.svg',       top: 0.33, left: 0.824 },
+  { name: 'Social media studio',       src: '/gallery/svgs/social club/social media studio.svg',       top: 0.33, left: 0.824, slug: 'social-media-studio' },
   { name: 'Library & business centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22 },
-  { name: 'Billiard room',             src: '/gallery/svgs/social club/billiard room.svg',             top: 0.54, left: 0.66 },
+  { name: 'Billiard room',             src: '/gallery/svgs/social club/billiard room.svg',             top: 0.54, left: 0.66, slug: 'billiards-room' },
   { name: 'Teen lounge',               src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.54, left: 0.85 },
 ]
 
@@ -71,6 +74,7 @@ const SocialClub = () => {
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            onClick={c.slug ? () => exitTo(`/gallery/social-club/${c.slug}`) : undefined}
             className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,

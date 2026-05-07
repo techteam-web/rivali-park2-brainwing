@@ -8,10 +8,10 @@ const BG_H = 1024
 const cards = [
   { name: 'Art Gallery',         src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538 },
   { name: 'Coffee Shop',         src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094 },
-  { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.2412, left: 0.8396 },
-  { name: 'Liesure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365 },
-  { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.4854, left: 0.8608 },
-  { name: 'Multipurpose courts', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.6582, left: 0.0974 },
+  { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.2412, left: 0.8396, slug: 'kids-play-area' },
+  { name: 'Liesure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365, slug: 'liesure-pool' },
+  { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.4854, left: 0.8608, slug: 'swimming-pool' },
+  { name: 'Multipurpose courts', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.6582, left: 0.0974, slug: 'multipurpose-courts' },
 ]
 
 const decoratives = [
@@ -67,6 +67,7 @@ const CentralCourtyard = () => {
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            onClick={c.slug ? () => exitTo(`/gallery/central-courtyard/${c.slug}`) : undefined}
             className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,

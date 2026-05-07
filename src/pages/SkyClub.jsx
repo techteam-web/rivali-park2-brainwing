@@ -7,12 +7,12 @@ const BG_H = 1024
 
 
 const cards = [
-  { name: 'Viewing Decks',  src: '/gallery/svgs/sky club/viewing decks.svg',   top: 0.4282, left: 0.2323 },
-  { name: 'Kids play area', src: '/gallery/svgs/sky club/kids play area.svg',  top: 0.4282, left: 0.4025 },
-  { name: 'Guests Rooms',   src: '/gallery/svgs/sky club/guest rooms.svg',     top: 0.4282, left: 0.555 },
+  { name: 'Viewing Decks',  src: '/gallery/svgs/sky club/viewing decks.svg',   top: 0.4282, left: 0.2323, slug: 'viewing-decks' },
+  { name: 'Kids play area', src: '/gallery/svgs/sky club/kids play area.svg',  top: 0.4282, left: 0.4025, slug: 'kids-play-area' },
+  { name: 'Guests Rooms',   src: '/gallery/svgs/sky club/guest rooms.svg',     top: 0.4282, left: 0.555,  slug: 'guest-rooms' },
   { name: 'Banquet hall',   src: '/gallery/svgs/sky club/banquette hall.svg',  top: 0.4282, left: 0.7135 },
-  { name: 'Sky Fitness',    src: '/gallery/svgs/sky club/sky fitness.svg',     top: 0.3833, left: 0.8369 },
-  { name: 'Spa',            src: '/gallery/svgs/sky club/spa.svg',             top: 0.4282, left: 0.9421 },
+  { name: 'Sky Fitness',    src: '/gallery/svgs/sky club/sky fitness.svg',     top: 0.3833, left: 0.8369, slug: 'sky-fitness' },
+  { name: 'Spa',            src: '/gallery/svgs/sky club/spa.svg',             top: 0.4282, left: 0.9421, slug: 'spa' },
 ]
 
 const PILL_BG =
@@ -48,6 +48,7 @@ const SkyClub = () => {
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            onClick={c.slug ? () => exitTo(`/gallery/sky-club/${c.slug}`) : undefined}
             className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,
