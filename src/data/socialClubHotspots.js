@@ -40,6 +40,7 @@ export const socialClubHotspots = [
     slug: 'screening-room',
     name: 'Screening Room',
     bg: `${ASSET_BASE}/screening room bg.png`,
+    bgPosition: 'bottom',
     progress: 0.66,
     decoratives: [
       {

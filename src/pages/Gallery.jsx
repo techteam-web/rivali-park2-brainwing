@@ -82,6 +82,7 @@ const Gallery = () => {
             type="button"
             onClick={() => exitTo(s.href)}
             aria-label={s.name}
+            data-tune={s.name}
             className="absolute pointer-events-none p-0 border-0 bg-transparent focus:outline-none transition-transform duration-200 ease-out has-[svg_*:hover]:scale-[1.03] has-[svg_*:hover]:brightness-110 focus-visible:scale-[1.03]"
             style={{
               top: `${s.top * 100}%`,
@@ -105,6 +106,7 @@ const Gallery = () => {
             data-card-label
             onClick={() => exitTo(`/towers#${t.name.toLowerCase()}`)}
             aria-label={t.name}
+            data-tune={t.name}
             className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] transition-all duration-200 hover:scale-[1.05] hover:brightness-110 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-110 px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]"
             style={{
               top: `${t.top * 100}%`,

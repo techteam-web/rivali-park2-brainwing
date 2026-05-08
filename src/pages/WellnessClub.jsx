@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
+import { useWellnessClubHovers } from '../hooks/useWellnessClubHovers'
 
 const BG_W = 896
 const BG_H = 892
@@ -15,8 +16,8 @@ const cards = [
 ]
 
 const decoratives = [
-  { name: 'left-tree',      src: '/gallery/svgs/wellness club/left-tree.svg',      top: 0.50, left: 0.01,  width: 0.045 },
-  { name: 'left-bush-tree', src: '/gallery/svgs/wellness club/left-bush-tree.svg', top: 0.470, left: 0.235, width: 0.070 },
+  { name: 'left-tree',      src: '/gallery/svgs/wellness club/left-tree.svg',      top: 0.486, left: 0.055, width: 0.045 },
+  { name: 'left-bush-tree', src: '/gallery/svgs/wellness club/left-bush-tree.svg', top: 0.470, left: 0.246, width: 0.070 },
   { name: 'right-bush',     src: '/gallery/svgs/wellness club/right-bush.svg',     top: 0.63, left: 0.800, width: 0.0390 },
   { name: 'right-bush-2',   src: '/gallery/svgs/wellness club/right-bush-2.svg',   top: 0.63, left: 0.740, width: 0.046 },
   { name: 'right-bush-3',   src: '/gallery/svgs/wellness club/right-bush-3.svg',   top: 0.625, left: 0.595, width: 0.046 },
@@ -33,11 +34,12 @@ const BOTTOM_BG = 'linear-gradient(180deg, rgba(26,26,26,0) 0%, #1A1A1A 76.5%)'
 const WellnessClub = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
+  useWellnessClubHovers(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        className="absolute inset-0 m-auto"
         style={{
           '--stage-w': `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
           width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
@@ -74,7 +76,7 @@ const WellnessClub = () => {
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
             onClick={c.slug ? () => exitTo(`/gallery/wellness-club/${c.slug}`) : undefined}
-            className="absolute -translate-x-1/2 group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
+            className="absolute -translate-x-1/2 z-[60] group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
             style={{
               top: `${c.top * 100}%`,
               left: `${c.left * 100}%`,
@@ -101,39 +103,25 @@ const WellnessClub = () => {
 
       <div
         aria-hidden="true"
-        className="hidden lg:block lg:backdrop-blur-[2px] xl:backdrop-blur-[2.5px] 2xl:backdrop-blur-[3px] 3xl:backdrop-blur-[3.7px] 4xl:backdrop-blur-[5px] 5xl:backdrop-blur-[7.5px]"
+        className="hidden lg:block absolute top-0 left-0 right-0 z-50 pointer-events-none lg:backdrop-blur-[2px] xl:backdrop-blur-[2.5px] 2xl:backdrop-blur-[3px] 3xl:backdrop-blur-[3.7px] 4xl:backdrop-blur-[5px] 5xl:backdrop-blur-[7.5px] h-[33px] xl:h-[41px] 2xl:h-[50px] 3xl:h-[62px] 4xl:h-[83px] 5xl:h-[124px]"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '33px',
           mask: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
           WebkitMask: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
-          pointerEvents: 'none',
-          zIndex: 50,
         }}
       />
 
       <div
         aria-hidden="true"
-        className="hidden lg:block"
+        className="hidden lg:block absolute top-0 left-0 right-0 z-[51] pointer-events-none h-[90px] xl:h-[113px] 2xl:h-[135px] 3xl:h-[169px] 4xl:h-[225px] 5xl:h-[338px]"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '90px',
           backgroundImage: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-          pointerEvents: 'none',
-          zIndex: 51,
         }}
       />
 
       <div
         aria-hidden="true"
-        className="hidden lg:block absolute left-0 right-0 pointer-events-none z-5"
-        style={{ bottom: '-8px', height: '220px', backgroundImage: BOTTOM_BG }}
+        className="hidden lg:block absolute left-0 right-0 pointer-events-none z-5 -bottom-2 h-[150px] xl:h-[188px] 2xl:h-[225px] 3xl:h-[281px] 4xl:h-[375px] 5xl:h-[563px]"
+        style={{ backgroundImage: BOTTOM_BG }}
       />
 
       <button
@@ -141,7 +129,7 @@ const WellnessClub = () => {
         aria-label="Back"
         data-back-btn
         onClick={() => exitTo('/gallery')}
-        className="hidden lg:flex absolute top-5 left-5 z-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+        className="hidden lg:flex absolute top-5 left-5 z-[60] items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         style={{ backgroundColor: 'rgba(49, 49, 49, 0.2)' }}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
@@ -152,8 +140,7 @@ const WellnessClub = () => {
 
       <h1
         data-page-title
-        className="hidden lg:block absolute z-10 text-white font-semibold pointer-events-none leading-tight text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl"
-        style={{ top: 'auto', bottom: '3rem', left: '3rem' }}
+        className="hidden lg:block absolute z-10 text-white font-semibold pointer-events-none leading-tight text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl 4xl:text-5xl 5xl:text-6xl bottom-[50px] xl:bottom-[63px] 2xl:bottom-[75px] 3xl:bottom-[94px] 4xl:bottom-[125px] 5xl:bottom-[188px] left-[48px] xl:left-[60px] 2xl:left-[72px] 3xl:left-[90px] 4xl:left-[120px] 5xl:left-[180px]"
       >
         Wellness Club
       </h1>

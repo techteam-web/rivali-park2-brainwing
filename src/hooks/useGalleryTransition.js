@@ -74,7 +74,11 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       root.dataset.galleryEntrancePlayed = '1'
 
       const drawables = collectDrawables(root)
-      if (drawables.length) gsap.set(drawables, { drawSVG: 0 })
+      // opacity: 0 matches the [data-draw] CSS default and hides round
+      // linecap "dot" artefacts that drawSVG: 0 alone would leave behind.
+      // The entrance tween below restores opacity in lockstep with the
+      // drawSVG reveal.
+      if (drawables.length) gsap.set(drawables, { opacity: 0, drawSVG: 0 })
 
       // Each card SVG has a colored circular fill behind its strokes.
       // drawSVG only affects strokes, so without this the fill would
@@ -108,7 +112,8 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       gsap.set(root, { autoAlpha: 1 })
 
       if (prefersReducedMotion()) {
-        if (drawables.length) gsap.set(drawables, { drawSVG: '0% 100%' })
+        if (drawables.length)
+          gsap.set(drawables, { opacity: 1, drawSVG: '0% 100%' })
         if (bgImg) gsap.set(bgImg, { autoAlpha: 1, filter: 'blur(0px)' })
         if (title) gsap.set(title, { autoAlpha: 1, y: 0 })
         if (labels.length) gsap.set(labels, { autoAlpha: 1 })
@@ -151,10 +156,14 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       if (drawables.length) {
         // Start the stroke draw a hair after the card discs begin
         // settling in, so the strokes appear to ink onto the now-visible
-        // background rather than racing it.
+        // background rather than racing it. Opacity tweens in lockstep
+        // with drawSVG so the strokes fade up as they ink — round-linecap
+        // dot artefacts at drawSVG: 0 stay invisible because the path is
+        // also at opacity 0 at the start of its tween.
         tl.to(
           drawables,
           {
+            opacity: 1,
             drawSVG: '0% 100%',
             duration: 1.7,
             ease: 'power2.inOut',

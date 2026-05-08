@@ -50,6 +50,24 @@ body {
   cursor: pointer;
 }
 
+/*
+  Default-hide every drawable shape that lives inside a [data-draw]
+  wrapper. We use `opacity: 0` rather than `stroke-dasharray: 0 ...`
+  because the project's SVGs use `stroke-linecap="round"`, and a round
+  linecap on a zero-length visible dash still paints a circular cap at
+  every subpath start — leaving visible white dots before the draw-in
+  animation runs. Opacity hides the entire stroke (caps included).
+
+  CSS specificity beats SVG presentation attributes, so this takes effect
+  from the very first paint. As soon as GSAP tweens `opacity: 1` inline,
+  the rule is overridden and the draw-in animation reveals the strokes.
+*/
+[data-draw] :is(path, line, polyline, polygon, circle, ellipse, rect):not(
+    [data-no-draw]
+  ):not([data-no-undraw]) {
+  opacity: 0;
+}
+
 .card-shine {
   position: relative;
   overflow: hidden;

@@ -156,9 +156,11 @@ const setupScreeningRoom = (svgEl) => {
   return bind(svgEl, [person], { enter, leave })
 }
 
-// Roll the entire icon (excluding the bg circle) left↔right with a bounce.
-// All targeted paths rotate around the SVG's geometric center so they
-// move as one rolling object instead of each spinning independently.
+// Tumbling-throw: anticipation (tiny back-tilt + dip), a full 360° roll
+// with a hop into the air, then a bouncy landing and a brief rest before
+// the next throw. Every child shares one transform origin (SVG center)
+// so the dice moves as a rigid body — rotation + uniform Y translation
+// only, never per-child transforms or scale, so strokes can't shear.
 const setupKidsClub = (svgEl) => {
   const allChildren = Array.from(svgEl.children)
   // Skip the outer background circle (always the first <circle> child).
@@ -175,18 +177,31 @@ const setupKidsClub = (svgEl) => {
   let tl
   const enter = () => {
     if (tl) tl.kill()
-    tl = gsap.timeline({ repeat: -1, yoyo: true })
+    tl = gsap.timeline({ repeat: -1 })
+    // Anticipation: small back-tilt + dip, like winding up for a roll.
     tl.to(targets, {
-      x: 3,
-      rotation: 14,
-      y: -1.4,
-      duration: 0.45,
-      ease: 'power1.inOut',
-    }).to(targets, {
-      y: 0,
+      rotation: '-=15',
+      y: 1,
       duration: 0.22,
       ease: 'power2.out',
     })
+    // Toss: full forward roll with an upward hop. Net rotation per cycle
+    // is +360 (-15 wind-up + 375 forward), so the dice always returns to
+    // its original orientation.
+    tl.to(targets, {
+      rotation: '+=375',
+      y: -3.5,
+      duration: 0.55,
+      ease: 'power2.inOut',
+    })
+    // Landing: settle back with a bouncy ease for tactile weight.
+    tl.to(targets, {
+      y: 0,
+      duration: 0.5,
+      ease: 'bounce.out',
+    })
+    // Rest before the next throw.
+    tl.to({}, { duration: 0.55 })
   }
   const leave = () => {
     if (tl) {
@@ -195,9 +210,8 @@ const setupKidsClub = (svgEl) => {
     }
     gsap.killTweensOf(targets)
     gsap.to(targets, {
-      x: 0,
-      y: 0,
       rotation: 0,
+      y: 0,
       duration: 0.45,
       ease: 'power2.out',
     })
@@ -272,41 +286,62 @@ const setupBilliard = (svgEl) => {
   return bind(svgEl, targets, { enter, leave })
 }
 
-// 2 cards open out then close. Targets the two stroked card paths inside <g>.
+// Heart-beat: the small heart/pip path (paths[2] inside the <g>) bumps
+// up + scales up briefly, settles, then a second softer beat — the
+// classic "lub-dub" rhythm — and a short rest before looping. Only the
+// heart moves; the rest of the card icon is left untouched so the
+// strokes don't shear or deform.
 const setupCardRoom = (svgEl) => {
   const paths = Array.from(svgEl.querySelectorAll('g path'))
-  if (paths.length < 2) return null
-  // path[0] = filled card body, path[1] = inner card outline, path[2] = pip
-  const left = paths[0]
-  const right = paths[1]
-  const detail = paths[2] || null
-  const targets = [left, right, detail].filter(Boolean)
-  targets.forEach((t) => gsap.set(t, { transformOrigin: '50% 50%', transformBox: 'fill-box' }))
-  markHoverTargets(targets)
+  if (paths.length < 3) return null
+  const heart = paths[2]
+  gsap.set(heart, { transformOrigin: '50% 50%', transformBox: 'fill-box' })
+  markHoverTargets([heart])
 
   let tl
   const enter = () => {
     if (tl) tl.kill()
-    tl = gsap.timeline({ repeat: -1, yoyo: true })
-    tl.to(left, { x: -2.8, rotation: -6, duration: 0.55, ease: 'power2.inOut' }, 0)
-    tl.to(right, { x: 2.8, rotation: 6, duration: 0.55, ease: 'power2.inOut' }, 0)
-    if (detail) tl.to(detail, { y: -1.2, duration: 0.55, ease: 'power2.inOut' }, 0)
+    tl = gsap.timeline({ repeat: -1 })
+    tl.to(heart, {
+      y: -1.6,
+      scale: 1.18,
+      duration: 0.18,
+      ease: 'power2.out',
+    })
+      .to(heart, {
+        y: 0,
+        scale: 1,
+        duration: 0.22,
+        ease: 'power2.in',
+      })
+      .to(heart, {
+        y: -1,
+        scale: 1.1,
+        duration: 0.14,
+        ease: 'power2.out',
+      })
+      .to(heart, {
+        y: 0,
+        scale: 1,
+        duration: 0.2,
+        ease: 'power2.in',
+      })
+      .to({}, { duration: 0.45 })
   }
   const leave = () => {
     if (tl) {
       tl.kill()
       tl = null
     }
-    gsap.killTweensOf(targets)
-    gsap.to(targets, {
-      x: 0,
+    gsap.killTweensOf(heart)
+    gsap.to(heart, {
       y: 0,
-      rotation: 0,
-      duration: 0.45,
+      scale: 1,
+      duration: 0.3,
       ease: 'power2.out',
     })
   }
-  return bind(svgEl, targets, { enter, leave })
+  return bind(svgEl, [heart], { enter, leave })
 }
 
 // Camera button drops down; lens glare orbits around the lens center.

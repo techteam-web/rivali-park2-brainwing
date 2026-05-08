@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gsap, inlineSvgsReady } from '../lib/gsap'
 import InlineSVG from '../components/about/InlineSVG'
@@ -47,6 +47,7 @@ const SocialClubHotspot = () => {
   const containerRef = useRef(null)
   const slideRefs = useRef([])
   const progressRef = useRef(null)
+  const titleRef = useRef(null)
 
   const initialIndex = Math.max(0, findHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
@@ -73,9 +74,14 @@ const SocialClubHotspot = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hotspot])
 
-  // Initial state: hide every slide except the active one. We render all
-  // slides up front so swapping is just a crossfade rather than a remount.
-  useEffect(() => {
+  // Initial state: hide every slide except the active one and snap any
+  // already-loaded decorative paths to drawSVG: 0 before first paint.
+  // useLayoutEffect (not useEffect) runs synchronously after DOM mutations
+  // but before the browser paints, so we never flash fully-drawn SVGs on
+  // mount — important when InlineSVG returns a cached document on a
+  // revisit, where the paths are present in the DOM at the very first
+  // commit. The activeIndex effect then animates the active slide in.
+  useLayoutEffect(() => {
     slideRefs.current.forEach((slide, i) => {
       if (!slide) return
       const isActive = i === initialIndex
@@ -84,12 +90,17 @@ const SocialClubHotspot = () => {
         zIndex: isActive ? 1 : 0,
         pointerEvents: isActive ? 'auto' : 'none',
       })
+      const paths = slide.querySelectorAll(DRAW_SEL)
+      if (paths.length) gsap.set(paths, { opacity: 0, drawSVG: 0 })
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Draw-in for the active slide's decorative SVGs once they've inlined.
-  // Re-runs whenever the active slide changes.
+  // Re-runs whenever the active slide changes. Opacity tweens 0 → 1 in
+  // lockstep with drawSVG so round-linecap "dot" artefacts that appear
+  // when stroke-dasharray makes the visible portion 0 stay hidden — at
+  // any moment the cap could show, the path is also at opacity 0.
   useEffect(() => {
     const root = containerRef.current
     if (!root) return
@@ -102,12 +113,13 @@ const SocialClubHotspot = () => {
       const paths = slide.querySelectorAll(DRAW_SEL)
       if (!paths.length) return
       gsap.killTweensOf(paths)
-      gsap.set(paths, { drawSVG: 0 })
+      gsap.set(paths, { opacity: 0, drawSVG: 0 })
       if (prefersReducedMotion()) {
-        gsap.set(paths, { drawSVG: '0% 100%' })
+        gsap.set(paths, { opacity: 1, drawSVG: '0% 100%' })
         return
       }
       gsap.to(paths, {
+        opacity: 1,
         drawSVG: '0% 100%',
         duration: 1.4,
         ease: 'power2.inOut',
@@ -119,6 +131,26 @@ const SocialClubHotspot = () => {
     return () => {
       cancelled = true
     }
+  }, [activeIndex])
+
+  // Per-slide title animation: fade + slide up the heading every time the
+  // active slide changes. `key={slug}` on the <h1> remounts the element,
+  // so titleRef points at a fresh node here. useLayoutEffect runs before
+  // paint so the first frame is already at autoAlpha 0 — no flash of the
+  // new title at full opacity before the tween kicks in.
+  useLayoutEffect(() => {
+    const el = titleRef.current
+    if (!el) return
+    gsap.killTweensOf(el)
+    if (prefersReducedMotion()) {
+      gsap.set(el, { autoAlpha: 1, y: 0 })
+      return
+    }
+    gsap.fromTo(
+      el,
+      { autoAlpha: 0, y: 20 },
+      { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.1 },
+    )
   }, [activeIndex])
 
   // Progress-bar fill: drawSVG to the active hotspot's `progress` value
@@ -161,6 +193,30 @@ const SocialClubHotspot = () => {
     if (!fromSlide || !toSlide) return
 
     isAnimatingRef.current = true
+
+    // Pre-hide the incoming slide's strokes synchronously so they don't
+    // appear fully drawn during the crossfade — only matters on revisits
+    // where drawSVG was last left at '0% 100%'. The activeIndex effect
+    // re-runs the draw-in once we settle on the new slide.
+    const toPaths = toSlide.querySelectorAll(DRAW_SEL)
+    if (toPaths.length) {
+      gsap.killTweensOf(toPaths)
+      gsap.set(toPaths, { opacity: 0, drawSVG: 0 })
+    }
+
+    // Fade the current title out alongside the crossfade. The new title's
+    // own fade-up tween fires from the activeIndex layout effect once the
+    // <h1> remounts with the next slide's name.
+    const titleEl = titleRef.current
+    if (titleEl && !prefersReducedMotion()) {
+      gsap.killTweensOf(titleEl)
+      gsap.to(titleEl, {
+        autoAlpha: 0,
+        y: -20,
+        duration: 0.4,
+        ease: 'power2.in',
+      })
+    }
 
     const onDone = () => {
       gsap.set(fromSlide, {
@@ -253,7 +309,11 @@ const SocialClubHotspot = () => {
           className="absolute inset-0 w-full h-full"
         >
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            className={
+              h.bgPosition === 'bottom'
+                ? 'absolute bottom-0 left-1/2 -translate-x-1/2'
+                : 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+            }
             style={{
               width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
               height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
@@ -271,6 +331,8 @@ const SocialClubHotspot = () => {
                 key={d.name}
                 src={d.src}
                 aria-hidden="true"
+                data-draw
+                data-tune={d.name}
                 className="absolute block select-none pointer-events-none"
                 style={{
                   top: `${d.top * 100}%`,
@@ -293,36 +355,24 @@ const SocialClubHotspot = () => {
         style={{ bottom: 0, height: '32vh', backgroundImage: BOTTOM_BG }}
       />
 
-      {/* Top header gradient + blur, mirroring the SocialClub map page. */}
+      {/* Top header gradient + blur, mirroring the SocialClub map page.
+          Heights scale with breakpoint to preserve Figma proportions
+          (90px / 33px on the 1440-wide design × current vw / 1024). */}
       <div
         aria-hidden="true"
-        className="hidden lg:block lg:backdrop-blur-[2px] xl:backdrop-blur-[2.5px] 2xl:backdrop-blur-[3px] 3xl:backdrop-blur-[3.7px] 4xl:backdrop-blur-[5px] 5xl:backdrop-blur-[7.5px]"
+        className="hidden lg:block absolute top-0 left-0 right-0 z-50 pointer-events-none lg:backdrop-blur-[2px] xl:backdrop-blur-[2.5px] 2xl:backdrop-blur-[3px] 3xl:backdrop-blur-[3.7px] 4xl:backdrop-blur-[5px] 5xl:backdrop-blur-[7.5px] h-[33px] xl:h-[41px] 2xl:h-[50px] 3xl:h-[62px] 4xl:h-[83px] 5xl:h-[124px]"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '33px',
           mask: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
           WebkitMask:
             'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
-          pointerEvents: 'none',
-          zIndex: 50,
         }}
       />
       <div
         aria-hidden="true"
-        className="hidden lg:block"
+        className="hidden lg:block absolute top-0 left-0 right-0 z-[51] pointer-events-none h-[90px] xl:h-[113px] 2xl:h-[135px] 3xl:h-[169px] 4xl:h-[225px] 5xl:h-[338px]"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '90px',
           backgroundImage:
             'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-          pointerEvents: 'none',
-          zIndex: 51,
         }}
       />
 
@@ -330,7 +380,7 @@ const SocialClubHotspot = () => {
         type="button"
         aria-label="Back"
         onClick={handleBack}
-        className="hidden lg:flex absolute top-5 left-5 z-50 items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15"
+        className="hidden lg:flex absolute top-5 left-5 z-50 items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         style={{ backgroundColor: 'rgba(49, 49, 49, 0.2)' }}
       >
         <svg
@@ -340,7 +390,7 @@ const SocialClubHotspot = () => {
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6"
+          className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
         >
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
@@ -349,13 +399,11 @@ const SocialClubHotspot = () => {
 
       <h1
         key={socialClubHotspots[activeIndex].slug}
-        className="hidden lg:block absolute z-20 text-white pointer-events-none"
+        ref={titleRef}
+        className="hidden lg:block absolute z-20 text-white pointer-events-none left-[45px] xl:left-[56px] 2xl:left-[68px] 3xl:left-[84px] 4xl:left-[113px] 5xl:left-[169px] bottom-[40px] xl:bottom-[50px] 2xl:bottom-[60px] 3xl:bottom-[75px] 4xl:bottom-[100px] 5xl:bottom-[150px] text-[17px] xl:text-[21px] 2xl:text-[26px] 3xl:text-[32px] 4xl:text-[43px] 5xl:text-[64px]"
         style={{
-          left: '64px',
-          bottom: '56px',
           fontFamily: "'Poppins', sans-serif",
-          fontWeight: 500,
-          fontSize: '24px',
+          fontWeight: 400,
           lineHeight: '120%',
           letterSpacing: '0.12em',
           textTransform: 'capitalize',
@@ -371,14 +419,8 @@ const SocialClubHotspot = () => {
         aria-hidden="true"
         viewBox="0 0 215 18"
         preserveAspectRatio="none"
-        className="hidden lg:block absolute z-20 pointer-events-none"
-        style={{
-          right: '64px',
-          bottom: '60px',
-          width: '213px',
-          height: '16px',
-          transform: 'rotate(0.46deg)',
-        }}
+        className="hidden lg:block absolute z-20 pointer-events-none right-[45px] xl:right-[56px] 2xl:right-[68px] 3xl:right-[84px] 4xl:right-[113px] 5xl:right-[169px] bottom-[43px] xl:bottom-[54px] 2xl:bottom-[64px] 3xl:bottom-[81px] 4xl:bottom-[108px] 5xl:bottom-[161px] w-[151px] xl:w-[189px] 2xl:w-[227px] 3xl:w-[283px] 4xl:w-[378px] 5xl:w-[566px] h-[11px] xl:h-[14px] 2xl:h-[17px] 3xl:h-[21px] 4xl:h-[28px] 5xl:h-[41px]"
+        style={{ transform: 'rotate(0.46deg)' }}
       >
         <path
           d={PROGRESS_PATH_D}

@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import LayoutTuner from '../../dev/LayoutTuner'
 
 const Layout = () => {
   const { pathname } = useLocation()
@@ -12,6 +13,7 @@ const Layout = () => {
         <main className="absolute inset-0">
           <Outlet />
         </main>
+        <LayoutTuner />
       </div>
     )
   }
@@ -23,6 +25,7 @@ const Layout = () => {
         <Outlet />
       </main>
       <Footer />
+      <LayoutTuner />
     </div>
   )
 }
