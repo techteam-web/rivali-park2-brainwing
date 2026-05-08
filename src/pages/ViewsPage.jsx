@@ -103,7 +103,7 @@ const ViewsPage = () => {
       </div>
 
       {/* Day / Night Toggle */}
-      <div className="absolute bottom-16 left-16 z-10 flex h-21 w-60 overflow-hidden rounded-lg bg-pastel-brown-bg/90 shadow-lg backdrop-blur-sm">
+      <div className="absolute bottom-13 left-13 z-10 flex h-19 w-54 overflow-hidden rounded-lg bg-pastel-brown-bg/90 shadow-lg backdrop-blur-sm">
         {/* Day Button */}
         <button
           onClick={() => setIsDay(true)}
