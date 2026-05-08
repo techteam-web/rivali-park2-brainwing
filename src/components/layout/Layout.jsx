@@ -6,6 +6,7 @@ const Layout = () => {
   const { pathname } = useLocation()
   const isTowers = pathname === '/towers'
   const isAbout = pathname === '/about'
+  const isViewspage = pathname === '/viewspage'
 
   if (isTowers) {
     return (
@@ -17,8 +18,20 @@ const Layout = () => {
       </div>
     )
   }
+  
+ 
 
   if (isAbout) {
+    return (
+      <div className="h-screen w-screen relative bg-white overflow-hidden">
+        <main className="absolute inset-0">
+          <Outlet />
+        </main>
+      </div>
+    )
+  }
+
+  if (isViewspage) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">
