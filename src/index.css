@@ -1,9 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Ocean Trace";
+  src: url("/fonts/OceanTrace.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --breakpoint-3xl: 120rem;
-  --breakpoint-4xl: 160rem;
-  --breakpoint-5xl: 240rem;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+  --breakpoint-5xl: 3840px;
 
   --color-brand-brown: #7a4833;
   --color-pastel-brown-bg: #faf9f6;
@@ -13,7 +25,7 @@
   --color-on-light-highlight-brown: rgba(122, 72, 51, 0.06);
 
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-script: "Caveat", "Ocean Trace", "Brush Script MT", cursive;
+  --font-script: "Ocean Trace", "Caveat", "Brush Script MT", cursive;
 }
 
 html,
@@ -21,6 +33,45 @@ body {
   font-family: var(--font-sans);
   color: var(--color-on-light-black);
   background: #ffffff;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Towers route: only the first panel renders static UI (button bg/arrow,
+   stat card bg + label, feature icon svg). Other panels' static UI is
+   hidden but layout-preserved. Their dynamic [data-reveal] text remains
+   visible via the cascade override below. */
+[data-tower-id]:nth-child(n+2) [data-cta-button],
+[data-tower-id]:nth-child(n+2) [data-stat-card],
+[data-tower-id]:nth-child(n+2) [data-feature-icon] {
+  visibility: hidden;
+}
+
+[data-tower-id]:nth-child(n+2) [data-reveal] {
+  visibility: visible;
+}
+
+/* Towers SplitText reveal — pad line wrappers to include descender +
+   ascender room. Without this, the mask clips descenders at rest and
+   re-exposes them when the line is translated to yPercent: -110. */
+.reveal-line {
+  padding-block: 0.2em;
+  margin-block: -0.2em;
+}
+
+/* SplitText injects a mask wrapper with overflow: clip around .reveal-line,
+   which clips script-font left-side glyph overhangs (e.g. Ocean Trace 'y').
+   Replace with a clip-path that only clips vertically so yPercent reveal
+   still hides translated lines, while horizontal overhangs render. */
+[data-reveal] :has(> .reveal-line),
+[data-reveal]:has(> .reveal-line) {
+  overflow: visible !important;
+  clip-path: inset(0 -1em);
 }
 
 [data-inline-svg] {
