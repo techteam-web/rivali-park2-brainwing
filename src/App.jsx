@@ -19,7 +19,7 @@ const App = () => {
         <Route path="/unit-plans" element={<UnitPlans />} />
         <Route path="/maps" element={<Maps />} />
         <Route path="/360" element={<SixtyDegree />} />
-     <Route path="/viewspage" element={<Viewspage />} />
+        <Route path="/viewspage" element={<Viewspage />} />
 
         <Route path="*" element={<Navigate to="/about" replace />} />
       </Route>

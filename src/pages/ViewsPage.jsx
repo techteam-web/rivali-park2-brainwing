@@ -35,19 +35,19 @@ const ViewsPage = () => {
       return;
     }
 
-    activateScene(isDay ? '0-day-top-e2' : '1-night-top-e1');
+    activateScene(isDay ? '0-cci_park2day' : '1-cci_park2night');
   }, [isDay, isViewerReady]);
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-black">
       <iframe
         ref={iframeRef}
-        src="/marziopano-views/index.html"
+        src="/RivaliCCI_P2ViewsMarzipano/index.html"
         title="360 panorama viewer"
         className="absolute inset-0 h-full w-full border-0"
         onLoad={() => {
           setIsViewerReady(true);
-          activateScene(isDay ? '0-day-top-e2' : '1-night-top-e1');
+          activateScene(isDay ? '0-cci_park2day' : '1-cci_park2night');
         }}
       />
 
@@ -103,7 +103,7 @@ const ViewsPage = () => {
       </div>
 
       {/* Day / Night Toggle */}
-      <div className="absolute bottom-13 left-13 z-10 flex h-19 w-54 overflow-hidden rounded-lg bg-pastel-brown-bg/90 shadow-lg backdrop-blur-sm">
+      <div className="absolute bottom-13 left-13 z-10 flex h-19 w-54 lg:h-16 lg:w-49 overflow-hidden rounded-lg bg-pastel-brown-bg/90 shadow-lg backdrop-blur-sm">
         {/* Day Button */}
         <button
           onClick={() => setIsDay(true)}
