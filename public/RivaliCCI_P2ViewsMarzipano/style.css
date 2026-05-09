@@ -828,5 +828,6 @@ body.view-control-buttons .viewControlButton {
 .viewControlButton-6 {
   margin-left: 105px;
 }
+
 /* Hide default Marzipano UI components as they are handled by the React wrapper */
 #titleBar, #sceneList, #autorotateToggle, #fullscreenToggle, #sceneListToggle, .viewControlButton { display: none !important; }
