@@ -44,7 +44,7 @@ const TowerPanel = forwardRef(({ tower, index, isActive }, ref) => {
         {/* Left column — text content, ~5/12 ≈ 42% */}
         <div
           data-text-col
-          className={`col-span-12 md:col-span-5 flex flex-col justify-start gap-6 md:gap-3 xl:gap-4 2xl:gap-5 3xl:gap-7 4xl:gap-9 5xl:gap-14 px-12 md:pl-6 md:pr-1 lg:pl-6 lg:pr-1 xl:pl-10 xl:pr-1 2xl:pl-14 2xl:pr-1 3xl:pl-20 3xl:pr-2 4xl:pl-26 4xl:pr-3 5xl:pl-40 5xl:pr-4 pt-24 md:pt-14 xl:pt-14 2xl:pt-22 3xl:pt-30 4xl:pt-40 5xl:pt-60 ${allowEvents ? 'pointer-events-auto' : ''}`}
+          className={`col-span-12 md:col-span-5 flex flex-col justify-start md:justify-center-safe gap-6 md:gap-3 xl:gap-4 2xl:gap-5 3xl:gap-7 4xl:gap-9 5xl:gap-14 px-12 md:pl-6 md:pr-1 lg:pl-6 lg:pr-1 xl:pl-10 xl:pr-1 2xl:pl-14 2xl:pr-1 3xl:pl-20 3xl:pr-2 4xl:pl-26 4xl:pr-3 5xl:pl-40 5xl:pr-4 pt-24 md:pt-0 ${allowEvents ? 'pointer-events-auto' : ''}`}
         >
           <div>
             <h2

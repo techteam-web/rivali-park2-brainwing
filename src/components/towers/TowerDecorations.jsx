@@ -11,12 +11,22 @@ const PX_PER_UNIT = MAX_PIXEL_OFFSET / POINTER_AMPLITUDE
 // so no separate delay is stacked on top.
 const DRAW_DURATION = 1.8
 const DRAW_EASE = 'power2.inOut'
-const DRAW_OUT_DURATION = 0.7
+const DRAW_OUT_DURATION = 1.5
 const DRAW_OUT_EASE = 'power2.in'
+// Wait for the shader's bloom phase to be substantially complete
+// before drawing decorations. Measured from the moment the draw-out
+// tween completes (which is when `displayed` swaps and this delay
+// begins). 3.3s puts draw-in start at ~4.0s after tower change,
+// when colorPhase is roughly 84% complete with power2.inOut easing.
+const DRAW_IN_DELAY = 2.5
 
 const TowerDecorations = ({ tower }) => {
   const refs = useRef([])
   const [displayed, setDisplayed] = useState(tower)
+  // Tracks whether a real tower change has occurred. Set inside draw-out
+  // (which early-returns when tower.id === displayed.id, so Strict Mode's
+  // double-invocation on first mount can't accidentally flip it).
+  const hasTransitionedRef = useRef(false)
 
   // Parallax — unchanged behavior. Mutates transform on the SVG element ref.
   // DrawSVG operates on <path> children (stroke-dashoffset / stroke-dasharray),
@@ -45,6 +55,7 @@ const TowerDecorations = ({ tower }) => {
   useGSAP(
     () => {
       if (tower.id === displayed.id) return
+      hasTransitionedRef.current = true
       const paths = refs.current
         .filter(Boolean)
         .flatMap((svg) => Array.from(svg.querySelectorAll('path')))
@@ -74,13 +85,18 @@ const TowerDecorations = ({ tower }) => {
         const paths = Array.from(svg.querySelectorAll('path'))
         if (!paths.length) return
 
-        gsap.set(paths, { drawSVG: '0%' })
-        gsap.to(paths, {
-          drawSVG: '100%',
-          duration: dec.drawDuration ?? DRAW_DURATION,
-          ease: DRAW_EASE,
-          stagger: { amount: 0.3, from: 'random' },
-        })
+        if (!hasTransitionedRef.current) {
+          gsap.set(paths, { drawSVG: '100%' })
+        } else {
+          gsap.set(paths, { drawSVG: '0%' })
+          gsap.to(paths, {
+            drawSVG: '100%',
+            duration: dec.drawDuration ?? DRAW_DURATION,
+            ease: DRAW_EASE,
+            stagger: { amount: 0.3, from: 'random' },
+            delay: DRAW_IN_DELAY,
+          })
+        }
       })
     },
     { dependencies: [displayed.id] },
