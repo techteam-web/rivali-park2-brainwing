@@ -182,10 +182,26 @@
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
   }
 
+  var activeScene = null;
+
   function switchScene(scene) {
     stopAutorotate();
-    scene.view.setParameters(scene.data.initialViewParameters);
+
+    var currentView = viewer.view();
+    if (activeScene && currentView) {
+      var currentParams = currentView.parameters();
+      scene.view.setParameters({
+        yaw: currentParams.yaw,
+        pitch: currentParams.pitch,
+        fov: currentParams.fov
+      });
+    } else {
+      scene.view.setParameters(scene.data.initialViewParameters);
+    }
+    
     scene.scene.switchTo();
+    activeScene = scene;
+
     startAutorotate();
     updateSceneName(scene);
     updateSceneList(scene);
