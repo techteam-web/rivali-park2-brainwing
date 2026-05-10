@@ -48,6 +48,11 @@ const TowersCarousel = () => {
         panels[0].querySelectorAll('[data-stat-card]'),
       )
 
+      const nonFirstReveals = panels
+        .slice(1)
+        .flatMap((panel) => Array.from(panel.querySelectorAll('[data-reveal]')))
+      gsap.set(nonFirstReveals, { opacity: 0 })
+
       gsap.set(progressHighlightRef.current, {
         attr: { x: HIGHLIGHT_X[0], fill: TOWER_ACCENTS[0] },
       })
@@ -125,13 +130,17 @@ const TowersCarousel = () => {
       const build = contextSafe(() => {
         if (!mounted) return
 
-        const panelLines = panels.map((panel) => {
+        const panelLines = panels.map((panel, panelIdx) => {
           const targets = panel.querySelectorAll('[data-reveal]')
           const s = SplitText.create(targets, {
             type: 'lines',
             mask: 'lines',
             autoSplit: true,
             linesClass: 'reveal-line',
+            onSplit: (self) => {
+              const isActive = panelIdx === activeIndexRef.current
+              gsap.set(self.lines, { yPercent: isActive ? 0 : 110 })
+            },
           })
           splits.push(s)
           return s.lines
@@ -141,6 +150,7 @@ const TowersCarousel = () => {
         panelLines
           .slice(1)
           .forEach((lines) => gsap.set(lines, { yPercent: 110 }))
+        gsap.set(nonFirstReveals, { opacity: 1 })
 
         tl = gsap.timeline({
           scrollTrigger: {
@@ -191,7 +201,7 @@ const TowersCarousel = () => {
                   ScrollTrigger.maxScroll(window) - 1,
                 ),
               onEnter: () => goToSection(i + 1),
-              onEnterBack: () => goToSection(i === 0 ? -1 : i),
+              onEnterBack: () => goToSection(i),
               invalidateOnRefresh: true,
             }),
           )
