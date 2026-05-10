@@ -5,6 +5,7 @@ import Footer from './Footer'
 const Layout = () => {
   const { pathname } = useLocation()
   const isTowers = pathname === '/towers'
+  const isHome = pathname === '/'
   const isAbout = pathname === '/about'
 
   if (isTowers) {
@@ -18,7 +19,7 @@ const Layout = () => {
     )
   }
 
-  if (isAbout) {
+  if (isHome || isAbout) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">

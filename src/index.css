@@ -90,6 +90,19 @@ body {
   height: 100%;
 }
 
+[data-home-navbar] svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+
+[data-home-navbar] svg [fill]:not([fill="none"]):not([fill="white"]) {
+  fill: currentColor;
+  fill-opacity: 0.7;
+}
+
 .card-shine {
   position: relative;
   overflow: hidden;
