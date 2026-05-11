@@ -6,19 +6,24 @@ const MAX_PIXEL_OFFSET = 8
 const POINTER_AMPLITUDE = 0.06
 const PX_PER_UNIT = MAX_PIXEL_OFFSET / POINTER_AMPLITUDE
 
-// Draw timing — draw-out retracts current paths, then draw-in strokes the new
-// tower's decorations. The retraction itself provides the gap before draw-in,
-// so no separate delay is stacked on top.
+// Draw timing — draw-out runs in ISOLATION first, then the shader wipe + text
+// panel scrub + draw-in all fire afterward. Sequencing (with TRANSITION_DURATION
+// currently 2.0s in TowerDepthPlane.jsx):
+//   t = 0      tower changes; draw-out begins (shader + scroll-to are delayed)
+//   t = 1.0    draw-out completes; `displayed` swaps; shader wipe + scroll-to start
+//   t = 3.0    shader wipe completes; draw-in starts
+//   t ≈ 4.8   draw-in completes
+// DRAW_OUT_DURATION is mirrored as a `delay:` in TowerDepthPlane.jsx (shader
+// wipe tween) and TowersCarousel.jsx (snap scroll-to tween). If you change
+// this value, change those too — grep DECOR_DRAW_OUT_DELAY to find them.
 const DRAW_DURATION = 1.8
 const DRAW_EASE = 'power2.inOut'
-const DRAW_OUT_DURATION = 1.5
+const DRAW_OUT_DURATION = 1.0
 const DRAW_OUT_EASE = 'power2.in'
-// Wait for the shader's bloom phase to be substantially complete
-// before drawing decorations. Measured from the moment the draw-out
-// tween completes (which is when `displayed` swaps and this delay
-// begins). 3.3s puts draw-in start at ~4.0s after tower change,
-// when colorPhase is roughly 84% complete with power2.inOut easing.
-const DRAW_IN_DELAY = 2.5
+// Measured from the moment the draw-out tween completes (when `displayed`
+// swaps). Tuned so draw-in starts ≈ when the (delayed) shader wipe ends.
+// Equal to TRANSITION_DURATION in TowerDepthPlane.jsx.
+const DRAW_IN_DELAY = 2.0
 
 const TowerDecorations = ({ tower }) => {
   const refs = useRef([])

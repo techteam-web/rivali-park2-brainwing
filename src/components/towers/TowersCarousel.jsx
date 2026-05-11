@@ -9,7 +9,23 @@ import RaggedyEdge from './RaggedyEdge'
 
 const HIGHLIGHT_X = [1.73389, 56.75, 111.77, 166.79, 1.73389]
 
-const SCROLL_PER_TRANSITION = 4.0 // multiplier of viewport height per panel transition
+// Tuned to roughly match TRANSITION_DURATION in TowerDepthPlane.jsx so
+// the scroll-scrubbed text panel transition finishes in sync with the
+// shader wipe. If you change one, consider the other.
+const SCROLL_PER_TRANSITION = 2.0 // multiplier of viewport height per panel transition
+
+// Wall-clock duration of the snap-driven auto-scroll. Matched to
+// TRANSITION_DURATION in TowerDepthPlane.jsx — the text panel scrubs off
+// scroll position, so however long this auto-scroll takes is how long the
+// text transition takes. Keep it equal to the shader wipe duration so both
+// halves of the canvas finish at the same moment.
+const SNAP_SCROLL_DURATION = 2.0
+
+// Delay the snap scroll-to (and therefore the text panel scrub) so SVG
+// decorations draw out in isolation first. Mirrors DRAW_OUT_DURATION in
+// TowerDecorations.jsx and DECOR_DRAW_OUT_DELAY in TowerDepthPlane.jsx —
+// keep aligned.
+const DECOR_DRAW_OUT_DELAY = 1.0
 
 const TowersCarousel = () => {
   const sectionRef = useRef(null)
@@ -68,6 +84,10 @@ const TowersCarousel = () => {
         if (isAnimating) return
         isAnimating = true
 
+        // Capture the previous tower index BEFORE we mutate the ref — we use
+        // it below to compute the hold-scroll position for the text panel.
+        const prevActiveIndex = activeIndexRef.current
+
         // Logical tower index (modular). target=4 means slide 0, target=-1 means slide 3.
         const logicalIndex = ((target % towers.length) + towers.length) % towers.length
         if (activeIndexRef.current !== logicalIndex) {
@@ -100,10 +120,20 @@ const TowersCarousel = () => {
           ScrollTrigger.maxScroll(window),
         )
 
-        gsap.to(window, {
-          scrollTo: { y: targetY, autoKill: false },
-          duration: 5.2,
-          ease: 'power2.inOut',
+        // Hold position: the scroll location where the PREVIOUS tower is fully
+        // shown. If the user wheeled past the snap threshold (e.g. by 200 px
+        // before the snap actually fired), capturing window.scrollY would
+        // freeze them mid-slide-out — looks like the text "overshoots up"
+        // then snaps. Instead, derive holdY from prevActiveIndex's home
+        // position and snap there immediately so the scroll-scrubbed text
+        // timeline cleanly returns to "prev tower at rest" before the hold
+        // tween starts.
+        const holdY = wrapBackward
+          ? towers.length * SCROLL_PER_TRANSITION * vh
+          : prevActiveIndex * SCROLL_PER_TRANSITION * vh
+        window.scrollTo(0, holdY)
+
+        const snapTl = gsap.timeline({
           onComplete: () => {
             // Forward wrap: we landed at 16vh showing slide 0. Reset scroll to 0
             // so the user is at the natural "start" position for the next forward
@@ -118,6 +148,21 @@ const TowersCarousel = () => {
             // from here" position for slide towers.length-1.
             isAnimating = false
           },
+        })
+
+        // Holding phase: force scrollY back to holdY every frame so wheel
+        // input is overridden and the scroll-scrubbed text panel stays frozen.
+        snapTl.to({}, {
+          duration: DECOR_DRAW_OUT_DELAY,
+          onUpdate: () => {
+            if (window.scrollY !== holdY) window.scrollTo(0, holdY)
+          },
+        })
+
+        snapTl.to(window, {
+          scrollTo: { y: targetY, autoKill: false },
+          duration: SNAP_SCROLL_DURATION,
+          ease: 'power2.inOut',
         })
       }
 
@@ -184,6 +229,16 @@ const TowersCarousel = () => {
 
           tl.to(panelLines[i % towers.length],
                 { yPercent: -110, duration: 0.35, stagger: { each: 0.04, amount: 0.4 }, ease: 'power3.in' }, t)
+
+          // Wrap-forward: panel[0]'s lines have been parked at yPercent=-110
+          // since the i=0 slide-out and were never re-positioned. Without
+          // this reset they'd slide DOWN from above on the wrap-back, while
+          // every other panel slides UP from below. Set them to 110
+          // off-screen-below just before the wrap slide-in. The position is
+          // off-screen on both sides, so the instant change isn't visible.
+          if (i === transitions - 1) {
+            tl.set(panelLines[0], { yPercent: 110 }, t + 0.4)
+          }
 
           tl.to(panelLines[(i + 1) % towers.length],
                 { yPercent: 0, duration: 0.35, stagger: { each: 0.08, amount: 0.45 }, ease: 'expo.out' }, t + 0.5)
