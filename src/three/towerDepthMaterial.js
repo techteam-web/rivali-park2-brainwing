@@ -90,12 +90,12 @@ export const towerDepthFragment = /* glsl */ `
     // front horizontally to give it a torn-paper edge (low-freq big tears +
     // high-freq fine grain). Static — no uTime — so the edge has character,
     // not shimmer.
-    const float RAGGED = 0.022;   // total amplitude of edge irregularity
-    const float BAND   = 0.008;  // band width — keep small for a crisp tear
+    const float RAGGED = 0.012;   // total amplitude of edge irregularity
+    const float BAND   = 0.0099;  // band width — keep small for a crisp tear
 
     float raggedness =
-        (vnoise(vec2(vUv.y *  8.0, 0.0)) - 0.5) * RAGGED * 0.7 +
-        (vnoise(vec2(vUv.y * 38.0, 0.0)) - 0.5) * RAGGED * 0.3;
+        (vnoise(vec2(vUv.y *  10.0, 0.0)) - 0.4) * RAGGED * 0.99 +
+        (vnoise(vec2(vUv.y * 40.0, 0.0)) - 0.5) * RAGGED * 0.15;
 
     // Remap uTransition so endpoints fully resolve, accounting for both
     // amplitude (RAGGED) and softness (BAND).
