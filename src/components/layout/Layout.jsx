@@ -7,6 +7,7 @@ const Layout = () => {
   const { pathname } = useLocation()
   const isFullscreen = pathname === '/about' || pathname.startsWith('/gallery')
   const isTowers = pathname === '/towers'
+  const isHome = pathname === '/'
   const isAbout = pathname === '/about'
   const isViewspage = pathname === '/viewspage'
 
@@ -32,7 +33,7 @@ const Layout = () => {
     )
   }
 
-  if (isViewspage) {
+  if (isViewspage || isHome || isAbout) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">

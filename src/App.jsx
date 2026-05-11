@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
+import Home from './pages/Home'
 import AboutUs from './pages/AboutUs'
 import Towers from './pages/Towers'
 import Gallery from './pages/Gallery'
@@ -22,7 +23,7 @@ const App = () => {
     <Routes>
          
       <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to="/about" replace />} />
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/towers" element={<Towers />} />
         <Route path="/gallery" element={<Gallery />} />
@@ -41,7 +42,7 @@ const App = () => {
         <Route path="/360" element={<SixtyDegree />} />
         <Route path="/viewspage" element={<Viewspage />} />
 
-        <Route path="*" element={<Navigate to="/about" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )
