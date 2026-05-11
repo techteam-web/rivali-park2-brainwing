@@ -17,7 +17,7 @@ export const socialClubHotspots = [
   {
     slug: 'social-media-studio',
     name: 'Social Media Studio',
-    bg: `${ASSET_BASE}/social media studio bg.png`,
+    bg: `${ASSET_BASE}/social media studio bg.webp`,
     progress: 0.33,
     decoratives: [
       {
@@ -39,7 +39,7 @@ export const socialClubHotspots = [
   {
     slug: 'screening-room',
     name: 'Screening Room',
-    bg: `${ASSET_BASE}/screening room bg.png`,
+    bg: `${ASSET_BASE}/screening room bg.webp`,
     bgPosition: 'bottom',
     progress: 0.66,
     decoratives: [
@@ -62,7 +62,7 @@ export const socialClubHotspots = [
   {
     slug: 'billiards-room',
     name: 'Billiards Room',
-    bg: `${ASSET_BASE}/billiards room bg.png`,
+    bg: `${ASSET_BASE}/billiards room bg.webp`,
     progress: 1,
     decoratives: [],
   },

@@ -46,7 +46,7 @@ const SocialClub = () => {
         }}
       >
         <img
-          src="/gallery/social club bg.png"
+          src="/gallery/social club bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"

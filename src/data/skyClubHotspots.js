@@ -12,14 +12,14 @@ export const skyClubHotspots = [
   {
     slug: 'viewing-decks',
     name: 'Viewing Decks',
-    bg: `${ASSET_BASE}/viewing decks bg.png`,
+    bg: `${ASSET_BASE}/viewing decks bg.webp`,
     progress: 0.2,
     decoratives: [],
   },
   {
     slug: 'kids-play-area',
     name: 'Kids Play Area',
-    bg: `${ASSET_BASE}/kids play area bg.png`,
+    bg: `${ASSET_BASE}/kids play area bg.webp`,
     objectPosition: 'center bottom',
     progress: 0.4,
     decoratives: [
@@ -49,7 +49,7 @@ export const skyClubHotspots = [
   {
     slug: 'guest-rooms',
     name: 'Guest Rooms',
-    bg: `${ASSET_BASE}/Guest suites bg.png`,
+    bg: `${ASSET_BASE}/guest suites bg.webp`,
     objectPosition: 'center bottom',
     progress: 0.6,
     decoratives: [
@@ -79,7 +79,7 @@ export const skyClubHotspots = [
   {
     slug: 'sky-fitness',
     name: 'Sky Fitness',
-    bg: `${ASSET_BASE}/Gymnasium bg.png`,
+    bg: `${ASSET_BASE}/gymnasium bg.webp`,
     progress: 0.8,
     decoratives: [
       {
@@ -108,7 +108,7 @@ export const skyClubHotspots = [
   {
     slug: 'spa',
     name: 'Spa',
-    bg: `${ASSET_BASE}/spa bg.png`,
+    bg: `${ASSET_BASE}/spa bg.webp`,
     progress: 1,
     decoratives: [
       {

@@ -37,7 +37,7 @@ const SkyClub = () => {
         }}
       >
         <img
-          src="/gallery/sky club bg.png"
+          src="/gallery/sky club bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"

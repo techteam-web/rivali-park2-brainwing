@@ -69,7 +69,7 @@ const Gallery = () => {
         }}
       >
         <img
-          src="/gallery/gallery main bg.png"
+          src="/gallery/gallery bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"
@@ -124,7 +124,7 @@ const Gallery = () => {
         type="button"
         aria-label="Back"
         data-back-btn
-        onClick={() => exitTo('/about')}
+        onClick={() => exitTo(-1)}
         className="absolute top-5 left-5 z-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">

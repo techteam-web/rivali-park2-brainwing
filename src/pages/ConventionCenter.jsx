@@ -44,7 +44,7 @@ const ConventionCenter = () => {
         }}
       >
         <img
-          src="/gallery/convention center bg.png"
+          src="/gallery/convention center bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"

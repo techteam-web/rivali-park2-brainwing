@@ -8,7 +8,7 @@ export const wellnessClubHotspots = [
   {
     slug: 'wellness-bar',
     name: 'Wellness Bar',
-    bg: `${ASSET_BASE}/sports bar bg.png`,
+    bg: `${ASSET_BASE}/sports bar bg.webp`,
     progress: 0.25,
     decoratives: [
       {
@@ -37,7 +37,7 @@ export const wellnessClubHotspots = [
   {
     slug: 'salon',
     name: 'Salon',
-    bg: `${ASSET_BASE}/Salon bg.png`,
+    bg: `${ASSET_BASE}/salon bg.webp`,
     progress: 0.5,
     decoratives: [
       {
@@ -59,7 +59,7 @@ export const wellnessClubHotspots = [
   {
     slug: 'spa',
     name: 'Spa',
-    bg: `${ASSET_BASE}/Spa bg.png`,
+    bg: `${ASSET_BASE}/spa bg.webp`,
     progress: 0.75,
     decoratives: [
       {
@@ -74,7 +74,7 @@ export const wellnessClubHotspots = [
   {
     slug: 'gymnasium',
     name: 'Gymnasium',
-    bg: `${ASSET_BASE}/Gymnasium bg.png`,
+    bg: `${ASSET_BASE}/gymnasium bg.webp`,
     objectPosition: 'center bottom',
     progress: 1,
     decoratives: [

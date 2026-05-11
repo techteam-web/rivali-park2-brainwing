@@ -47,7 +47,7 @@ const WellnessClub = () => {
         }}
       >
         <img
-          src="/gallery/wellness club bg.png"
+          src="/gallery/wellness club bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"

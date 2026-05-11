@@ -9,7 +9,7 @@ export const centralCourtyardHotspots = [
   {
     slug: 'liesure-pool',
     name: 'Liesure Pool',
-    bg: `${ASSET_BASE}/Leisure Pool bg.png`,
+    bg: `${ASSET_BASE}/leisure pool bg.webp`,
     progress: 0.25,
     decoratives: [
       {
@@ -31,7 +31,7 @@ export const centralCourtyardHotspots = [
   {
     slug: 'swimming-pool',
     name: 'Swimming Pool',
-    bg: `${ASSET_BASE}/Swimming Pool bg.png`,
+    bg: `${ASSET_BASE}/swimming pool bg.webp`,
     progress: 0.5,
     decoratives: [
       {
@@ -46,7 +46,7 @@ export const centralCourtyardHotspots = [
   {
     slug: 'kids-play-area',
     name: 'Kids Play Area',
-    bg: `${ASSET_BASE}/Play Area bg.png`,
+    bg: `${ASSET_BASE}/kids play area bg.webp`,
     progress: 0.75,
     decoratives: [
       {
@@ -61,7 +61,7 @@ export const centralCourtyardHotspots = [
   {
     slug: 'multipurpose-courts',
     name: 'Multipurpose Courts',
-    bg: `${ASSET_BASE}/Multipurpose Courts bg.png`,
+    bg: `${ASSET_BASE}/multipurpose courts bg.webp`,
     progress: 1,
     // The Multipurpose Courts asset is portrait (753x1024) so object-cover
     // crops it horizontally on wide viewports. Pin the visible area to

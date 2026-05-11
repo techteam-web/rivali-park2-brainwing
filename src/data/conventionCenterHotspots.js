@@ -12,7 +12,7 @@ export const conventionCenterHotspots = [
   {
     slug: 'banquet-hall',
     name: 'Banquet Hall',
-    bg: `${ASSET_BASE}/Banquette bg.png`,
+    bg: `${ASSET_BASE}/banquet hall bg.webp`,
     progress: 0.33,
     decoratives: [
       {
@@ -41,7 +41,7 @@ export const conventionCenterHotspots = [
   {
     slug: 'restaurant',
     name: 'Cafe',
-    bg: `${ASSET_BASE}/Cafe bg.png`,
+    bg: `${ASSET_BASE}/cafe bg.webp`,
     progress: 0.66,
     decoratives: [
       {
@@ -63,7 +63,7 @@ export const conventionCenterHotspots = [
   {
     slug: 'guest-rooms',
     name: 'Guest Rooms',
-    bg: `${ASSET_BASE}/Guest rooms bg.png`,
+    bg: `${ASSET_BASE}/guests room bg.webp`,
     progress: 1,
     decoratives: [
       {

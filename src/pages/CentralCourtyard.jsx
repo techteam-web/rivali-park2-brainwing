@@ -41,7 +41,7 @@ const CentralCourtyard = () => {
         }}
       >
         <img
-          src="/gallery/central courtyad bg.png"
+          src="/gallery/central courtyard bg.webp"
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"

@@ -8,7 +8,7 @@ const items = [
   { id: 'gallery', src: '/home/svgs/gallery.svg', to: '/gallery', label: 'Gallery' },
   { id: 'unitplan', src: '/home/svgs/unitplan.svg', to: '/unit-plans', label: 'Unit Plans' },
   { id: 'map', src: '/home/svgs/map.svg', to: '/maps', label: 'Map' },
-  { id: '360', src: '/home/svgs/360.svg', to: '/360', label: '360' },
+  { id: '360', src: '/home/svgs/360.svg', to: '/viewspage', label: '360' },
 ]
 
 const iconClass =
