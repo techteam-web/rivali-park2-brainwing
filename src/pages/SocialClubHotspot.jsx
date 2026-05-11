@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { gsap, inlineSvgsReady } from '../lib/gsap'
 import InlineSVG from '../components/about/InlineSVG'
 import { socialClubHotspots, findHotspotIndex } from '../data/socialClubHotspots'
+import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 
 // Reference frame for the design (Figma 1440x1024 base). Background images
 // are sized so the longer axis covers the viewport, matching the
@@ -48,6 +49,7 @@ const SocialClubHotspot = () => {
   const slideRefs = useRef([])
   const progressRef = useRef(null)
   const titleRef = useRef(null)
+  const { exitTo } = useGalleryHotspotTransition({ containerRef })
 
   const initialIndex = Math.max(0, findHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
@@ -295,7 +297,7 @@ const SocialClubHotspot = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex])
 
-  const handleBack = () => navigate('/gallery/social-club')
+  const handleBack = () => exitTo('/gallery/social-club')
 
   return (
     <div

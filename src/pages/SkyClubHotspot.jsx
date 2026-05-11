@@ -6,6 +6,7 @@ import {
   skyClubHotspots,
   findSkyHotspotIndex,
 } from '../data/skyClubHotspots'
+import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -39,6 +40,7 @@ const SkyClubHotspot = () => {
   const slideRefs = useRef([])
   const progressRef = useRef(null)
   const titleRef = useRef(null)
+  const { exitTo } = useGalleryHotspotTransition({ containerRef })
 
   const initialIndex = Math.max(0, findSkyHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
@@ -275,7 +277,7 @@ const SkyClubHotspot = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex])
 
-  const handleBack = () => navigate('/gallery/sky-club')
+  const handleBack = () => exitTo('/gallery/sky-club')
 
   return (
     <div

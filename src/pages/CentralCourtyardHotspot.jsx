@@ -6,6 +6,7 @@ import {
   centralCourtyardHotspots,
   findCentralCourtyardHotspotIndex,
 } from '../data/centralCourtyardHotspots'
+import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -49,6 +50,7 @@ const CentralCourtyardHotspot = () => {
   const slideRefs = useRef([])
   const progressRef = useRef(null)
   const titleRef = useRef(null)
+  const { exitTo } = useGalleryHotspotTransition({ containerRef })
 
   const initialIndex = Math.max(0, findCentralCourtyardHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)

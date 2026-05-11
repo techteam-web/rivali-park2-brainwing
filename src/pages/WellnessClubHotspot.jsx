@@ -6,6 +6,7 @@ import {
   wellnessClubHotspots,
   findWellnessHotspotIndex,
 } from '../data/wellnessClubHotspots'
+import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -39,6 +40,7 @@ const WellnessClubHotspot = () => {
   const slideRefs = useRef([])
   const progressRef = useRef(null)
   const titleRef = useRef(null)
+  const { exitTo } = useGalleryHotspotTransition({ containerRef })
 
   const initialIndex = Math.max(0, findWellnessHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
@@ -275,7 +277,7 @@ const WellnessClubHotspot = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex])
 
-  const handleBack = () => navigate('/gallery/wellness-club')
+  const handleBack = () => exitTo('/gallery/wellness-club')
 
   return (
     <div

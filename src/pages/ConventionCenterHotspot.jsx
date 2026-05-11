@@ -6,6 +6,7 @@ import {
   conventionCenterHotspots,
   findConventionHotspotIndex,
 } from '../data/conventionCenterHotspots'
+import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -39,6 +40,7 @@ const ConventionCenterHotspot = () => {
   const slideRefs = useRef([])
   const progressRef = useRef(null)
   const titleRef = useRef(null)
+  const { exitTo } = useGalleryHotspotTransition({ containerRef })
 
   const initialIndex = Math.max(0, findConventionHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
@@ -275,7 +277,7 @@ const ConventionCenterHotspot = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex])
 
-  const handleBack = () => navigate('/gallery/convention-center')
+  const handleBack = () => exitTo('/gallery/convention-center')
 
   return (
     <div
