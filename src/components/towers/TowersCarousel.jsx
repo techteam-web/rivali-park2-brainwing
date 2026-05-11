@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../gsap/Gsapconfig'
 import { towers, TOWER_ACCENTS } from '../../data/towers'
 import TowerPanel from './TowerPanel'
@@ -33,23 +33,6 @@ const TowersCarousel = () => {
   const progressHighlightRef = useRef(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const activeIndexRef = useRef(0)
-
-  useEffect(() => {
-    const body = document.body
-    const html = document.documentElement
-    const prevBodyOverscroll = body.style.overscrollBehavior
-    const prevHtmlOverscroll = html.style.overscrollBehavior
-    body.style.overscrollBehavior = 'none'
-    html.style.overscrollBehavior = 'none'
-    body.classList.add('scrollbar-hidden')
-    html.classList.add('scrollbar-hidden')
-    return () => {
-      body.style.overscrollBehavior = prevBodyOverscroll
-      html.style.overscrollBehavior = prevHtmlOverscroll
-      body.classList.remove('scrollbar-hidden')
-      html.classList.remove('scrollbar-hidden')
-    }
-  }, [])
 
   useGSAP(
     (_context, contextSafe) => {
