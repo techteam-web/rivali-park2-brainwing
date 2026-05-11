@@ -29,15 +29,6 @@ const Home = () => {
     { scope: containerRef },
   )
 
-  const handleLoadedMetadata = () => {
-    if (hasEnteredOnce && videoRef.current) {
-      const { duration } = videoRef.current
-      if (Number.isFinite(duration) && duration > 0) {
-        videoRef.current.currentTime = Math.max(0, duration - 0.1)
-      }
-    }
-  }
-
   const handleEnter = () => {
     sessionStorage.setItem(SESSION_KEY, '1')
     // Synchronous play() inside the click preserves the user gesture
@@ -63,18 +54,26 @@ const Home = () => {
       ref={containerRef}
       className="h-full w-full overflow-hidden relative bg-black"
     >
-      <video
-        ref={videoRef}
-        src="/home/landing-video.mp4"
-        playsInline
-        preload="auto"
-        controls={false}
-        onLoadedMetadata={handleLoadedMetadata}
-        onLoadedData={() => setIsVideoReady(true)}
-        onCanPlay={() => setIsVideoReady(true)}
-        onEnded={handleVideoEnded}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      {hasEnteredOnce ? (
+        <img
+          src="/home/landing-poster-end.jpg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          src="/home/landing-video.mp4"
+          playsInline
+          preload="auto"
+          controls={false}
+          onLoadedData={() => setIsVideoReady(true)}
+          onCanPlay={() => setIsVideoReady(true)}
+          onEnded={handleVideoEnded}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
       <HomeNavbar ref={navRef} />
       {isOverlayMounted && (
         <EnterExperience
