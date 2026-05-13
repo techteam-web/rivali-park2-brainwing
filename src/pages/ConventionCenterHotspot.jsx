@@ -7,6 +7,11 @@ import {
   findConventionHotspotIndex,
 } from '../data/conventionCenterHotspots'
 import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
+import {
+  runHotspotSlideTransition,
+  resetHotspotSlide,
+  POLYGON_FULL,
+} from '../lib/hotspotSlideTransition'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -75,7 +80,10 @@ const ConventionCenterHotspot = () => {
         autoAlpha: isActive ? 1 : 0,
         zIndex: isActive ? 1 : 0,
         pointerEvents: isActive ? 'auto' : 'none',
+        clipPath: POLYGON_FULL,
       })
+      const content = slide.querySelector('.slide-content')
+      if (content) gsap.set(content, { y: 0 })
       const paths = slide.querySelectorAll(DRAW_SEL)
       if (paths.length) gsap.set(paths, { opacity: 0, drawSVG: 0 })
     })
@@ -202,11 +210,15 @@ const ConventionCenterHotspot = () => {
       })
     }
 
+    const direction = toIdx > activeIndex ? 'next' : 'prev'
+
     const onDone = () => {
-      gsap.set(fromSlide, {
-        autoAlpha: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
+      resetHotspotSlide(fromSlide)
+      gsap.set(toSlide, {
+        autoAlpha: 1,
+        zIndex: 1,
+        pointerEvents: 'auto',
+        clipPath: POLYGON_FULL,
       })
       isAnimatingRef.current = false
       setActiveIndex(toIdx)
@@ -221,10 +233,12 @@ const ConventionCenterHotspot = () => {
       return
     }
 
-    gsap.set(toSlide, { zIndex: 1, pointerEvents: 'auto' })
-    const tl = gsap.timeline({ onComplete: onDone })
-    tl.to(toSlide, { autoAlpha: 1, duration: 0.9, ease: 'power2.inOut' }, 0)
-    tl.to(fromSlide, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, 0)
+    runHotspotSlideTransition({
+      fromSlide,
+      toSlide,
+      direction,
+      onComplete: onDone,
+    })
   }
 
   useEffect(() => {
@@ -290,35 +304,37 @@ const ConventionCenterHotspot = () => {
           ref={(el) => (slideRefs.current[i] = el)}
           className="absolute inset-0 w-full h-full"
         >
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-              height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-            }}
-          >
-            <img
-              src={h.bg}
-              alt=""
-              className="block w-full h-full object-cover select-none pointer-events-none"
-              draggable={false}
-            />
-
-            {h.decoratives.map((d) => (
-              <InlineSVG
-                key={d.name}
-                src={d.src}
-                aria-hidden="true"
-                data-draw
-                data-tune={d.name}
-                className="absolute block select-none pointer-events-none"
-                style={{
-                  top: `${d.top * 100}%`,
-                  left: `${d.left * 100}%`,
-                  width: `${d.width * 100}%`,
-                }}
+          <div className="slide-content absolute inset-0 w-full h-full">
+            <div
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{
+                width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
+                height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
+              }}
+            >
+              <img
+                src={h.bg}
+                alt=""
+                className="block w-full h-full object-cover select-none pointer-events-none"
+                draggable={false}
               />
-            ))}
+
+              {h.decoratives.map((d) => (
+                <InlineSVG
+                  key={d.name}
+                  src={d.src}
+                  aria-hidden="true"
+                  data-draw
+                  data-tune={d.name}
+                  className="absolute block select-none pointer-events-none"
+                  style={{
+                    top: `${d.top * 100}%`,
+                    left: `${d.left * 100}%`,
+                    width: `${d.width * 100}%`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       ))}
@@ -353,7 +369,7 @@ const ConventionCenterHotspot = () => {
         type="button"
         aria-label="Back"
         onClick={handleBack}
-        className="hidden lg:flex absolute top-5 left-5 z-50 items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+        className="hidden lg:flex absolute top-5 left-5 z-50 items-center justify-center rounded-full transition-[transform,filter] duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         style={{ backgroundColor: 'rgba(49, 49, 49, 0.2)' }}
       >
         <svg

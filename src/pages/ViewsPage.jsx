@@ -142,7 +142,7 @@ const ViewsPage = () => {
       >
         <button
           data-back-btn
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="flex h-15 w-15 items-center justify-center rounded-full border border-white/20 bg-on-light-black/20 transition-colors hover:bg-on-light-black/40 backdrop-blur-sm"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

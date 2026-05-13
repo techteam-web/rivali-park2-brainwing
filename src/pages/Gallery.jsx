@@ -107,7 +107,7 @@ const Gallery = () => {
             onClick={() => exitTo(`/towers#${t.name.toLowerCase()}`)}
             aria-label={t.name}
             data-tune={t.name}
-            className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] transition-all duration-200 hover:scale-[1.05] hover:brightness-110 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-110 px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]"
+            className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] transition-[transform,filter] duration-200 hover:scale-[1.05] hover:brightness-110 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-110 px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]"
             style={{
               top: `${t.top * 100}%`,
               left: `${t.left * 100}%`,
@@ -124,8 +124,8 @@ const Gallery = () => {
         type="button"
         aria-label="Back"
         data-back-btn
-        onClick={() => exitTo(-1)}
-        className="absolute top-5 left-5 z-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+        onClick={() => exitTo('/')}
+        className="absolute top-5 left-5 z-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-[transform,background-color] duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
           <line x1="19" y1="12" x2="5" y2="12" />
