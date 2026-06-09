@@ -15,21 +15,23 @@ const Hero = forwardRef((_props, ref) => {
       const scope = sectionRef.current
       if (!scope) return
 
-      // Rebuild the entire timeline from scratch every time we want to play.
-      // This is the only reliable way to avoid stale tween state, leftover
-      // reversed flags, plugin caches (drawSVG/clipPath), or DOM nodes that
-      // may have been replaced when InlineSVG re-renders. Each call freshly
-      // re-queries the DOM, applies gsap.set initial state, and creates a new
-      // GSAP timeline that plays forward from 0.
-      const buildAndPlay = () => {
-        if (!sectionRef.current) return
-        const s = sectionRef.current
+      const drawSel =
+        'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
 
-        // Tear down anything previously hooked up so we start clean.
-        if (tlRef.current) {
-          tlRef.current.kill()
-          tlRef.current = null
-        }
+      // Snap every animated element to its pre-intro hidden state. Queries run
+      // fresh each call so this works both before the InlineSVGs have loaded
+      // (their paths simply aren't found yet) and after. Crucially this is
+      // also called SYNCHRONOUSLY below: useGSAP runs in a layout effect, so
+      // it lands before the browser's first paint. Previously the only
+      // hide-step lived inside buildAndPlay, which is gated behind
+      // aboutReveal() (fonts + async InlineSVG fetches) and therefore ran
+      // several frames AFTER first paint — so any element not already hidden
+      // by its `invisible` class (the body copy, the hero image) flashed at
+      // its final position, then snapped away and re-animated. The cursive
+      // SVG, injected late by its fetch, showed the same jump.
+      const applyInitialState = () => {
+        const s = sectionRef.current
+        if (!s) return
 
         const headingEl = s.querySelector('[data-hero-heading]')
         const cursiveEl = s.querySelector('[data-hero-cursive]')
@@ -37,19 +39,8 @@ const Hero = forwardRef((_props, ref) => {
         const heroImg = s.querySelector('[data-hero-image]')
         const cloudEl = s.querySelector('[data-hero-cloud-tree]')
         const craneEl = s.querySelector('[data-hero-crane]')
-
-        const drawSel =
-          'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
-
         const cloudPaths = cloudEl ? cloudEl.querySelectorAll(drawSel) : []
-        const cranePathsRaw = craneEl ? craneEl.querySelectorAll(drawSel) : []
-        const cranePaths = Array.from(cranePathsRaw).sort((a, b) => {
-          try {
-            return a.getBBox().x - b.getBBox().x
-          } catch {
-            return 0
-          }
-        })
+        const cranePaths = craneEl ? craneEl.querySelectorAll(drawSel) : []
 
         gsap.killTweensOf(s)
         gsap.set(s, { autoAlpha: 1 })
@@ -71,6 +62,42 @@ const Hero = forwardRef((_props, ref) => {
         gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
         gsap.set(bodyParas, { y: 18, autoAlpha: 0 })
         gsap.set(heroImg, { autoAlpha: 1, clipPath: 'inset(0 100% 100% 0)' })
+      }
+
+      // Rebuild the entire timeline from scratch every time we want to play.
+      // This is the only reliable way to avoid stale tween state, leftover
+      // reversed flags, plugin caches (drawSVG/clipPath), or DOM nodes that
+      // may have been replaced when InlineSVG re-renders. Each call freshly
+      // re-queries the DOM, re-applies the initial state, and creates a new
+      // GSAP timeline that plays forward from 0.
+      const buildAndPlay = () => {
+        if (!sectionRef.current) return
+        const s = sectionRef.current
+
+        // Tear down anything previously hooked up so we start clean.
+        if (tlRef.current) {
+          tlRef.current.kill()
+          tlRef.current = null
+        }
+
+        const headingEl = s.querySelector('[data-hero-heading]')
+        const cursiveEl = s.querySelector('[data-hero-cursive]')
+        const bodyParas = s.querySelectorAll('[data-hero-body] p')
+        const heroImg = s.querySelector('[data-hero-image]')
+        const cloudEl = s.querySelector('[data-hero-cloud-tree]')
+        const craneEl = s.querySelector('[data-hero-crane]')
+
+        const cloudPaths = cloudEl ? cloudEl.querySelectorAll(drawSel) : []
+        const cranePathsRaw = craneEl ? craneEl.querySelectorAll(drawSel) : []
+        const cranePaths = Array.from(cranePathsRaw).sort((a, b) => {
+          try {
+            return a.getBBox().x - b.getBBox().x
+          } catch {
+            return 0
+          }
+        })
+
+        applyInitialState()
 
         const tl = gsap.timeline({
           defaults: { ease: 'power3.out' },
@@ -120,6 +147,11 @@ const Hero = forwardRef((_props, ref) => {
       }
 
       buildAndPlayRef.current = buildAndPlay
+
+      // Hide everything BEFORE the first paint (this runs in a layout effect).
+      // The intro itself still waits for aboutReveal() below, but by then the
+      // section is already staged hidden, so nothing flashes in the meantime.
+      applyInitialState()
 
       aboutReveal(scope).then(() => {
         isReadyRef.current = true
@@ -212,7 +244,7 @@ const Hero = forwardRef((_props, ref) => {
             <div
               data-hero-image
               data-fade-out="image"
-              className="relative w-full lg:w-[400px] xl:w-[560px] 2xl:w-[700px] 3xl:w-[860px] 4xl:w-[1140px] 5xl:w-[1700px] aspect-[611/404] overflow-hidden self-start"
+              className="invisible relative w-full lg:w-[400px] xl:w-[560px] 2xl:w-[700px] 3xl:w-[860px] 4xl:w-[1140px] 5xl:w-[1700px] aspect-[611/404] overflow-hidden self-start"
             >
               <img
                 src="/about/hero-industrial.webp"
