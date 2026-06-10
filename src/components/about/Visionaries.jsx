@@ -29,7 +29,7 @@ const VisionaryCard = ({ name, role, image, className = '' }) => (
     <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1 xl:px-3 xl:pt-4 xl:pb-2 2xl:px-4 2xl:pt-5 2xl:pb-3 3xl:px-5 3xl:pt-6 3xl:pb-4 4xl:px-7 4xl:pt-8 4xl:pb-5 5xl:px-10 5xl:pt-12 5xl:pb-7">
       <p
         data-card-title
-        className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6 perspective-distant"
+        className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6"
       >
         {name}
       </p>
@@ -73,7 +73,11 @@ const Visionaries = forwardRef((_props, ref) => {
           const titleEl = card.querySelector('[data-card-title]')
           const subtitleEl = card.querySelector('[data-card-subtitle]')
           const titleSplit = titleEl
-            ? SplitText.create(titleEl, { type: 'chars,words', charsClass: 'card-title-char' })
+            ? SplitText.create(titleEl, {
+                type: 'words',
+                wordsClass: 'card-title-word',
+                mask: 'words',
+              })
             : null
           const subtitleSplit = subtitleEl
             ? SplitText.create(subtitleEl, {
@@ -89,12 +93,7 @@ const Visionaries = forwardRef((_props, ref) => {
         // Hide title chars and subtitle lines so they don't appear during card reveal.
         cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
           if (titleSplit) {
-            gsap.set(titleSplit.chars, {
-              yPercent: 100,
-              autoAlpha: 0,
-              rotateX: -50,
-              transformOrigin: '50% 100%',
-            })
+            gsap.set(titleSplit.words, { yPercent: 100, autoAlpha: 0 })
           }
           if (subtitleSplit) {
             gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 })
@@ -135,12 +134,11 @@ const Visionaries = forwardRef((_props, ref) => {
           const cardEnd = cardStart + i * cardStagger + cardDuration
           if (titleSplit) {
             tl.to(
-              titleSplit.chars,
+              titleSplit.words,
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                rotateX: 0,
-                stagger: 0.03,
+                stagger: 0.07,
                 duration: 0.9,
                 ease: 'power4.out',
               },
@@ -153,8 +151,8 @@ const Visionaries = forwardRef((_props, ref) => {
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                stagger: 0.06,
-                duration: 0.7,
+                stagger: 0.08,
+                duration: 0.8,
                 ease: 'power3.out',
               },
               cardEnd + 0.15,
@@ -232,7 +230,7 @@ const Visionaries = forwardRef((_props, ref) => {
         <h2
           data-visionaries-heading
           data-fade-out="text"
-          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[50px] 2xl:text-[62px] 3xl:text-[78px] 4xl:text-[108px] 5xl:text-[156px] leading-[1.2] -tracking-[1px] text-on-light-black"
+          className="invisible font-normal text-[40px] lg:text-[50px] xl:text-[62px] 2xl:text-[70px] 3xl:text-[88px] 4xl:text-[120px] 5xl:text-[156px] leading-[1.2] -tracking-[1px] text-on-light-black"
         >
           The visionaries
         </h2>
@@ -242,7 +240,7 @@ const Visionaries = forwardRef((_props, ref) => {
           data-visionaries-cursive
           data-fade-out="decor"
           data-clip-reverse
-          className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[22rem] xl:w-[30rem] 2xl:w-[37rem] 3xl:w-[44rem] 4xl:w-[60rem] 5xl:w-[90rem]"
+          className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[27rem] xl:w-[30rem] 2xl:w-[34rem] 3xl:w-[49rem] 4xl:w-[66rem] 5xl:w-[90rem]"
         />
       </div>
 

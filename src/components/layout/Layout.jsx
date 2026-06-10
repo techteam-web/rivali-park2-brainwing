@@ -26,6 +26,7 @@ const Layout = () => {
   const isHome = pathname === '/'
   const isAbout = pathname === '/about'
   const isViewspage = pathname === '/viewspage'
+  const isUnitPlans = pathname === '/unit-plans'
   const galleryTint = galleryTintFor(pathname)
 
   if (isTowers) {
@@ -52,7 +53,7 @@ const Layout = () => {
     )
   }
 
-  if (isViewspage || isHome || isAbout) {
+  if (isViewspage || isHome || isAbout || isUnitPlans) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">

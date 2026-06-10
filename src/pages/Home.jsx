@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useGSAP } from '@gsap/react'
 import { gsap } from '../lib/gsap'
 import EnterExperience from '../components/home/EnterExperience'
@@ -91,6 +92,13 @@ const Home = () => {
         />
       )}
       <HomeNavbar ref={navRef} />
+      {/* TEMP: quick link to the Unit Plans page for review — remove later. */}
+      <Link
+        to="/unit-plans"
+        className="fixed top-4 right-4 z-70 rounded-full bg-[#7A4833] px-5 py-2.5 text-[13px] font-medium uppercase tracking-[0.12em] text-white shadow-lg hover:bg-[#653a28] transition-colors"
+      >
+        Unit Plans →
+      </Link>
       {isOverlayMounted && (
         <EnterExperience
           isVideoReady={isVideoReady}

@@ -69,7 +69,7 @@ const MasterCard = ({ name, role, image, className = '', onOpen }) => (
     <div className="px-3 pt-4 pb-2 lg:px-2 lg:pt-3 lg:pb-1 xl:px-3 xl:pt-4 xl:pb-2 2xl:px-4 2xl:pt-5 2xl:pb-3 3xl:px-5 3xl:pt-6 3xl:pb-4 4xl:px-7 4xl:pt-8 4xl:pb-5 5xl:px-10 5xl:pt-12 5xl:pb-7 bg-pastel-brown-bg border-t border-on-light-stroke">
       <p
         data-card-title
-        className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6 perspective-distant"
+        className="font-medium text-[13px] lg:text-[11px] xl:text-[15px] 2xl:text-[18px] 3xl:text-[20px] 4xl:text-[28px] 5xl:text-[40px] tracking-[1.4px] lg:tracking-[1.2px] xl:tracking-[1.4px] 2xl:tracking-[1.6px] 3xl:tracking-[1.8px] 4xl:tracking-[2.2px] 5xl:tracking-[3px] uppercase text-center text-on-light-black mb-2 lg:mb-1.5 xl:mb-2 2xl:mb-2.5 3xl:mb-3 4xl:mb-4 5xl:mb-6"
       >
         {name}
       </p>
@@ -261,7 +261,11 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           const titleEl = card.querySelector('[data-card-title]')
           const subtitleEl = card.querySelector('[data-card-subtitle]')
           const titleSplit = titleEl
-            ? SplitText.create(titleEl, { type: 'chars,words', charsClass: 'card-title-char' })
+            ? SplitText.create(titleEl, {
+                type: 'words',
+                wordsClass: 'card-title-word',
+                mask: 'words',
+              })
             : null
           const subtitleSplit = subtitleEl
             ? SplitText.create(subtitleEl, {
@@ -276,12 +280,7 @@ const DesignedByMasters = forwardRef((_props, ref) => {
 
         cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
           if (titleSplit) {
-            gsap.set(titleSplit.chars, {
-              yPercent: 100,
-              autoAlpha: 0,
-              rotateX: -50,
-              transformOrigin: '50% 100%',
-            })
+            gsap.set(titleSplit.words, { yPercent: 100, autoAlpha: 0 })
           }
           if (subtitleSplit) {
             gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 })
@@ -346,12 +345,11 @@ const DesignedByMasters = forwardRef((_props, ref) => {
           const cardEnd = cardStart + i * cardStagger + cardDuration
           if (titleSplit) {
             tl.to(
-              titleSplit.chars,
+              titleSplit.words,
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                rotateX: 0,
-                stagger: 0.03,
+                stagger: 0.07,
                 duration: 0.9,
                 ease: 'power4.out',
               },
@@ -364,8 +362,8 @@ const DesignedByMasters = forwardRef((_props, ref) => {
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                stagger: 0.06,
-                duration: 0.7,
+                stagger: 0.08,
+                duration: 0.8,
                 ease: 'power3.out',
               },
               cardEnd + 0.15,

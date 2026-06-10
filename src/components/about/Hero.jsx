@@ -231,7 +231,7 @@ const Hero = forwardRef((_props, ref) => {
               </div>
             </div>
             <InlineSVG
-              src="/about/crane-about-hero.svg"
+              src="/about/pen.svg"
               aria-hidden="true"
               data-hero-crane
               data-fade-out="decor"

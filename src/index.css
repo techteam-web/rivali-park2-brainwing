@@ -119,17 +119,16 @@ body {
   opacity: 0;
 }
 
+/* Pill navbar icons follow the tab's text colour (white when the tab is the
+   selected brown pill, #313131 otherwise). Only the colour is remapped — each
+   icon keeps its authored stroke-width and round linecaps so the line weight
+   matches the design. */
 [data-home-navbar] svg [stroke]:not([stroke="none"]) {
   stroke: currentColor;
-  stroke-width: 1;
-  stroke-linecap: butt;
-  stroke-linejoin: miter;
-  vector-effect: non-scaling-stroke;
 }
 
 [data-home-navbar] svg [fill]:not([fill="none"]):not([fill="white"]) {
   fill: currentColor;
-  fill-opacity: 0.7;
 }
 
 .card-shine {
