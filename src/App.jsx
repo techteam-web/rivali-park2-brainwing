@@ -15,6 +15,8 @@ import SkyClubHotspot from './pages/SkyClubHotspot'
 import ConventionCenter from './pages/ConventionCenter'
 import ConventionCenterHotspot from './pages/ConventionCenterHotspot'
 import UnitPlans from './pages/UnitPlans'
+import UnitPlanDetail from './pages/UnitPlanDetail'
+import UnitPlanCompare from './pages/UnitPlanCompare'
 import Maps from './pages/Maps'
 import SixtyDegree from './pages/SixtyDegree'
 import Viewspage from './pages/ViewsPage'
@@ -38,6 +40,8 @@ const App = () => {
         <Route path="/gallery/convention-center" element={<ConventionCenter />} />
         <Route path="/gallery/convention-center/:hotspot" element={<ConventionCenterHotspot />} />
         <Route path="/unit-plans" element={<UnitPlans />} />
+        <Route path="/unit-plans/compare" element={<UnitPlanCompare />} />
+        <Route path="/unit-plans/:tower/:n" element={<UnitPlanDetail />} />
         <Route path="/maps" element={<Maps />} />
         <Route path="/360" element={<SixtyDegree />} />
         <Route path="/viewspage" element={<Viewspage />} />

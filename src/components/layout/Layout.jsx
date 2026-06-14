@@ -26,7 +26,7 @@ const Layout = () => {
   const isHome = pathname === '/'
   const isAbout = pathname === '/about'
   const isViewspage = pathname === '/viewspage'
-  const isUnitPlans = pathname === '/unit-plans'
+  const isUnitPlans = pathname.startsWith('/unit-plans')
   const galleryTint = galleryTintFor(pathname)
 
   if (isTowers) {
