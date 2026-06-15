@@ -7,23 +7,23 @@ const BG_W = 896
 const BG_H = 892
 
 const cards = [
-  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.242, left: 0.675, slug: 'salon' },
-  { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.282, left: 0.437 },
-  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.362, left: 0.306, slug: 'spa' },
-  { name: 'Wellness bar',                src: '/gallery/svgs/wellness club/sports bar.svg',                  top: 0.350, left: 0.683, slug: 'wellness-bar' },
-  { name: 'Dinning',                     src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.422, left: 0.47},
-  { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.568, left: 0.669, slug: 'gymnasium' },
+  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.262, left: 0.675, slug: 'salon' },
+  { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.302, left: 0.437 },
+  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.382, left: 0.306, slug: 'spa' },
+  { name: 'Wellness bar',                src: '/gallery/svgs/wellness club/sports bar.svg',                  top: 0.370, left: 0.683, slug: 'wellness-bar' },
+  { name: 'Dinning',                     src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47},
+  { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.588, left: 0.669, slug: 'gymnasium' },
 ]
 
 const decoratives = [
-  { name: 'left-tree',      src: '/gallery/svgs/wellness club/left-tree.svg',      top: 0.486, left: 0.055, width: 0.045 },
-  { name: 'left-bush-tree', src: '/gallery/svgs/wellness club/left-bush-tree.svg', top: 0.470, left: 0.246, width: 0.070 },
-  { name: 'right-bush',     src: '/gallery/svgs/wellness club/right-bush.svg',     top: 0.63, left: 0.800, width: 0.0390 },
-  { name: 'right-bush-2',   src: '/gallery/svgs/wellness club/right-bush-2.svg',   top: 0.63, left: 0.740, width: 0.046 },
-  { name: 'right-bush-3',   src: '/gallery/svgs/wellness club/right-bush-3.svg',   top: 0.625, left: 0.595, width: 0.046 },
-  { name: 'person-1',       src: '/gallery/svgs/wellness club/person-1.svg',       top: 0.61, left: 0.625, width: 0.020 },
-  { name: 'person-2',       src: '/gallery/svgs/wellness club/person-2.svg',       top: 0.65, left: 0.429, width: 0.030 },
-  { name: 'person-3',       src: '/gallery/svgs/wellness club/person-3.svg',       top: 0.62, left: 0.325, width: 0.028 },
+  { name: 'left-tree',      src: '/gallery/svgs/wellness club/left-tree.svg',      top: 0.506, left: 0.055, width: 0.045 },
+  { name: 'left-bush-tree', src: '/gallery/svgs/wellness club/left-bush-tree.svg', top: 0.490, left: 0.246, width: 0.070 },
+  { name: 'right-bush',     src: '/gallery/svgs/wellness club/right-bush.svg',     top: 0.65, left: 0.800, width: 0.0390 },
+  { name: 'right-bush-2',   src: '/gallery/svgs/wellness club/right-bush-2.svg',   top: 0.65, left: 0.740, width: 0.046 },
+  { name: 'right-bush-3',   src: '/gallery/svgs/wellness club/right-bush-3.svg',   top: 0.645, left: 0.595, width: 0.046 },
+  { name: 'person-1',       src: '/gallery/svgs/wellness club/person-1.svg',       top: 0.63, left: 0.625, width: 0.020 },
+  { name: 'person-2',       src: '/gallery/svgs/wellness club/person-2.svg',       top: 0.67, left: 0.429, width: 0.030 },
+  { name: 'person-3',       src: '/gallery/svgs/wellness club/person-3.svg',       top: 0.64, left: 0.325, width: 0.028 },
 ]
 
 const PILL_BG =
@@ -129,7 +129,7 @@ const WellnessClub = () => {
         aria-label="Back"
         data-back-btn
         onClick={() => exitTo('/gallery')}
-        className="hidden lg:flex absolute top-5 left-5 z-[60] items-center justify-center rounded-full transition-all duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+        className="hidden lg:flex absolute top-5 left-5 z-[60] items-center justify-center rounded-full transition-[transform,filter] duration-200 hover:scale-[1.05] hover:brightness-125 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-125 h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         style={{ backgroundColor: 'rgba(49, 49, 49, 0.2)' }}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">

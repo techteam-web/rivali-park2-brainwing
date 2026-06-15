@@ -25,8 +25,8 @@ const Header = () => {
       <div className="flex items-center justify-between">
         <button
           type="button"
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
+          aria-label="Go to homepage"
+          onClick={() => navigate('/')}
           className={`grid place-items-center w-9 h-9 lg:w-7 lg:h-7 ${
             isTowers
               ? '3xl:w-8 3xl:h-8 4xl:w-11 4xl:h-11 5xl:w-16 5xl:h-16'

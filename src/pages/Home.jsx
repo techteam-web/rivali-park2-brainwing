@@ -3,6 +3,9 @@ import { useGSAP } from '@gsap/react'
 import { gsap } from '../lib/gsap'
 import EnterExperience from '../components/home/EnterExperience'
 import HomeNavbar from '../components/home/HomeNavbar'
+// WelcomeForm (name/email/phone gate shown on site entry) temporarily disabled.
+// Uncomment to re-enable. See the commented blocks below as well.
+// import WelcomeForm, { readStoredVisitor } from '../components/home/WelcomeForm'
 
 const SESSION_KEY = 'homeEntered'
 
@@ -19,6 +22,14 @@ const Home = () => {
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [isOverlayMounted, setIsOverlayMounted] = useState(!hasEnteredOnce)
 
+  // WelcomeForm disabled — visitor/form state kept commented for easy re-enable.
+  // Within the same tab session, treat a prior entry as already-greeted so
+  // navigating back here doesn't reopen the form.
+  // const [visitor, setVisitor] = useState(() =>
+  //   hasEnteredOnce ? readStoredVisitor() : null,
+  // )
+  // const [isFormMounted, setIsFormMounted] = useState(!hasEnteredOnce)
+
   useGSAP(
     () => {
       gsap.set(navRef.current, {
@@ -28,6 +39,14 @@ const Home = () => {
     },
     { scope: containerRef },
   )
+
+  // const handleFormSubmit = (data) => {
+  //   setVisitor(data)
+  // }
+
+  // const handleFormExit = () => {
+  //   setIsFormMounted(false)
+  // }
 
   const handleEnter = () => {
     sessionStorage.setItem(SESSION_KEY, '1')
@@ -78,10 +97,18 @@ const Home = () => {
       {isOverlayMounted && (
         <EnterExperience
           isVideoReady={isVideoReady}
+          visitorName={''}
           onEnter={handleEnter}
           onExit={() => setIsOverlayMounted(false)}
         />
       )}
+      {/* WelcomeForm (name/email/phone) disabled — uncomment to re-enable.
+      {isFormMounted && (
+        <WelcomeForm
+          onSubmit={handleFormSubmit}
+          onExit={handleFormExit}
+        />
+      )} */}
     </div>
   )
 }

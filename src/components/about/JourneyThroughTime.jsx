@@ -17,9 +17,9 @@ const TimelineCard = ({
     data-journey-card
     data-card-pos={pos}
     data-fade-out="decor"
-    className="card-shine invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto bg-white border border-on-light-stroke flex flex-col min-h-[290px] lg:min-h-[215px] xl:min-h-[250px] 2xl:min-h-[290px] 3xl:min-h-[345px] 4xl:min-h-[470px] 5xl:min-h-[690px]"
+    className="invisible w-full max-w-[260px] lg:max-w-[200px] xl:max-w-[230px] 2xl:max-w-[270px] 3xl:max-w-[320px] 4xl:max-w-[440px] 5xl:max-w-[640px] mx-auto flex flex-col"
   >
-    <div className="relative aspect-[260/180] overflow-hidden bg-on-light-highlight-brown shrink-0">
+    <div className="card-shine relative aspect-[260/180] overflow-hidden bg-on-light-highlight-brown shrink-0">
       <img
         src={image}
         alt=""
@@ -38,16 +38,16 @@ const TimelineCard = ({
         />
       )}
     </div>
-    <div className="flex-1 px-4 py-4 lg:px-3 lg:py-3 xl:px-3 xl:py-3 2xl:px-4 2xl:py-4 3xl:px-5 3xl:py-5 4xl:px-6 4xl:py-6 5xl:px-9 5xl:py-9">
+    <div className="flex flex-col items-center text-center gap-1 mt-3.5 lg:mt-2.5 xl:mt-3 2xl:mt-3.5 3xl:mt-4 4xl:mt-5 5xl:mt-7">
       <p
         data-card-title
-        className="font-medium text-[14px] lg:text-[11px] xl:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[21px] 5xl:text-[30px] text-on-light-black mb-1 lg:mb-0 perspective-distant"
+        className="font-medium text-[16px] lg:text-[11px] xl:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[21px] 5xl:text-[30px] text-on-light-black"
       >
         {year}
       </p>
       <p
         data-card-subtitle
-        className="text-[12.5px] lg:text-[10px] xl:text-[11px] 2xl:text-[13px] 3xl:text-[14px] 4xl:text-[19px] 5xl:text-[28px] text-on-light-grey leading-[1.55]"
+        className="font-medium text-[14px] lg:text-[10px] xl:text-[11px] 2xl:text-[13px] 3xl:text-[16px] 4xl:text-[22px] 5xl:text-[32px] text-on-light-grey leading-[1.6]"
       >
         {caption}
       </p>
@@ -112,8 +112,9 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           const subtitleEl = slot.card.querySelector("[data-card-subtitle]");
           const titleSplit = titleEl
             ? SplitText.create(titleEl, {
-                type: "chars,words",
-                charsClass: "card-title-char",
+                type: "words",
+                wordsClass: "card-title-word",
+                mask: "words",
               })
             : null;
           const subtitleSplit = subtitleEl
@@ -129,12 +130,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
 
         cardSplits.forEach(({ titleSplit, subtitleSplit }) => {
           if (titleSplit) {
-            gsap.set(titleSplit.chars, {
-              yPercent: 100,
-              autoAlpha: 0,
-              rotateX: -50,
-              transformOrigin: "50% 100%",
-            });
+            gsap.set(titleSplit.words, { yPercent: 100, autoAlpha: 0 });
           }
           if (subtitleSplit) {
             gsap.set(subtitleSplit.lines, { yPercent: 100, autoAlpha: 0 });
@@ -182,9 +178,21 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             );
           }
           if (slot.tick) {
-            tl.to(
+            // fromTo (not to) pins the start at the bar end ("100% 100%") so
+            // the tick grows outward from the bar. A plain .to() records its
+            // start lazily, by which point useSlideTransition has forced the
+            // tick to drawSVG:0 (the outer tip), making it grow inward instead.
+            // immediateRender:false keeps the gsap.set above as the resting
+            // pre-intro state.
+            tl.fromTo(
               slot.tick,
-              { drawSVG: "0% 100%", duration: 0.30, ease: "power2.out" },
+              { drawSVG: "100% 100%" },
+              {
+                drawSVG: "0% 100%",
+                duration: 0.30,
+                ease: "power2.out",
+                immediateRender: false,
+              },
               anchor + 0.20,
             );
           }
@@ -201,22 +209,24 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
               cardBodyStart,
             );
           }
-          // Title chars + subtitle lines reveal AFTER this card's clipPath
-          // completes (matches the DBM rhythm: chars at end-0.05, lines at end+0.15).
-          const cardEnd = cardBodyStart + cardDuration;
+          // The card reveal uses power2.out, which front-loads its motion: the
+          // image LOOKS fully revealed at ~70% through the tween, well before its
+          // mathematical end (cardBodyStart + cardDuration). Anchoring the text to
+          // that mathematical end left a visible dead pause at the tail. Instead,
+          // fire the text a beat after the image is *visually* complete.
+          const cardVisualEnd = cardBodyStart + cardDuration * 0.7;
           const split = cardSplits[i];
           if (split?.titleSplit) {
             tl.to(
-              split.titleSplit.chars,
+              split.titleSplit.words,
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                rotateX: 0,
-                stagger: 0.03,
+                stagger: 0.07,
                 duration: 0.9,
                 ease: "power4.out",
               },
-              cardEnd - 0.05,
+              cardVisualEnd + 0.05,
             );
           }
           if (split?.subtitleSplit) {
@@ -225,11 +235,11 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
               {
                 yPercent: 0,
                 autoAlpha: 1,
-                stagger: 0.06,
-                duration: 0.7,
+                stagger: 0.08,
+                duration: 0.8,
                 ease: "power3.out",
               },
-              cardEnd + 0.15,
+              cardVisualEnd + 0.18,
             );
           }
         });
@@ -321,6 +331,19 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           overwrite: 'auto',
         });
       }
+      // Ticks carry data-no-undraw so the shared exit (which collapses paths
+      // to drawSVG:0 — the outer tip) skips them. Retract them to "100% 100%"
+      // instead so they undraw back into the bar, mirroring the draw direction.
+      const ticks = scope.querySelectorAll('[data-tick]');
+      if (ticks.length) {
+        gsap.to(ticks, {
+          drawSVG: '100% 100%',
+          duration: 0.5,
+          stagger: 0.005,
+          ease: 'power2.inOut',
+          overwrite: 'auto',
+        });
+      }
     },
   }));
 
@@ -333,7 +356,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
         <h2
           data-journey-heading
           data-fade-out="text"
-          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[44px] 2xl:text-[52px] 3xl:text-[60px] 4xl:text-[78px] 5xl:text-[116px] leading-[1.2] -tracking-[1px] text-on-light-black"
+          className="invisible font-normal text-[40px] lg:text-[36px] xl:text-[46px] 2xl:text-[56px] 3xl:text-[71px] 4xl:text-[92px] 5xl:text-[140px] leading-[1.2] -tracking-[1px] text-on-light-black"
         >
           A journey through time
         </h2>
@@ -343,7 +366,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           data-journey-cursive
           data-fade-out="decor"
           data-clip-reverse
-          className="invisible mx-auto mt-3 h-6.5 lg:h-7 xl:h-8 2xl:h-9 3xl:h-10 4xl:h-14 5xl:h-20 w-auto"
+          className="invisible mx-auto mt-3 h-6.5 lg:h-[1.83rem] xl:h-[2.4rem] 2xl:h-[2.9rem] 3xl:h-[3.7rem] 4xl:h-[4.8rem] 5xl:h-[7.4rem] w-auto"
         />
       </div>
 
@@ -367,7 +390,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <TimelineCard
               pos={3}
               year="2016"
-              caption="Completion of  Whitespring"
+              caption="Completion of Whitespring"
               image="/about/whitespring.webp"
               imageClass="object-right origin-top-right translate-y-[0%]"
             />
@@ -399,6 +422,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
           >
             <path
               data-tick="1"
+              data-no-undraw
               d="M247.545 6.31005L248.162 10.2407C248.605 13.0658 248.514 15.9491 247.892 18.7403C247.394 20.9768 247.235 23.2756 247.422 25.5594L247.731 29.3448"
               stroke="#7A4833"
               strokeWidth="4"
@@ -406,6 +430,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <rect data-dot="1" data-no-undraw x="240" y="24.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
             <path
               data-tick="2"
+              data-no-undraw
               d="M439.545 50.3128L440.162 46.3821C440.605 43.557 440.514 40.6737 439.892 37.8825C439.394 35.646 439.235 33.3472 439.422 31.0634L439.731 27.278"
               stroke="#7A4833"
               strokeWidth="4"
@@ -413,6 +438,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <rect data-dot="2" data-no-undraw x="432" y="19.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
             <path
               data-tick="3"
+              data-no-undraw
               d="M714.545 0.310052L715.162 4.24072C715.605 7.06581 715.514 9.94908 714.892 12.7403C714.394 14.9768 714.235 17.2756 714.422 19.5594L714.731 23.3448"
               stroke="#7A4833"
               strokeWidth="4"
@@ -420,6 +446,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <rect data-dot="3" data-no-undraw x="707" y="18.3563" width="13" height="13" rx="6.5" fill="#7A4833" />
             <path
               data-tick="4"
+              data-no-undraw
               d="M916.545 51.3128L917.162 47.3821C917.605 44.557 917.514 41.6737 916.892 38.8825C916.394 36.646 916.235 34.3472 916.422 32.0634L916.731 28.278"
               stroke="#7A4833"
               strokeWidth="4"
@@ -427,6 +454,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <rect data-dot="4" data-no-undraw x="909" y="20.2665" width="13" height="13" rx="6.5" fill="#7A4833" />
             <path
               data-tick="5"
+              data-no-undraw
               d="M1175.55 4.31005L1176.16 8.24072C1176.61 11.0658 1176.51 13.9491 1175.89 16.7403C1175.39 18.9768 1175.24 21.2756 1175.42 23.5594L1175.73 27.3448"
               stroke="#7A4833"
               strokeWidth="4"
@@ -450,7 +478,13 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             <TimelineCard
               pos={2}
               year="2001 - 2010"
-              caption="Factory operations moved from Borivali to Nashik. Master planning of Rivali Park begins"
+              caption={
+                <>
+                  Factories moved to Nashik
+                  <br />
+                  Master planning of Rivali Park begins
+                </>
+              }
               image="/about/timeline-image-36.webp"
               imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
               badge="/about/rivali-park-white.webp"

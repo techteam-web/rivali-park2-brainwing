@@ -6,11 +6,16 @@ import JourneyThroughTime from '../components/about/JourneyThroughTime'
 import Visionaries from '../components/about/Visionaries'
 import DesignedByMasters from '../components/about/DesignedByMasters'
 import { useSlideTransition } from '../hooks/useSlideTransition'
+import { usePageTransition } from '../hooks/usePageTransition'
 import InlineSVG from '../components/about/InlineSVG'
 import Header from '../components/layout/Header'
 
 const AboutUs = () => {
   const containerRef = useRef(null)
+  // Gallery-style page entrance on an outer wrapper so the slide container and
+  // its per-slide animations are left untouched.
+  const pageRef = useRef(null)
+  usePageTransition({ containerRef: pageRef })
   const slideRefs = useRef([])
   const sectionRefs = useRef([])
   const headerRef = useRef(null)
@@ -113,6 +118,7 @@ const AboutUs = () => {
   )
 
   return (
+    <div ref={pageRef} className="h-full w-full">
     <div
       ref={containerRef}
       className="h-full w-full overflow-hidden relative"
@@ -150,6 +156,7 @@ const AboutUs = () => {
           </div>
         )
       })}
+    </div>
     </div>
   )
 }

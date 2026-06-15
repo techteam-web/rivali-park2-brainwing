@@ -251,10 +251,21 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
           0,
         )
       }
+      // Cinematic exit: page eases back into the section's tinted veil
+      // (revealed via the Layout's bg color) with a gentle scale-out and
+      // blur ramp. Transform-origin centered so the recede reads as the
+      // scene falling away from camera, not drifting off-axis.
       tl.to(
         root,
-        { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' },
-        0.4,
+        {
+          autoAlpha: 0,
+          scale: 1.04,
+          filter: 'blur(8px)',
+          transformOrigin: '50% 50%',
+          duration: 0.9,
+          ease: 'power2.inOut',
+        },
+        0.3,
       )
     },
     [navigate, containerRef],
