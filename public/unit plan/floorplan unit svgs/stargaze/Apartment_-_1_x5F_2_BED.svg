@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 129450.29 99841.008"
+   id="svg1268"
+   width="129450.29"
+   height="99841.008"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <!-- Generator: Adobe Illustrator 30.2.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 1)  -->
+  <defs
+     id="defs5">
+    <style
+       id="style1">
+      .st0 {
+        opacity: .4;
+      }
+
+      .st0, .st1, .st2, .st3 {
+        fill: #a4687b;
+      }
+
+      .st4 {
+        fill: #313131;
+      }
+
+      .st1, .st5 {
+        opacity: .9;
+      }
+
+      .st6, .st7 {
+        fill: #fff;
+      }
+
+      .st8 {
+        mask: url(#mask);
+      }
+
+      .st9 {
+        fill: none;
+      }
+
+      .st10 {
+        clip-path: url(#clippath-1);
+      }
+
+      .st11 {
+        clip-path: url(#clippath-3);
+      }
+
+      .st2 {
+        fill-rule: evenodd;
+      }
+
+      .st7 {
+        opacity: .5;
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: .2px;
+      }
+
+      .st12 {
+        clip-path: url(#clippath-2);
+      }
+
+      .st13 {
+        clip-path: url(#clippath);
+      }
+    </style>
+  </defs>
+  <g
+     id="Layer_2"
+     transform="translate(-95651.194,-216342)">
+    <polygon
+       id="Apartment_-_1_x5F_2_BED"
+       class="st7"
+       points="113.7,422.2 113.7,414.3 116.3,414.3 116.3,363.7 250,363.7 267.2,380.9 255,393.1 243.8,393.1 243.8,459.8 226.2,459.8 226.1,531.3 114.4,531.3 114.4,524.9 116.3,524.9 116.3,519.7 116.3,422.2 " />
+  </g>
+</svg>

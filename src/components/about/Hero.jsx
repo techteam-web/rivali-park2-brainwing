@@ -220,11 +220,11 @@ const Hero = forwardRef((_props, ref) => {
                 data-fade-out="text"
                 className="mt-10 lg:mt-5 xl:mt-6 2xl:mt-7 3xl:mt-9 4xl:mt-12 5xl:mt-16 space-y-5 lg:space-y-3 xl:space-y-4 2xl:space-y-5 3xl:space-y-6 4xl:space-y-7 5xl:space-y-10 text-on-light-black/85 text-[13px] lg:text-[11.5px] xl:text-[16px] 2xl:text-[19px] 3xl:text-[23px] 4xl:text-[31px] 5xl:text-[48px] leading-[1.85] max-w-[500px] 2xl:max-w-[600px] 3xl:max-w-[700px] 4xl:max-w-[1260px] 5xl:max-w-[1480px]"
               >
-                <p>
+                <p className="invisible">
                   Owned by the Khataus, with decades of experience in
                   infrastructure across India (Cable Corporation of India).
                 </p>
-                <p className="max-w-[400px] lg:max-w-[280px] xl:max-w-[440px] 2xl:max-w-[500px] 3xl:max-w-[560px] 4xl:max-w-[880px] 5xl:max-w-[1320px]">
+                <p className="invisible max-w-[400px] lg:max-w-[280px] xl:max-w-[440px] 2xl:max-w-[500px] 3xl:max-w-[560px] 4xl:max-w-[880px] 5xl:max-w-[1320px]">
                   Corporate turned developer with long-standing credibility and
                   process oriented.
                 </p>

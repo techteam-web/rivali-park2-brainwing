@@ -7,7 +7,7 @@ const UnitHeader = ({ children, onBack }) => (
       type="button"
       aria-label="Go back"
       onClick={onBack}
-      className="absolute left-4 top-1/2 grid h-15 w-15 -translate-y-1/2 place-items-center rounded-full transition-opacity hover:opacity-60"
+      className="absolute left-4 top-1/2 grid h-15 w-15 -translate-y-1/2 place-items-center rounded-full transition-[opacity,transform] hover:opacity-60 hover:-translate-x-0.5 active:scale-90"
     >
       <img src="/unit/svgs/arrow-left.svg" alt="" className="h-6 w-6" />
     </button>

@@ -209,9 +209,12 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
               cardBodyStart,
             );
           }
-          // Title chars + subtitle lines reveal AFTER this card's clipPath
-          // completes (matches the DBM rhythm: chars at end-0.05, lines at end+0.15).
-          const cardEnd = cardBodyStart + cardDuration;
+          // The card reveal uses power2.out, which front-loads its motion: the
+          // image LOOKS fully revealed at ~70% through the tween, well before its
+          // mathematical end (cardBodyStart + cardDuration). Anchoring the text to
+          // that mathematical end left a visible dead pause at the tail. Instead,
+          // fire the text a beat after the image is *visually* complete.
+          const cardVisualEnd = cardBodyStart + cardDuration * 0.7;
           const split = cardSplits[i];
           if (split?.titleSplit) {
             tl.to(
@@ -223,7 +226,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
                 duration: 0.9,
                 ease: "power4.out",
               },
-              cardEnd - 0.05,
+              cardVisualEnd + 0.05,
             );
           }
           if (split?.subtitleSplit) {
@@ -236,7 +239,7 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
                 duration: 0.8,
                 ease: "power3.out",
               },
-              cardEnd + 0.15,
+              cardVisualEnd + 0.18,
             );
           }
         });

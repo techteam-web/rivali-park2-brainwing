@@ -25,7 +25,9 @@ const Layout = () => {
   const isTowers = pathname === '/towers'
   const isHome = pathname === '/'
   const isAbout = pathname === '/about'
-  const isViewspage = pathname === '/viewspage'
+  // The 360 viewer lives at /360 (navbar) and its /viewspage alias; both render
+  // fullscreen with no Header/Footer chrome (the page has its own back button).
+  const isViewspage = pathname === '/viewspage' || pathname === '/360'
   const isUnitPlans = pathname.startsWith('/unit-plans')
   const galleryTint = galleryTintFor(pathname)
 

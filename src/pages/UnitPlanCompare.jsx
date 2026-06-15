@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import Dropdown from '../components/unitplan/Dropdown'
@@ -13,10 +13,17 @@ import {
   towerUnits,
   towerLabel,
   towerBg,
+  towerTint,
 } from '../data/unitPlans'
+import { gsap } from '../lib/gsap'
+import { usePageTransition } from '../hooks/usePageTransition'
 
 const MAX_COLUMNS = 3
 const DEFAULT_TOWER = 'skyleap'
+
+const reduceMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 // Tower options mirror the floor-plan tabs: towers without assets (Sunburst)
 // render as disabled rows until their plans land.
@@ -71,8 +78,9 @@ const Spec = ({ label, value }) => (
 // MAX_COLUMNS) or removed. Towers and units can be mixed freely, so plans from
 // different towers can be compared against each other.
 const UnitPlanCompare = () => {
-  const navigate = useNavigate()
   const [params] = useSearchParams()
+  const pageRef = useRef(null)
+  const { exitTo } = usePageTransition({ containerRef: pageRef })
   const fromTower = towerUnits(params.get('tower')).length
     ? params.get('tower')
     : DEFAULT_TOWER
@@ -84,9 +92,36 @@ const UnitPlanCompare = () => {
   ])
   const [zoom, setZoom] = useState(null)
 
-  // Return to the unit the comparison was launched from.
-  const goBack = () =>
-    navigate(`/unit-plans/${columns[0].tower}/${columns[0].unit}`)
+  // Per-card DOM nodes + the set of cards already animated in, so only freshly
+  // added cards play the entrance (the initial pair rides the page transition).
+  const cardEls = useRef({})
+  const seenIds = useRef(null)
+  if (seenIds.current === null) {
+    seenIds.current = new Set(columns.map((c) => c.id))
+  }
+
+  // Animate any newly added card up + into view.
+  useEffect(() => {
+    if (reduceMotion()) {
+      columns.forEach((c) => seenIds.current.add(c.id))
+      return
+    }
+    columns.forEach((c) => {
+      if (seenIds.current.has(c.id)) return
+      seenIds.current.add(c.id)
+      const el = cardEls.current[c.id]
+      if (!el) return
+      gsap.fromTo(
+        el,
+        { autoAlpha: 0, scale: 0.9, y: 24 },
+        { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+      )
+    })
+  }, [columns])
+
+  // Return to the unit the comparison was launched from (the ?tower=&from=
+  // params), not whatever the first card was later changed to.
+  const goBack = () => exitTo(`/unit-plans/${fromTower}/${from}`)
 
   const setUnit = (id, unit) =>
     setColumns((cols) => cols.map((c) => (c.id === id ? { ...c, unit } : c)))
@@ -102,14 +137,32 @@ const UnitPlanCompare = () => {
         return { ...c, tower, unit }
       }),
     )
-  // Closing the last remaining card leaves nothing to compare, so go back to
-  // the previous page rather than stranding a single plan.
+  // Comparing needs at least two plans, so closing down to a single card has
+  // nothing left to compare — return to the unit's detail page instead of
+  // stranding a lone compare card. Otherwise animate the card out, then drop it.
   const removeColumn = (id) => {
-    if (columns.length === 1) {
+    if (columns.length <= 2) {
       goBack()
       return
     }
-    setColumns((cols) => cols.filter((c) => c.id !== id))
+    const drop = () => {
+      delete cardEls.current[id]
+      seenIds.current.delete(id)
+      setColumns((cols) => cols.filter((c) => c.id !== id))
+    }
+    const el = cardEls.current[id]
+    if (!el || reduceMotion()) {
+      drop()
+      return
+    }
+    gsap.to(el, {
+      autoAlpha: 0,
+      scale: 0.9,
+      y: 16,
+      duration: 0.35,
+      ease: 'power2.in',
+      onComplete: drop,
+    })
   }
   const addColumn = () =>
     setColumns((cols) =>
@@ -118,6 +171,7 @@ const UnitPlanCompare = () => {
 
   return (
     <>
+      <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
         <UnitHeader onBack={goBack}>
           <h1
@@ -134,12 +188,21 @@ const UnitPlanCompare = () => {
           </h1>
         </UnitHeader>
 
-        <div className="absolute inset-x-8 top-35.25 bottom-7.25 flex items-stretch gap-8">
+        <div className="absolute inset-x-8 top-22.5 bottom-0 flex items-center gap-8">
           {columns.map((col, idx) => {
             const unit = findUnit(col.tower, col.unit)
             return (
-              <div key={col.id} className="relative flex-1">
-                <div className="flex h-full w-full flex-col overflow-hidden rounded bg-[#F4F7F2]">
+              <div
+                key={col.id}
+                ref={(el) => {
+                  if (el) cardEls.current[col.id] = el
+                }}
+                className="relative flex-1"
+              >
+                <div
+                  className="flex w-full flex-col overflow-hidden rounded"
+                  style={{ backgroundColor: towerTint(col.tower) }}
+                >
                 {/* Selectors + specs */}
                 <div className="px-6 pt-6 pb-4">
                   <div className="flex gap-3">
@@ -166,12 +229,12 @@ const UnitPlanCompare = () => {
                   </div>
                 </div>
 
-                {/* Full-bleed plan */}
-                <div className="relative flex-1">
+                {/* Full plan — natural height so the whole sheet is visible */}
+                <div className="relative">
                   <img
                     src={unit.image}
                     alt={`${towerLabel(col.tower)} unit ${unit.n} floor plan`}
-                    className="h-full w-full object-cover"
+                    className="block h-auto w-full"
                   />
                   <button
                     type="button"
@@ -183,7 +246,7 @@ const UnitPlanCompare = () => {
                         bg: towerBg(col.tower),
                       })
                     }
-                    className="absolute right-4 top-4 transition-opacity hover:opacity-80"
+                    className="absolute right-4 top-4 transition-[opacity,transform] hover:opacity-80 active:scale-95"
                   >
                     <img
                       src="/unit/svgs/expand icon.svg"
@@ -196,7 +259,7 @@ const UnitPlanCompare = () => {
                 {/* Courtyard view (STUB — non-functional until 360 views land) */}
                 <button
                   type="button"
-                  className="flex items-center gap-2 px-6 py-5"
+                  className="flex items-center gap-2 px-6 py-5 transition-[opacity,transform] hover:opacity-80 active:scale-[0.98]"
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
@@ -216,14 +279,15 @@ const UnitPlanCompare = () => {
 
                 {/* Pinned to the card's top-right corner, clear of the
                     dropdowns (the card itself clips, so this lives on the
-                    non-clipping wrapper). Shown on added cards, and on the sole
-                    remaining card (where closing returns to the previous page). */}
-                {(idx > 0 || columns.length === 1) && (
+                    non-clipping wrapper). Shown on every card except the first
+                    (the launch unit); closing the second card returns to the
+                    unit's detail page since one plan can't be compared. */}
+                {idx > 0 && (
                   <button
                     type="button"
                     aria-label="Remove from comparison"
                     onClick={() => removeColumn(col.id)}
-                    className="absolute -right-3 -top-3 z-10 h-10 w-10 transition-transform hover:scale-105"
+                    className="absolute -right-3 -top-3 z-10 h-10 w-10 transition-transform hover:scale-110 active:scale-95"
                   >
                     <img
                       src="/unit/svgs/Close.svg"
@@ -241,7 +305,7 @@ const UnitPlanCompare = () => {
               type="button"
               aria-label="Add a unit to compare"
               onClick={addColumn}
-              className="h-16.25 w-16.25 shrink-0 self-center transition-opacity hover:opacity-70"
+              className="h-16.25 w-16.25 shrink-0 self-center transition-[opacity,transform] hover:opacity-70 hover:scale-105 active:scale-95"
             >
               <img
                 src="/unit/svgs/plus svg.svg"
@@ -252,6 +316,7 @@ const UnitPlanCompare = () => {
           )}
         </div>
       </UnitArtboard>
+      </div>
 
       {zoom && (
         <PlanLightbox

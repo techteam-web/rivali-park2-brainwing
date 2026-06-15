@@ -5,11 +5,14 @@
 // a tab that falls back to a "coming soon" placeholder until its plans land.
 // `bg` is the background colour baked into each tower's plan sheets, used so the
 // fullscreen viewer's plan area blends seamlessly behind the (contained) image.
+// `tint` is the subtle card background (selectors/specs panel) for each tower —
+// a very light wash of the tower's brand colour. Stargaze is final (#FCF8F7);
+// the others are placeholder tints derived from `bg` until exact values land.
 export const TOWER_TABS = [
-  { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', bg: '#557E92' },
-  { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', bg: '#839033' },
-  { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', bg: '#9C6A7B' },
-  { id: 'sunburst', label: 'Sunburst', plan: null, bg: '#9C6A7B' },
+  { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', bg: '#557E92', tint: '#F6F9FA' },
+  { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', bg: '#839033', tint: '#F8FAF1' },
+  { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', bg: '#9C6A7B', tint: '#FCF8F7' },
+  { id: 'sunburst', label: 'Sunburst', plan: null, bg: '#9C6A7B', tint: '#FCF8F7' },
 ]
 
 // Same expected possession across every unit for now (per product). The short
@@ -64,6 +67,11 @@ export const TOWER_UNITS = {
   stargaze: STARGAZE_UNITS,
 }
 
+// Combined viewBox bounding all six Stargaze footprint shapes (shared
+// coordinate space from the Illustrator export). Lives here so both the overlay
+// component and the selector page can use it without tripping fast-refresh.
+export const STARGAZE_OVERLAY_VB = { x: 108, y: 20, w: 600, h: 518 }
+
 export const fmtSqft = (n) => n.toLocaleString('en-US')
 
 // Label used in the unit dropdown and selectors, e.g. "3 BHK - 968 Sq Ft".
@@ -77,6 +85,10 @@ export const towerLabel = (tower) =>
 
 export const towerBg = (tower) =>
   TOWER_TABS.find((t) => t.id === tower)?.bg ?? '#9C6A7B'
+
+// Subtle card-panel tint for a tower (falls back to a neutral off-white).
+export const towerTint = (tower) =>
+  TOWER_TABS.find((t) => t.id === tower)?.tint ?? '#F4F7F2'
 
 export const towerUnits = (tower) => TOWER_UNITS[tower] ?? []
 

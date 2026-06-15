@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from '../lib/gsap';
-import InlineSVG from '../components/about/InlineSVG';
 
 const SunSvg = ({ className, pathsRef }) => (
   <svg className={className} width="34" height="26" viewBox="0 0 34 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -142,7 +141,7 @@ const ViewsPage = () => {
       >
         <button
           data-back-btn
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           className="flex h-15 w-15 items-center justify-center rounded-full border border-white/20 bg-on-light-black/20 transition-colors hover:bg-on-light-black/40 backdrop-blur-sm"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

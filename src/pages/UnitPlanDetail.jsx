@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import UnitSelect from '../components/unitplan/UnitSelect'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
+import { gsap } from '../lib/gsap'
+import { usePageTransition } from '../hooks/usePageTransition'
 import {
   POSSESSION,
   fmtSqft,
@@ -11,6 +13,7 @@ import {
   findUnit,
   towerLabel,
   towerBg,
+  towerTint,
 } from '../data/unitPlans'
 
 const labelStyle = {
@@ -35,9 +38,33 @@ const valueStyle = {
 const UnitPlanDetail = () => {
   const { tower, n } = useParams()
   const navigate = useNavigate()
+  const pageRef = useRef(null)
+  const { exitTo } = usePageTransition({ containerRef: pageRef })
+  // Card is gently crossfaded when switching unit within the same tower (a
+  // same-route param change, so the page itself doesn't re-transition).
+  const cardRef = useRef(null)
+  const firstUnitRef = useRef(true)
   const unit = findUnit(tower, n)
   const label = towerLabel(tower)
   const [zoomed, setZoomed] = useState(false)
+
+  useEffect(() => {
+    if (firstUnitRef.current) {
+      firstUnitRef.current = false
+      return
+    }
+    const el = cardRef.current
+    if (
+      !el ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    )
+      return
+    gsap.fromTo(
+      el,
+      { autoAlpha: 0, filter: 'blur(6px)' },
+      { autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, ease: 'power2.out' },
+    )
+  }, [n])
 
   // Bad/stale tower or unit number → bounce back to the floor-plan selector.
   if (!unit) {
@@ -47,8 +74,9 @@ const UnitPlanDetail = () => {
 
   return (
     <>
+      <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
-        <UnitHeader onBack={() => navigate('/unit-plans')}>
+        <UnitHeader onBack={() => exitTo(`/unit-plans?tower=${tower}`)}>
           <h1
             className="whitespace-nowrap uppercase"
             style={{
@@ -63,20 +91,27 @@ const UnitPlanDetail = () => {
           </h1>
         </UnitHeader>
 
-        {/* Plan + info sit flush inside one rounded card (no gap). */}
-        <div className="absolute inset-x-10 top-32.5 bottom-15 flex overflow-hidden rounded-sm">
+        {/* Plan + info sit flush inside one rounded card (no gap). Card height
+            follows the plan sheet's natural height so the whole plan shows;
+            a centered max-width keeps it clear of the screen edges and bottom
+            on wide screens (the plan's fixed aspect ratio means capping the
+            width caps the height too). */}
+        <div
+          ref={cardRef}
+          className="absolute left-1/2 top-1/2 flex w-[calc(100%-5rem)] max-w-350 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-sm"
+        >
           {/* Plan sheet */}
           <div className="relative flex-1">
             <img
               src={unit.image}
               alt={`${label} unit ${unit.n} floor plan`}
-              className="h-full w-full object-cover"
+              className="block h-auto w-full"
             />
             <button
               type="button"
               aria-label="View plan fullscreen"
               onClick={() => setZoomed(true)}
-              className="absolute right-4 top-4 transition-opacity hover:opacity-80"
+              className="absolute right-4 top-4 transition-[opacity,transform] hover:opacity-80 active:scale-95"
             >
               <img
                 src="/unit/svgs/expand icon.svg"
@@ -87,7 +122,10 @@ const UnitPlanDetail = () => {
           </div>
 
           {/* Info panel */}
-          <div className="flex w-110 flex-col bg-[#F4F3F0] p-6">
+          <div
+            className="flex w-110 flex-col p-6"
+            style={{ backgroundColor: towerTint(tower) }}
+          >
             <UnitSelect
               tower={tower}
               value={unit.n}
@@ -116,7 +154,7 @@ const UnitPlanDetail = () => {
                   views are wired up. */}
               <button
                 type="button"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 transition-[opacity,transform] hover:opacity-80 active:scale-95"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 500,
@@ -137,9 +175,9 @@ const UnitPlanDetail = () => {
             <button
               type="button"
               onClick={() =>
-                navigate(`/unit-plans/compare?tower=${tower}&from=${unit.n}`)
+                exitTo(`/unit-plans/compare?tower=${tower}&from=${unit.n}`)
               }
-              className="mt-auto w-full border border-on-light-black py-4 uppercase transition-colors hover:bg-on-light-black hover:text-white"
+              className="mt-auto w-full border border-on-light-black py-4 uppercase transition-[background-color,color,transform] hover:bg-on-light-black hover:text-white active:scale-[0.98]"
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
@@ -152,6 +190,7 @@ const UnitPlanDetail = () => {
           </div>
         </div>
       </UnitArtboard>
+      </div>
 
       {zoomed && (
         <PlanLightbox
