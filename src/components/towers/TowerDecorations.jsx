@@ -6,16 +6,11 @@ const MAX_PIXEL_OFFSET = 8
 const POINTER_AMPLITUDE = 0.06
 const PX_PER_UNIT = MAX_PIXEL_OFFSET / POINTER_AMPLITUDE
 
-// Draw timing — draw-out runs in ISOLATION first, then the shader wipe + text
-// panel scrub + draw-in all fire afterward. Sequencing (with TRANSITION_DURATION
-// currently 2.0s in TowerDepthPlane.jsx):
-//   t = 0      tower changes; draw-out begins (shader + scroll-to are delayed)
-//   t = 1.0    draw-out completes; `displayed` swaps; shader wipe + scroll-to start
-//   t = 3.0    shader wipe completes; draw-in starts
-//   t ≈ 4.8   draw-in completes
-// DRAW_OUT_DURATION is mirrored as a `delay:` in TowerDepthPlane.jsx (shader
-// wipe tween) and TowersCarousel.jsx (snap scroll-to tween). If you change
-// this value, change those too — grep DECOR_DRAW_OUT_DELAY to find them.
+// Draw timing. The detail view mounts a single tower (animateOnMount), so the
+// draw-in plays once after a short mount delay (MOUNT_DRAW_DELAY). The draw-out
+// + delayed draw-in path below is retained for any tower-to-tower swap on a
+// persistent mount (`displayed` changes), where draw-in is delayed to start ≈
+// when the shader wipe in TowerDepthPlane.jsx (TRANSITION_DURATION 2.0s) ends.
 const DRAW_DURATION = 1.8
 const DRAW_EASE = 'power2.inOut'
 const DRAW_OUT_DURATION = 1.0
@@ -24,8 +19,12 @@ const DRAW_OUT_EASE = 'power2.in'
 // swaps). Tuned so draw-in starts ≈ when the (delayed) shader wipe ends.
 // Equal to TRANSITION_DURATION in TowerDepthPlane.jsx.
 const DRAW_IN_DELAY = 2.0
+// Delay before the draw-in plays on a fresh mount (animateOnMount). Lets the
+// detail view's usePageTransition entrance (scale/blur/fade, ~0.9s) lift off
+// first so the decorations draw onto an already-sharp page, not through blur.
+const MOUNT_DRAW_DELAY = 0.5
 
-const TowerDecorations = ({ tower }) => {
+const TowerDecorations = ({ tower, animateOnMount = false }) => {
   const refs = useRef([])
   const [displayed, setDisplayed] = useState(tower)
   // Tracks whether a real tower change has occurred. Set inside draw-out
@@ -90,16 +89,19 @@ const TowerDecorations = ({ tower }) => {
         const paths = Array.from(svg.querySelectorAll('path'))
         if (!paths.length) return
 
-        if (!hasTransitionedRef.current) {
+        if (!hasTransitionedRef.current && !animateOnMount) {
+          // Carousel first paint — loading screen hid this, so just show drawn.
           gsap.set(paths, { drawSVG: '100%' })
         } else {
+          // Fresh mount (animateOnMount) draws in after a short mount delay; a
+          // tower-to-tower transition draws in after the shader wipe finishes.
           gsap.set(paths, { drawSVG: '0%' })
           gsap.to(paths, {
             drawSVG: '100%',
             duration: dec.drawDuration ?? DRAW_DURATION,
             ease: DRAW_EASE,
             stagger: { amount: 0.3, from: 'random' },
-            delay: DRAW_IN_DELAY,
+            delay: hasTransitionedRef.current ? DRAW_IN_DELAY : MOUNT_DRAW_DELAY,
           })
         }
       })
