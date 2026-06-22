@@ -29,7 +29,7 @@ const StatCard = ({ label, value, accent, valueClassName = '' }) => (
   </div>
 )
 
-const TowerPanel = forwardRef(({ tower, index, isActive }, ref) => {
+const TowerPanel = forwardRef(({ tower, index, isActive, onCta }, ref) => {
   const { name, tagline, accent, possession, carpetArea, features } = tower
 
   // Panel 0 owns the visible static UI (CTA, stat cards, feature icons) per the
@@ -88,12 +88,11 @@ const TowerPanel = forwardRef(({ tower, index, isActive }, ref) => {
           <button
             data-cta-button
             type="button"
-            onClick={() => {}}
+            onClick={onCta}
             className="font-sans self-start inline-flex items-center gap-3 lg:gap-2 2xl:gap-3 4xl:gap-4 5xl:gap-6 px-6 md:px-4 xl:px-5 3xl:px-6 4xl:px-8 5xl:px-12 py-3.5 md:py-2 xl:py-2.5 2xl:py-3 3xl:py-3.5 4xl:py-5 5xl:py-7 mt-4 md:mt-1 lg:mt-4 xl:mt-6 2xl:mt-6 3xl:mt-8 4xl:mt-11 5xl:mt-16 text-[14px] md:text-[12px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[15px] 4xl:text-[20px] 5xl:text-[30px] tracking-[2px] uppercase text-white"
             style={{ backgroundColor: accent }}
           >
-            {/* TODO: route the construction-update CTA */}
-            <span data-reveal>Construction Update</span>
+            <span data-reveal>Plans</span>
             <ArrowRight />
           </button>
         </div>

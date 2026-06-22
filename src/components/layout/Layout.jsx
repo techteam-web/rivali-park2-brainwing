@@ -22,25 +22,16 @@ const galleryTintFor = (pathname) => {
 const Layout = () => {
   const { pathname } = useLocation()
   const isFullscreen = pathname === '/about' || pathname.startsWith('/gallery')
-  const isTowers = pathname === '/towers'
   const isHome = pathname === '/'
   const isAbout = pathname === '/about'
   // The 360 viewer lives at /360 (navbar) and its /viewspage alias; both render
   // fullscreen with no Header/Footer chrome (the page has its own back button).
   const isViewspage = pathname === '/viewspage' || pathname === '/360'
   const isUnitPlans = pathname.startsWith('/unit-plans')
+  // /towers is a self-contained fullscreen flow (aerial landing + tower detail),
+  // each with its own back button — no Header/Footer chrome.
+  const isTowers = pathname === '/towers'
   const galleryTint = galleryTintFor(pathname)
-
-  if (isTowers) {
-    return (
-      <div className="bg-white overflow-x-clip">
-        <Header />
-        <main className="-mt-22 4xl:-mt-26 5xl:-mt-36">
-          <Outlet />
-        </main>
-      </div>
-    )
-  }
 
   if (isFullscreen) {
     return (
@@ -55,7 +46,7 @@ const Layout = () => {
     )
   }
 
-  if (isViewspage || isHome || isAbout || isUnitPlans) {
+  if (isViewspage || isHome || isAbout || isUnitPlans || isTowers) {
     return (
       <div className="h-screen w-screen relative bg-white overflow-hidden">
         <main className="absolute inset-0">

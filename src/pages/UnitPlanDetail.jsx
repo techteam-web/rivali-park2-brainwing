@@ -4,6 +4,7 @@ import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import UnitSelect from '../components/unitplan/UnitSelect'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
+import CourtyardView from '../components/unitplan/CourtyardView'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 import {
@@ -47,6 +48,7 @@ const UnitPlanDetail = () => {
   const unit = findUnit(tower, n)
   const label = towerLabel(tower)
   const [zoomed, setZoomed] = useState(false)
+  const [courtyardOpen, setCourtyardOpen] = useState(false)
 
   useEffect(() => {
     if (firstUnitRef.current) {
@@ -150,10 +152,9 @@ const UnitPlanDetail = () => {
                 </p>
               </div>
 
-              {/* STUB — courtyard view link is non-functional until the 360
-                  views are wired up. */}
               <button
                 type="button"
+                onClick={() => setCourtyardOpen(true)}
                 className="flex items-center gap-2 transition-[opacity,transform] hover:opacity-80 active:scale-95"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
@@ -199,6 +200,14 @@ const UnitPlanDetail = () => {
           title={`${label} Unit Plan`}
           bg={towerBg(tower)}
           onClose={() => setZoomed(false)}
+        />
+      )}
+
+      {courtyardOpen && (
+        <CourtyardView
+          title={`View From ${label} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`}
+          position={tower === 'stargaze' ? unit.n : null}
+          onClose={() => setCourtyardOpen(false)}
         />
       )}
     </>

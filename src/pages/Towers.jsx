@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react'
-import TowersCarousel from '../components/towers/TowersCarousel'
+import { useSearchParams } from 'react-router-dom'
+import { towers } from '../data/towers'
+import TowersLanding from './TowersLanding'
+import TowerDetail from '../components/towers/TowerDetail'
 import TowersLoadingScreen from '../components/towers/TowersLoadingScreen'
 import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
 
+// /towers is a single, state-driven route: an aerial landing (four tower pills)
+// and a single-tower detail view. Picking a pill opens that tower's detail; the
+// detail's back arrow returns to the landing. Tower switching happens by going
+// back to the landing, never by scrolling.
+//
+// A ?tower= param (set when leaving for a tower's unit plan) opens that tower's
+// detail directly on mount, so returning from the unit plan restores the view.
 const Towers = () => {
   const ready = useTowersAssetsReady()
   const [overlayGone, setOverlayGone] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [selectedTower, setSelectedTower] = useState(() => {
+    const id = searchParams.get('tower')
+    return towers.find((t) => t.id === id) ?? null
+  })
 
   useEffect(() => {
     const body = document.body
@@ -24,9 +40,24 @@ const Towers = () => {
     }
   }, [])
 
+  const backToLanding = () => {
+    setSelectedTower(null)
+    // Drop the ?tower= param so the URL reflects the landing.
+    if (searchParams.has('tower')) setSearchParams({}, { replace: true })
+  }
+
   return (
     <>
-      {ready && <TowersCarousel />}
+      {ready &&
+        (selectedTower ? (
+          <TowerDetail
+            key={selectedTower.id}
+            tower={selectedTower}
+            onBack={backToLanding}
+          />
+        ) : (
+          <TowersLanding onSelect={setSelectedTower} />
+        ))}
       {!overlayGone && (
         <TowersLoadingScreen
           ready={ready}

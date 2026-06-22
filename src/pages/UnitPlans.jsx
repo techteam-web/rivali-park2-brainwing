@@ -37,8 +37,8 @@ const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
 const UnitPlans = () => {
   // Tower lives in the URL (?tower=) so returning from a unit's detail sheet
   // lands back on the tower it was opened from instead of resetting to Skyleap.
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [activeTower, setActiveTower] = useState(() => {
+  const [searchParams] = useSearchParams()
+  const [activeTower] = useState(() => {
     const t = searchParams.get('tower')
     return TOWER_TABS.some((x) => x.id === t) ? t : 'skyleap'
   })
@@ -103,52 +103,19 @@ const UnitPlans = () => {
     setOrigin({ x: 50, y: 50 })
   }
 
-  // Switch tower + mirror it into the URL (replace, so it doesn't pile up
-  // history) and start from a clean, un-zoomed view.
-  const selectTower = (id) => {
-    setActiveTower(id)
-    setSearchParams({ tower: id }, { replace: true })
-    resetZoom()
-  }
 
   return (
     <div ref={pageRef} className="h-full w-full">
     <UnitArtboard>
-      <UnitHeader onBack={() => exitTo('/')}>
-        <nav className="flex items-center gap-10">
-          {TOWER_TABS.map((tab) => {
-            const isActive = tab.id === activeTower
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => selectTower(tab.id)}
-                className="relative flex items-center justify-center uppercase transition-[color,transform] hover:-translate-y-px active:scale-95"
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: isActive ? 600 : 400,
-                  fontSize: isActive ? 17 : 16,
-                  lineHeight: '24px',
-                  letterSpacing: isActive ? '0.07em' : '0.1em',
-                  color: isActive ? '#313131' : '#666666',
-                }}
-              >
-                {tab.label}
-                {/* Fixed-width underline mark (Figma: 15.45×1.54, −8.54px
-                    below the tab), centered under the active tower. Sizes in
-                    artboard px so it scales with the rest of the header. */}
-                {isActive && (
-                  <img
-                    src="/unit/svgs/underline.svg"
-                    alt=""
-                    className="absolute left-1/2 -bottom-2 w-3.75 -translate-x-1/2"
-                  />
-                )}
-              </button>
-            )
-          })}
-        </nav>
-      </UnitHeader>
+      <UnitHeader
+        onBack={() =>
+          exitTo(
+            searchParams.get('from') === 'towers'
+              ? `/towers?tower=${activeTower}`
+              : '/',
+          )
+        }
+      />
 
       {/* Courtyard / external facing labels + floor plan */}
       <p

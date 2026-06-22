@@ -4,6 +4,7 @@ import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import Dropdown from '../components/unitplan/Dropdown'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
+import CourtyardView from '../components/unitplan/CourtyardView'
 import {
   TOWER_TABS,
   POSSESSION_SHORT,
@@ -91,6 +92,7 @@ const UnitPlanCompare = () => {
     makeColumn(fromTower, from === 1 ? 2 : 1),
   ])
   const [zoom, setZoom] = useState(null)
+  const [courtyard, setCourtyard] = useState(null)
 
   // Per-card DOM nodes + the set of cards already animated in, so only freshly
   // added cards play the entrance (the initial pair rides the page transition).
@@ -256,9 +258,16 @@ const UnitPlanCompare = () => {
                   </button>
                 </div>
 
-                {/* Courtyard view (STUB — non-functional until 360 views land) */}
+                {/* Courtyard view — opens the fullscreen view for this card's
+                    selected unit. */}
                 <button
                   type="button"
+                  onClick={() =>
+                    setCourtyard({
+                      title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
+                      position: col.tower === 'stargaze' ? unit.n : null,
+                    })
+                  }
                   className="flex items-center gap-2 px-6 py-5 transition-[opacity,transform] hover:opacity-80 active:scale-[0.98]"
                   style={{
                     fontFamily: 'Poppins, sans-serif',
@@ -324,6 +333,14 @@ const UnitPlanCompare = () => {
           title={zoom.title}
           bg={zoom.bg}
           onClose={() => setZoom(null)}
+        />
+      )}
+
+      {courtyard && (
+        <CourtyardView
+          title={courtyard.title}
+          position={courtyard.position}
+          onClose={() => setCourtyard(null)}
         />
       )}
     </>

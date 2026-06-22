@@ -46,6 +46,13 @@ const TextureProvider = ({ activeIndex }) => {
 const TowersCanvas = ({ activeIndex }) => (
   <Canvas
     dpr={2}
+    // Measure the container via offsetWidth/offsetHeight (untransformed layout
+    // box) instead of getBoundingClientRect. The detail view mounts this canvas
+    // inside usePageTransition's scale/blur entrance; getBoundingClientRect would
+    // report the scaled size and — because the scale-back to 1 animates via
+    // transform and never fires a ResizeObserver — the canvas would stay locked
+    // at <100%, leaving a permanent white gap on the right/bottom of the render.
+    resize={{ offsetSize: true }}
     camera={{ position: [0, 0, 5], fov: 45 }}
     gl={{
       alpha: true,
