@@ -99,15 +99,13 @@ const Gallery = () => {
           </button>
         ))}
 
+        {/* Tower names are display-only labels — not hoverable, no navigation. */}
         {towers.map((t) => (
-          <button
+          <span
             key={t.name}
-            type="button"
             data-card-label
-            onClick={() => exitTo(`/towers#${t.name.toLowerCase()}`)}
-            aria-label={t.name}
             data-tune={t.name}
-            className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] transition-[transform,filter] duration-200 hover:scale-[1.05] hover:brightness-110 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-110 px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]"
+            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]"
             style={{
               top: `${t.top * 100}%`,
               left: `${t.left * 100}%`,
@@ -116,7 +114,7 @@ const Gallery = () => {
             }}
           >
             {t.name}
-          </button>
+          </span>
         ))}
       </div>
 

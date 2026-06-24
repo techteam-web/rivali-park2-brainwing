@@ -73,12 +73,22 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       if (root.dataset.galleryEntrancePlayed === '1') return
       root.dataset.galleryEntrancePlayed = '1'
 
-      const drawables = collectDrawables(root)
+      // Closed outline strokes (e.g. the Central Courtyard border) are one long
+      // path. Drawn with the usual opacity-in-lockstep reveal they read as a
+      // plain fade — the early part inks while still faint, and by the time
+      // it's opaque it's already mostly drawn. So draw them at FULL opacity
+      // instead (they're closed paths, so there's no round-linecap dot to hide
+      // at drawSVG: 0) — the line then clearly inks in.
+      const outlines = Array.from(root.querySelectorAll('[data-draw-outline]'))
+      const outlineSet = new Set(outlines)
+      const drawables = collectDrawables(root).filter((el) => !outlineSet.has(el))
+
       // opacity: 0 matches the [data-draw] CSS default and hides round
       // linecap "dot" artefacts that drawSVG: 0 alone would leave behind.
       // The entrance tween below restores opacity in lockstep with the
       // drawSVG reveal.
       if (drawables.length) gsap.set(drawables, { opacity: 0, drawSVG: 0 })
+      if (outlines.length) gsap.set(outlines, { opacity: 1, drawSVG: 0 })
 
       // Each card SVG has a colored circular fill behind its strokes.
       // drawSVG only affects strokes, so without this the fill would
@@ -114,6 +124,8 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       if (prefersReducedMotion()) {
         if (drawables.length)
           gsap.set(drawables, { opacity: 1, drawSVG: '0% 100%' })
+        if (outlines.length)
+          gsap.set(outlines, { opacity: 1, drawSVG: '0% 100%' })
         if (bgImg) gsap.set(bgImg, { autoAlpha: 1, filter: 'blur(0px)' })
         if (title) gsap.set(title, { autoAlpha: 1, y: 0 })
         if (labels.length) gsap.set(labels, { autoAlpha: 1 })
@@ -172,6 +184,14 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
           cardSvgs.length ? 0.4 : 0.15,
         )
       }
+      // Closed outlines: draw at full opacity so the line clearly inks in.
+      if (outlines.length) {
+        tl.to(
+          outlines,
+          { drawSVG: '0% 100%', duration: 1.7, ease: 'power2.inOut' },
+          cardSvgs.length ? 0.4 : 0.15,
+        )
+      }
       if (title) {
         tl.to(
           title,
@@ -224,7 +244,13 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       const entranceTl = root._galleryEntranceTl
       if (entranceTl) entranceTl.kill()
 
-      const drawables = collectDrawables(root)
+      // Mirror the entrance: undraw closed outlines on their own (full opacity)
+      // so they clearly ink back out instead of just fading with the page.
+      const outlines = Array.from(root.querySelectorAll('[data-draw-outline]'))
+      const outlineSet = new Set(outlines)
+      const drawables = collectDrawables(root).filter(
+        (el) => !outlineSet.has(el),
+      )
 
       if (prefersReducedMotion()) {
         navigate(path)
@@ -248,6 +274,13 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
             ease: 'power2.inOut',
             stagger: 0.004,
           },
+          0,
+        )
+      }
+      if (outlines.length) {
+        tl.to(
+          outlines,
+          { drawSVG: 0, duration: 0.5, ease: 'power2.inOut' },
           0,
         )
       }
