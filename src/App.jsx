@@ -19,6 +19,7 @@ import UnitPlanDetail from './pages/UnitPlanDetail'
 import UnitPlanCompare from './pages/UnitPlanCompare'
 import Maps from './pages/Maps'
 import Viewspage from './pages/ViewsPage'
+import Video from './pages/Video'
 const App = () => {
   return (
     <Routes>
@@ -46,6 +47,8 @@ const App = () => {
             viewer (formerly /viewspage, kept below as an alias). */}
         <Route path="/360" element={<Viewspage />} />
         <Route path="/viewspage" element={<Viewspage />} />
+        <Route path="/video" element={<Video />} />
+        <Route path="/construction" element={<Video videoId="1cio1iIzrqM" />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

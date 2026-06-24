@@ -27,6 +27,9 @@ const Layout = () => {
   // The 360 viewer lives at /360 (navbar) and its /viewspage alias; both render
   // fullscreen with no Header/Footer chrome (the page has its own back button).
   const isViewspage = pathname === '/viewspage' || pathname === '/360'
+  // /video and /construction are self-contained fullscreen players on a black
+  // stage with their own back button — no Header/Footer chrome.
+  const isVideo = pathname === '/video' || pathname === '/construction'
   const isUnitPlans = pathname.startsWith('/unit-plans')
   // /towers is a self-contained fullscreen flow (aerial landing + tower detail),
   // each with its own back button — no Header/Footer chrome.
@@ -39,6 +42,16 @@ const Layout = () => {
         className="h-screen w-screen relative overflow-hidden transition-colors duration-700 ease-out"
         style={{ backgroundColor: galleryTint ?? '#ffffff' }}
       >
+        <main className="absolute inset-0">
+          <Outlet />
+        </main>
+      </div>
+    )
+  }
+
+  if (isVideo) {
+    return (
+      <div className="h-screen w-screen relative bg-black overflow-hidden">
         <main className="absolute inset-0">
           <Outlet />
         </main>
