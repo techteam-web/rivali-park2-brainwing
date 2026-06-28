@@ -98,7 +98,7 @@ const PlanLightbox = ({ src, alt = 'Floor plan', title, bg = '#9C6A7B', onClose 
         type="button"
         aria-label="Close"
         onClick={handleClose}
-        className="pointer-events-auto absolute right-12 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
+        className="pointer-events-auto absolute right-12 top-1/2 grid h-8 w-8 -translate-y-1/2 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
       >
         {/* 18px glyph (Figma: 16px X, 1.8px stroke) inside a 32px hit area —
             rendered at its natural size so the stroke stays crisp. */}

@@ -30,6 +30,9 @@ export function useCentralCourtyardHovers(scopeRef) {
       if (cancelled) return
       const cards = root.querySelectorAll('[data-card-name]')
       cards.forEach((card) => {
+        // Disabled (non-clickable) cards stay inert — animating them would
+        // signal interactivity they don't have.
+        if (!card.classList.contains('is-clickable')) return
         const name = card.getAttribute('data-card-name')
         const setup = setups[name]
         if (!setup) return

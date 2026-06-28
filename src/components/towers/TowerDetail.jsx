@@ -98,7 +98,7 @@ const TowerDetail = ({ tower, onBack }) => {
         type="button"
         aria-label="Back to towers"
         onClick={onBack}
-        className="absolute left-4 top-6 md:left-6 md:top-6 xl:left-8 xl:top-8 z-40 grid h-9 w-9 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20 place-items-center hover:opacity-60 transition-opacity"
+        className="absolute left-5 top-3 md:left-8 md:top-4 lg:left-10 lg:top-4 xl:left-14 xl:top-5 2xl:left-15 2xl:top-6 3xl:left-18 3xl:top-8 4xl:left-24 4xl:top-10 5xl:left-36 5xl:top-14 z-40 grid h-9 w-9 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20 place-items-center hover:opacity-60 transition-opacity"
       >
         <img
           src="/about/icon-arrow-left.svg"

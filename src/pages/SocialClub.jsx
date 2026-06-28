@@ -75,7 +75,7 @@ const SocialClub = () => {
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
             onClick={c.slug ? () => exitTo(`/gallery/social-club/${c.slug}`) : undefined}
-            className="absolute -translate-x-1/2 z-[60] group flex flex-col items-center cursor-pointer p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2"
+            className={`absolute -translate-x-1/2 z-[60] amenity-hotspot group flex flex-col items-center ${c.slug ? 'cursor-pointer is-clickable' : 'cursor-default'} p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2`}
             style={{
               top: `${c.top * 100}%`,
               left: `${c.left * 100}%`,
@@ -85,11 +85,11 @@ const SocialClub = () => {
               src={c.src}
               data-draw
               aria-hidden="true"
-              className="block select-none transition-[filter,transform] duration-200 ease-out hover:scale-[1.06] hover:brightness-110 focus-visible:scale-[1.06] focus-visible:brightness-110 lg:w-10 xl:w-12.5 2xl:w-15 3xl:w-18.75 4xl:w-25 5xl:w-37.5"
+              className={`block select-none transition-[filter,transform] duration-200 ease-out lg:w-6.5 xl:w-8 2xl:w-9.5 3xl:w-12 4xl:w-16 5xl:w-24 ${c.slug ? 'group-hover:scale-[1.1] group-hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.12)] focus-visible:scale-[1.1]' : ''}`}
             />
             <span
               data-card-label
-              className="rounded-full font-semibold text-white text-center whitespace-nowrap backdrop-blur-[1.5px] xl:backdrop-blur-[2px] 2xl:backdrop-blur-[2.5px] 3xl:backdrop-blur-[3px] 4xl:backdrop-blur-xs 5xl:backdrop-blur-[6px] transition-[filter] duration-200 lg:leading-[165%] lg:text-[11px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[21px] 4xl:text-[27px] 5xl:text-[41px] lg:py-1 lg:px-1.5 xl:py-1.25 xl:px-2 2xl:py-1.5 2xl:px-2.25 3xl:py-2 3xl:px-2.75 4xl:py-2.5 4xl:px-3.75 5xl:py-3.75 5xl:px-5.75"
+              className="amenity-pill rounded-full border border-transparent font-semibold text-white text-center whitespace-nowrap backdrop-blur-[1.5px] xl:backdrop-blur-[2px] 2xl:backdrop-blur-[2.5px] 3xl:backdrop-blur-[3px] 4xl:backdrop-blur-xs 5xl:backdrop-blur-[6px] transition-[filter,box-shadow,border-color] duration-200 lg:leading-[165%] lg:text-[11px] xl:text-[14px] 2xl:text-[16px] 3xl:text-[21px] 4xl:text-[27px] 5xl:text-[41px] lg:py-1 lg:px-1.5 xl:py-1.25 xl:px-2 2xl:py-1.5 2xl:px-2.25 3xl:py-2 3xl:px-2.75 4xl:py-2.5 4xl:px-3.75 5xl:py-3.75 5xl:px-5.75"
               style={{
                 backgroundImage: PILL_BG,
               }}

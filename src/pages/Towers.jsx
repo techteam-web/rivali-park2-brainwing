@@ -15,8 +15,14 @@ import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
 // detail directly on mount, so returning from the unit plan restores the view.
 const Towers = () => {
   const ready = useTowersAssetsReady()
-  const [overlayGone, setOverlayGone] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // Arriving with a ?tower= param means we're returning from a tower's unit
+  // plan (or deep-linking to a detail) — skip the loading screen and render the
+  // view immediately. Captured once on mount so it survives backToLanding
+  // clearing the param.
+  const [skipLoader] = useState(() => searchParams.get('tower') != null)
+  const [overlayGone, setOverlayGone] = useState(skipLoader)
 
   const [selectedTower, setSelectedTower] = useState(() => {
     const id = searchParams.get('tower')
@@ -48,7 +54,7 @@ const Towers = () => {
 
   return (
     <>
-      {ready &&
+      {(ready || skipLoader) &&
         (selectedTower ? (
           <TowerDetail
             key={selectedTower.id}

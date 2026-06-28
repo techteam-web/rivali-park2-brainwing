@@ -163,3 +163,17 @@ body {
     transform: translateX(110%);
   }
 }
+
+/* Amenities (gallery sub-page) hotspot label pill — hover state, applied only
+   to clickable cards (those with a detail page). The darker radial + visible
+   border + shadow + stronger blur match the Figma "State=Hover" spec. The
+   !important on background-image is needed to override the inline default
+   gradient set on the pill. */
+.amenity-hotspot.is-clickable:hover .amenity-pill {
+  background-image:
+    radial-gradient(38.32% 0.91% at 50% 50%, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.308) 100%),
+    linear-gradient(180deg, rgba(243, 198, 143, 0.0051) 0%, rgba(243, 198, 143, 0) 100%) !important;
+  border-color: #666666;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}

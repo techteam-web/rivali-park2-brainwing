@@ -1,69 +1,60 @@
 import { useRef } from 'react'
 import { gsap, useGSAP } from '../../gsap/Gsapconfig'
-import { towers, TOWER_ACCENTS } from '../../data/towers'
-
-// Heights normalized to Skyleap (53 floors) = 100%. Moonrise 49 ≈ 92%,
-// Stargaze/Sunburst 39 ≈ 74%, split by 2px so all four read distinctly.
-const TOWER_HEIGHTS = [180, 166, 133, 131]
-
-// SVG layout in viewBox units. 4 rects, each 60 wide, 20 gap, 30 side pad.
-// 30 + 4*60 + 3*20 + 30 = 360.
-const TOWER_WIDTH = 60
-const TOWER_GAP = 20
-const SIDE_PAD = 30
-const VB_WIDTH = 360
-const VB_HEIGHT = 184
-const Y_BOTTOM = 182
+import LoaderFloorplan from '../../assets/towers/loader-floorplan.svg?react'
+import LoaderSubheading from '../../assets/towers/loader-subheading.svg?react'
 
 const TowersLoadingScreen = ({ ready, onExitComplete }) => {
   const containerRef = useRef(null)
   const overlayRef = useRef(null)
-  const towerPathRefs = useRef([])
-  const rivaliRef = useRef(null)
-  const underlinePathRef = useRef(null)
+  const vectorRef = useRef(null)
+  const headingRef = useRef(null)
+  const subheadingRef = useRef(null)
 
   useGSAP(
     () => {
-      gsap.set(towerPathRefs.current, { drawSVG: '0% 0%', fillOpacity: 0 })
-      gsap.set(rivaliRef.current, { yPercent: 10, opacity: 0 })
-      gsap.set(underlinePathRef.current, { drawSVG: '0% 0%' })
+      const vectorPaths = vectorRef.current.querySelectorAll('path')
+      // Filled detail marks can't "draw" (no stroke), so fade them in instead.
+      const strokePaths = []
+      const fillPaths = []
+      vectorPaths.forEach((p) => {
+        const stroke = p.getAttribute('stroke')
+        if (stroke && stroke !== 'none') strokePaths.push(p)
+        else fillPaths.push(p)
+      })
+
+      gsap.set(strokePaths, { drawSVG: '0% 0%' })
+      gsap.set(fillPaths, { opacity: 0 })
+      gsap.set(headingRef.current, { yPercent: 20, opacity: 0 })
+      gsap.set(subheadingRef.current, { clipPath: 'inset(0 100% 0 0)', opacity: 0 })
 
       const tl = gsap.timeline()
 
-      // Each path's first point is the bottom-left corner, so the stroke
-      // draw begins by rising up the left edge before sweeping around.
+      // 1. Draw the floor-plan strokes.
       tl.to(
-        towerPathRefs.current,
+        strokePaths,
         {
           drawSVG: '0% 100%',
-          duration: 0.6,
-          ease: 'power3.out',
-          stagger: { each: 0.12 },
+          duration: 0.9,
+          ease: 'power2.out',
+          stagger: { each: 0.03, from: 'start' },
         },
         0,
       )
 
-      tl.to(
-        towerPathRefs.current,
-        {
-          fillOpacity: 1,
-          duration: 0.4,
-          ease: 'power2.out',
-          stagger: { each: 0.12 },
-        },
-        0.3,
-      )
+      tl.to(fillPaths, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.9)
 
+      // 2. Reveal the black heading.
       tl.to(
-        rivaliRef.current,
+        headingRef.current,
         { yPercent: 0, opacity: 1, duration: 0.6, ease: 'expo.out' },
-        0.7,
+        1.0,
       )
 
+      // 3. "Write" the script subheading left-to-right.
       tl.to(
-        underlinePathRef.current,
-        { drawSVG: '0% 100%', duration: 0.5, ease: 'none' },
-        1.0,
+        subheadingRef.current,
+        { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 0.9, ease: 'power1.inOut' },
+        1.25,
       )
     },
     { scope: containerRef },
@@ -93,48 +84,22 @@ const TowersLoadingScreen = ({ ready, onExitComplete }) => {
         className="fixed inset-0 z-50 flex items-center justify-center bg-pastel-brown-bg"
       >
         <div className="flex flex-col items-center gap-6 md:gap-8 2xl:gap-10">
-          <svg
-            viewBox={`0 0 ${VB_WIDTH} ${VB_HEIGHT}`}
-            className="w-70 md:w-90 lg:w-80 2xl:w-105 3xl:w-120 h-auto"
-            fill="none"
-          >
-            {towers.map((t, i) => {
-              const x = SIDE_PAD + i * (TOWER_WIDTH + TOWER_GAP)
-              const x2 = x + TOWER_WIDTH
-              const yTop = Y_BOTTOM - TOWER_HEIGHTS[i]
-              return (
-                <path
-                  key={t.id}
-                  ref={(el) => (towerPathRefs.current[i] = el)}
-                  d={`M ${x} ${Y_BOTTOM} L ${x} ${yTop} L ${x2} ${yTop} L ${x2} ${Y_BOTTOM} Z`}
-                  stroke={TOWER_ACCENTS[i]}
-                  strokeWidth={3}
-                  fill={TOWER_ACCENTS[i]}
-                  vectorEffect="non-scaling-stroke"
-                />
-              )
-            })}
-          </svg>
+          <LoaderFloorplan
+            ref={vectorRef}
+            className="w-40 md:w-44 lg:w-44 2xl:w-52 3xl:w-60 h-auto"
+          />
 
           <div className="flex flex-col items-center gap-3 md:gap-4">
-            <div ref={rivaliRef}>
-              <h1 className="font-script text-brand-brown text-5xl lg:text-4xl 2xl:text-6xl leading-none">
-                Rivali Park 2
-              </h1>
-            </div>
-            <svg
-              viewBox="0 0 1200 20"
-              className="w-25 md:w-30 lg:w-25 2xl:w-35 h-0.5 text-brand-brown"
-              fill="none"
+            <h1
+              ref={headingRef}
+              className="font-sans font-semibold text-on-light-black text-3xl md:text-4xl lg:text-4xl 2xl:text-5xl leading-none tracking-[-0.5px]"
             >
-              <path
-                ref={underlinePathRef}
-                d="M 0 10 L 1200 10"
-                stroke="currentColor"
-                strokeWidth={15}
-                strokeLinecap="round"
-              />
-            </svg>
+              Finding the right space
+            </h1>
+            <LoaderSubheading
+              ref={subheadingRef}
+              className="w-56 md:w-64 lg:w-64 2xl:w-72 h-auto"
+            />
           </div>
         </div>
       </div>

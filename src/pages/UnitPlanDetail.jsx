@@ -113,7 +113,7 @@ const UnitPlanDetail = () => {
               type="button"
               aria-label="View plan fullscreen"
               onClick={() => setZoomed(true)}
-              className="absolute right-4 top-4 transition-[opacity,transform] hover:opacity-80 active:scale-95"
+              className="absolute right-4 top-4 cursor-pointer transition-[opacity,transform] hover:opacity-80 active:scale-95"
             >
               <img
                 src="/unit/svgs/expand icon.svg"
@@ -155,7 +155,7 @@ const UnitPlanDetail = () => {
               <button
                 type="button"
                 onClick={() => setCourtyardOpen(true)}
-                className="flex items-center gap-2 transition-[opacity,transform] hover:opacity-80 active:scale-95"
+                className="flex cursor-pointer items-center gap-2 transition-[opacity,transform] hover:opacity-80 active:scale-95"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 500,
@@ -178,7 +178,7 @@ const UnitPlanDetail = () => {
               onClick={() =>
                 exitTo(`/unit-plans/compare?tower=${tower}&from=${unit.n}`)
               }
-              className="mt-auto w-full border border-on-light-black py-4 uppercase transition-[background-color,color,transform] hover:bg-on-light-black hover:text-white active:scale-[0.98]"
+              className="mt-auto w-full cursor-pointer border border-on-light-black py-4 uppercase transition-[background-color,color,transform] hover:bg-on-light-black hover:text-white active:scale-[0.98]"
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,

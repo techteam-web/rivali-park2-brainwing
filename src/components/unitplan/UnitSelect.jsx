@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { towerUnits, findUnit, unitLabel } from '../../data/unitPlans'
 
+// Shared Poppins type for the dropdown (H4: 18px / 0.1em / uppercase).
+const LABEL_FONT = {
+  fontFamily: 'Poppins, sans-serif',
+  fontSize: 18,
+  lineHeight: '120%',
+  letterSpacing: '0.1em',
+}
+
 // White, bordered dropdown that lists every unit in `tower` as "{bhk} BHK -
 // {carpet} Sq Ft". Controlled by `value` (a unit number); `onChange(n)` fires
 // with the chosen unit — the caller decides whether to navigate or set state.
@@ -26,49 +34,46 @@ const UnitSelect = ({ tower, value, onChange }) => {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-3 rounded-sm border border-[#D8D6D0] bg-white px-5 py-4 text-left"
+        className="flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-sm border border-[rgba(122,72,51,0.2)] bg-white px-6 py-5 text-left"
       >
         <span
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 600,
-            fontSize: 18,
-            color: '#313131',
-          }}
+          className="truncate uppercase"
+          style={{ ...LABEL_FONT, fontWeight: 500, color: '#313131' }}
         >
           {selected ? unitLabel(selected) : 'Select a unit'}
         </span>
         <img
           src="/unit/svgs/keyboard_arrow_down.svg"
           alt=""
-          className={`h-2.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+4px)] z-20 overflow-hidden rounded-sm border border-[#D8D6D0] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+          className="absolute left-0 right-0 top-[calc(100%+12px)] z-20 overflow-hidden rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] pb-1.5 shadow-[0_0_20px_rgba(0,0,0,0.08)]"
         >
           {units.map((u) => {
             const isSelected = u.n === Number(value)
+            const isDisabled = u.disabled
             return (
               <li key={u.n} role="option" aria-selected={isSelected}>
                 <button
                   type="button"
+                  disabled={isDisabled}
                   onClick={() => {
                     setOpen(false)
                     onChange(u.n)
                   }}
-                  className={`w-full px-5 py-3 text-left transition-colors hover:bg-[#F4F3F0] ${
-                    isSelected ? 'bg-[#F4F3F0]' : ''
+                  className={`flex h-13.5 w-full items-center px-6 text-left uppercase transition-colors ${
+                    isDisabled
+                      ? 'cursor-not-allowed font-medium text-black/20'
+                      : isSelected
+                        ? 'cursor-pointer bg-[#F7F4F3] font-semibold text-on-light-black hover:text-brand-brown'
+                        : 'cursor-pointer font-medium text-on-light-black hover:bg-[#F7F4F3] hover:text-brand-brown'
                   }`}
-                  style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontWeight: isSelected ? 600 : 400,
-                    fontSize: 16,
-                    color: '#313131',
-                  }}
+                  style={LABEL_FONT}
                 >
                   {unitLabel(u)}
                 </button>
