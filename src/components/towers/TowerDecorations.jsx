@@ -19,12 +19,13 @@ const DRAW_OUT_EASE = 'power2.in'
 // swaps). Tuned so draw-in starts ≈ when the (delayed) shader wipe ends.
 // Equal to TRANSITION_DURATION in TowerDepthPlane.jsx.
 const DRAW_IN_DELAY = 2.0
-// Delay before the draw-in plays on a fresh mount (animateOnMount). Lets the
-// detail view's usePageTransition entrance (scale/blur/fade, ~0.9s) lift off
-// first so the decorations draw onto an already-sharp page, not through blur.
-const MOUNT_DRAW_DELAY = 0.5
+// Delay before the draw-in plays on a fresh mount (animateOnMount). The detail
+// view holds `play` false until the loader curtain clears, so this is a small
+// lead measured from that moment — the SVGs draw in just after the text reveal
+// begins, keeping the whole entrance feeling like one coordinated sequence.
+const MOUNT_DRAW_DELAY = 0.25
 
-const TowerDecorations = ({ tower, animateOnMount = false }) => {
+const TowerDecorations = ({ tower, animateOnMount = false, play = true }) => {
   const refs = useRef([])
   const [displayed, setDisplayed] = useState(tower)
   // Tracks whether a real tower change has occurred. Set inside draw-out
@@ -93,9 +94,11 @@ const TowerDecorations = ({ tower, animateOnMount = false }) => {
           // Carousel first paint — loading screen hid this, so just show drawn.
           gsap.set(paths, { drawSVG: '100%' })
         } else {
-          // Fresh mount (animateOnMount) draws in after a short mount delay; a
-          // tower-to-tower transition draws in after the shader wipe finishes.
+          // Hidden until we draw, so nothing shows behind the loader curtain.
           gsap.set(paths, { drawSVG: '0%' })
+          // Fresh mount waits for the curtain to clear (`play`); a tower swap
+          // draws in after the shader wipe finishes.
+          if (animateOnMount && !play) return
           gsap.to(paths, {
             drawSVG: '100%',
             duration: dec.drawDuration ?? DRAW_DURATION,
@@ -106,7 +109,7 @@ const TowerDecorations = ({ tower, animateOnMount = false }) => {
         }
       })
     },
-    { dependencies: [displayed.id] },
+    { dependencies: [displayed.id, play] },
   )
 
   return (

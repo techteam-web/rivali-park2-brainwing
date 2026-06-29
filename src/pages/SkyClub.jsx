@@ -61,7 +61,7 @@ const SkyClub = () => {
               src={c.src}
               data-draw
               aria-hidden="true"
-              className={`block select-none transition-[filter,transform] duration-200 ease-out lg:w-6.5 xl:w-8 2xl:w-9.5 3xl:w-12 4xl:w-16 5xl:w-24 ${c.slug ? 'group-hover:scale-[1.1] group-hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.12)] focus-visible:scale-[1.1]' : ''}`}
+              className="amenity-icon block select-none lg:w-[1.95rem] xl:w-[2.4rem] 2xl:w-[2.85rem] 3xl:w-[3.6rem] 4xl:w-[4.8rem] 5xl:w-[7.2rem]"
             />
             <span
               data-card-label

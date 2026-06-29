@@ -42,6 +42,10 @@ const UnitPlans = () => {
     const t = searchParams.get('tower')
     return TOWER_TABS.some((x) => x.id === t) ? t : 'skyleap'
   })
+  // Where the user entered the unit-plan flow from (e.g. 'towers'). Threaded
+  // through detail/compare so the back button returns to the right place
+  // instead of falling through to the homepage.
+  const entryOrigin = searchParams.get('origin')
   const [zoom, setZoom] = useState(1)
   const [origin, setOrigin] = useState({ x: 50, y: 50 })
   const planRef = useRef(null)
@@ -110,9 +114,7 @@ const UnitPlans = () => {
       <UnitHeader
         onBack={() =>
           exitTo(
-            searchParams.get('from') === 'towers'
-              ? `/towers?tower=${activeTower}`
-              : '/',
+            entryOrigin === 'towers' ? `/towers?tower=${activeTower}` : '/',
           )
         }
       />
@@ -168,7 +170,11 @@ const UnitPlans = () => {
                 }}
               >
                 <StargazeOverlay
-                  onSelect={(n) => exitTo(`/unit-plans/${current.id}/${n}`)}
+                  onSelect={(n) =>
+                    exitTo(
+                      `/unit-plans/${current.id}/${n}${entryOrigin ? `?origin=${entryOrigin}` : ''}`,
+                    )
+                  }
                 />
               </div>
             )}

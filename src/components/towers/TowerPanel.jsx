@@ -21,7 +21,6 @@ const StatCard = ({ label, value, accent, valueClassName = '' }) => (
       {label}
     </p>
     <p
-      data-reveal
       className={`font-sans font-medium text-[26px] md:text-[22px] lg:text-[24px] xl:text-[28px] whitespace-nowrap 2xl:text-[30px] 3xl:text-[37px] 4xl:text-[50px] 5xl:text-[74px] leading-tight text-on-light-black ${valueClassName}`}
     >
       {value}
@@ -75,12 +74,13 @@ const TowerPanel = forwardRef(({ tower, index, isActive, onCta }, ref) => {
             {features.map((f, i) => (
               <li
                 key={i}
+                data-feature-row
                 className="font-sans font-medium flex items-center gap-3 leading-none text-[14px] md:text-[12px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[15px] 4xl:text-[20px] 5xl:text-[30px] tracking-[1.6px] uppercase text-on-light-grey"
               >
                 <span data-feature-icon style={{ color: accent }}>
                   <FeatureIcon name={f.icon} className="w-5 h-5 lg:w-4 lg:h-4 3xl:w-5 3xl:h-5 4xl:w-7 4xl:h-7 5xl:w-10 5xl:h-10" />
                 </span>
-                <span data-reveal>{f.text}</span>
+                <span>{f.text}</span>
               </li>
             ))}
           </ul>
@@ -92,7 +92,7 @@ const TowerPanel = forwardRef(({ tower, index, isActive, onCta }, ref) => {
             className="font-sans cursor-pointer self-start inline-flex items-center gap-3 lg:gap-2 2xl:gap-3 4xl:gap-4 5xl:gap-6 px-6 md:px-4 xl:px-5 3xl:px-6 4xl:px-8 5xl:px-12 py-3.5 md:py-2 xl:py-2.5 2xl:py-3 3xl:py-3.5 4xl:py-5 5xl:py-7 mt-4 md:mt-1 lg:mt-4 xl:mt-6 2xl:mt-6 3xl:mt-8 4xl:mt-11 5xl:mt-16 text-[14px] md:text-[12px] xl:text-[13px] 2xl:text-[14px] 3xl:text-[15px] 4xl:text-[20px] 5xl:text-[30px] tracking-[2px] uppercase text-white"
             style={{ backgroundColor: accent }}
           >
-            <span data-reveal>Plans</span>
+            <span>Plans</span>
             <ArrowRight />
           </button>
         </div>

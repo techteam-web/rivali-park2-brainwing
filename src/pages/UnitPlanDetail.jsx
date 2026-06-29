@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import UnitSelect from '../components/unitplan/UnitSelect'
@@ -39,6 +39,11 @@ const valueStyle = {
 const UnitPlanDetail = () => {
   const { tower, n } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  // Carried from the unit-plan selector so back/compare keep the original
+  // entry point (e.g. 'towers') intact through the flow.
+  const origin = searchParams.get('origin')
+  const originSuffix = origin ? `&origin=${origin}` : ''
   const pageRef = useRef(null)
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   // Card is gently crossfaded when switching unit within the same tower (a
@@ -70,7 +75,7 @@ const UnitPlanDetail = () => {
 
   // Bad/stale tower or unit number → bounce back to the floor-plan selector.
   if (!unit) {
-    navigate('/unit-plans', { replace: true })
+    navigate(`/unit-plans?tower=${tower}${originSuffix}`, { replace: true })
     return null
   }
 
@@ -78,7 +83,7 @@ const UnitPlanDetail = () => {
     <>
       <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
-        <UnitHeader onBack={() => exitTo(`/unit-plans?tower=${tower}`)}>
+        <UnitHeader onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}`)}>
           <h1
             className="whitespace-nowrap uppercase"
             style={{
@@ -131,7 +136,11 @@ const UnitPlanDetail = () => {
             <UnitSelect
               tower={tower}
               value={unit.n}
-              onChange={(next) => navigate(`/unit-plans/${tower}/${next}`)}
+              onChange={(next) =>
+                navigate(
+                  `/unit-plans/${tower}/${next}${origin ? `?origin=${origin}` : ''}`,
+                )
+              }
             />
 
             <div className="mt-8 space-y-6">
@@ -176,7 +185,7 @@ const UnitPlanDetail = () => {
             <button
               type="button"
               onClick={() =>
-                exitTo(`/unit-plans/compare?tower=${tower}&from=${unit.n}`)
+                exitTo(`/unit-plans/compare?tower=${tower}&from=${unit.n}${originSuffix}`)
               }
               className="mt-auto w-full cursor-pointer border border-on-light-black py-4 uppercase transition-[background-color,color,transform] hover:bg-on-light-black hover:text-white active:scale-[0.98]"
               style={{

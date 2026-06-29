@@ -240,7 +240,7 @@ const Visionaries = forwardRef((_props, ref) => {
           data-visionaries-cursive
           data-fade-out="decor"
           data-clip-reverse
-          className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[27rem] xl:w-[30rem] 2xl:w-[34rem] 3xl:w-[49rem] 4xl:w-[66rem] 5xl:w-[90rem]"
+          className="invisible mt-3 mx-auto h-auto w-[35rem] lg:w-[27rem] xl:w-[33rem] 2xl:w-[38rem] 3xl:w-[48rem] 4xl:w-[66rem] 5xl:w-[86rem]"
         />
       </div>
 

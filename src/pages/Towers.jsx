@@ -60,6 +60,7 @@ const Towers = () => {
             key={selectedTower.id}
             tower={selectedTower}
             onBack={backToLanding}
+            play={overlayGone}
           />
         ) : (
           <TowersLanding onSelect={setSelectedTower} />

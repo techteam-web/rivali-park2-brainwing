@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap, SplitText, useGSAP } from '../../gsap/Gsapconfig'
 import { towers } from '../../data/towers'
 import TowerPanel from './TowerPanel'
@@ -18,50 +18,118 @@ import { usePageTransition } from '../../hooks/usePageTransition'
 // the index.css `[data-tower-id]:nth-child(n+2)` rule keeps its static UI
 // visible (it is the only / first panel here).
 
-// Text line-mask slide-in — mirrors the carousel's reveal feel.
+// Orchestrated reveal timing. The heading + tagline slide in as masked lines;
+// the stat cards, feature rows and CTA fade-and-rise as whole blocks (lighter
+// and calmer than line-splitting every label). Offsets are timeline positions
+// in seconds, tuned so each group lifts off just as the previous one settles.
 const TEXT_REVEAL_DURATION = 0.9
 const TEXT_REVEAL_EASE = 'expo.out'
+const BLOCK_EASE = 'power3.out'
 
-const TowerDetail = ({ tower, onBack }) => {
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+const TowerDetail = ({ tower, onBack, play = true }) => {
   const pageRef = useRef(null)
-  const { exitTo } = usePageTransition({ containerRef: pageRef })
 
   const index = towers.findIndex((t) => t.id === tower.id)
 
-  // Standalone text reveal: split the panel's [data-reveal] into masked lines
-  // and slide them in. No ScrollTrigger / scroll / wheel / section-height
-  // coupling. Split after fonts are ready so line breaks measure correctly;
-  // revert on unmount.
+  // The page entrance + content reveal only play once BOTH the loader curtain
+  // has cleared (`play`) and the WebGL scene has rendered its first frame
+  // (`canvasReady`). The latter is the fix for the glitchy entrance: when
+  // arriving from the aerial landing there's no curtain, so the canvas's
+  // context-create + shader-compile + texture-upload burst would otherwise
+  // freeze the main thread right while the entrance animation played. Waiting
+  // for it keeps the handoff buttery.
+  // Below md the canvas is display:none (it never renders, so it can't signal) —
+  // treat it as ready immediately so the text panel still reveals on mobile.
+  const [canvasReady, setCanvasReady] = useState(
+    () =>
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function' ||
+      !window.matchMedia('(min-width: 768px)').matches,
+  )
+  const shouldReveal = play && canvasReady
+
+  // Shared scale + blur + fade entrance (deferred until shouldReveal) and the
+  // matching exit on Back, so the towers landing↔detail handoff feels like the
+  // gallery/unit-plan transitions. The whole page rises out of soft focus once
+  // the scene is ready; Back eases it back into focus before swapping views.
+  const { exitTo, exitWith } = usePageTransition({
+    containerRef: pageRef,
+    play: shouldReveal,
+  })
+
+  // Safety net: if the canvas never reports ready (lost context, slow device),
+  // reveal anyway so the page can't get stuck hidden.
+  useEffect(() => {
+    if (canvasReady) return
+    const id = setTimeout(() => setCanvasReady(true), 1500)
+    return () => clearTimeout(id)
+  }, [canvasReady])
+
+  // Inner content stagger that layers on top of the page entrance: the heading +
+  // tagline slide in as masked lines, then the stat cards, feature rows and CTA
+  // fade-and-rise. Initial hidden states are set on mount (before paint) so
+  // nothing flashes; the reveal itself is gated on shouldReveal.
   useGSAP(
     (_context, contextSafe) => {
       const root = pageRef.current
       if (!root) return
-      const targets = root.querySelectorAll('[data-reveal]')
-      if (!targets.length) return
 
-      // Hide until SplitText has wrapped lines, so the container entrance can't
-      // briefly reveal un-split text.
-      gsap.set(targets, { autoAlpha: 0 })
+      const textTargets = root.querySelectorAll('[data-reveal]')
+      const statCards = gsap.utils.toArray('[data-stat-card]', root)
+      const featureRows = gsap.utils.toArray('[data-feature-row]', root)
+      const cta = root.querySelector('[data-cta-button]')
+      const blocks = [...statCards, ...featureRows, cta].filter(Boolean)
+
+      if (prefersReducedMotion()) {
+        gsap.set(textTargets, { autoAlpha: 1 })
+        gsap.set(blocks, { autoAlpha: 1, y: 0 })
+        return
+      }
+
+      // Hidden initial state — always applied so the page never flashes its
+      // content before the reveal plays.
+      gsap.set(textTargets, { autoAlpha: 0 })
+      gsap.set(statCards, { autoAlpha: 0, y: 24 })
+      gsap.set(featureRows, { autoAlpha: 0, y: 18 })
+      if (cta) gsap.set(cta, { autoAlpha: 0, y: 18 })
+
+      if (!shouldReveal) return
 
       let split = null
       let mounted = true
 
       const build = contextSafe(() => {
         if (!mounted || !pageRef.current) return
-        split = SplitText.create(targets, {
+
+        // Split after fonts are ready so line breaks measure correctly.
+        split = SplitText.create(textTargets, {
           type: 'lines',
           mask: 'lines',
           autoSplit: false,
           linesClass: 'reveal-line',
         })
         gsap.set(split.lines, { yPercent: 110 })
-        gsap.set(targets, { autoAlpha: 1 })
-        gsap.to(split.lines, {
-          yPercent: 0,
-          duration: TEXT_REVEAL_DURATION,
-          ease: TEXT_REVEAL_EASE,
-          stagger: { each: 0.08, amount: 0.45 },
-        })
+        gsap.set(textTargets, { autoAlpha: 1 })
+
+        const tl = gsap.timeline({ defaults: { ease: BLOCK_EASE } })
+        tl.to(
+          split.lines,
+          {
+            yPercent: 0,
+            duration: TEXT_REVEAL_DURATION,
+            ease: TEXT_REVEAL_EASE,
+            stagger: { each: 0.08, amount: 0.45 },
+          },
+          0,
+        )
+          .to(statCards, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12 }, 0.2)
+          .to(featureRows, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0.4)
+          .to(cta, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.65)
       })
 
       document.fonts.ready.then(build)
@@ -71,7 +139,7 @@ const TowerDetail = ({ tower, onBack }) => {
         if (split) split.revert()
       }
     },
-    { scope: pageRef, dependencies: [tower.id] },
+    { scope: pageRef, dependencies: [tower.id, shouldReveal] },
   )
 
   return (
@@ -80,14 +148,14 @@ const TowerDetail = ({ tower, onBack }) => {
         tower={tower}
         index={0}
         isActive
-        onCta={() => exitTo(`/unit-plans?tower=${tower.id}&from=towers`)}
+        onCta={() => exitTo(`/unit-plans?tower=${tower.id}&origin=towers`)}
       />
 
       <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-0">
-        <TowersCanvas activeIndex={index} />
+        <TowersCanvas activeIndex={index} onReady={() => setCanvasReady(true)} />
       </div>
       <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-10 pointer-events-none">
-        <TowerDecorations tower={tower} animateOnMount />
+        <TowerDecorations tower={tower} animateOnMount play={shouldReveal} />
       </div>
       <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-20 pointer-events-none">
         <RaggedyEdge />
@@ -97,7 +165,7 @@ const TowerDetail = ({ tower, onBack }) => {
       <button
         type="button"
         aria-label="Back to towers"
-        onClick={onBack}
+        onClick={() => exitWith(onBack)}
         className="absolute left-5 top-3 md:left-8 md:top-4 lg:left-10 lg:top-4 xl:left-14 xl:top-5 2xl:left-15 2xl:top-6 3xl:left-18 3xl:top-8 4xl:left-24 4xl:top-10 5xl:left-36 5xl:top-14 z-40 grid h-9 w-9 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20 place-items-center hover:opacity-60 transition-opacity"
       >
         <img

@@ -86,6 +86,9 @@ const UnitPlanCompare = () => {
     ? params.get('tower')
     : DEFAULT_TOWER
   const from = findUnit(fromTower, params.get('from'))?.n ?? 1
+  // Preserve the flow's original entry point (e.g. 'towers') so leaving compare
+  // → unit detail → unit-plans still knows where to send the user back.
+  const origin = params.get('origin')
 
   const [columns, setColumns] = useState(() => [
     makeColumn(fromTower, from),
@@ -123,7 +126,8 @@ const UnitPlanCompare = () => {
 
   // Return to the unit the comparison was launched from (the ?tower=&from=
   // params), not whatever the first card was later changed to.
-  const goBack = () => exitTo(`/unit-plans/${fromTower}/${from}`)
+  const goBack = () =>
+    exitTo(`/unit-plans/${fromTower}/${from}${origin ? `?origin=${origin}` : ''}`)
 
   const setUnit = (id, unit) =>
     setColumns((cols) => cols.map((c) => (c.id === id ? { ...c, unit } : c)))

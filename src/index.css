@@ -35,6 +35,13 @@ body {
   background: #ffffff;
 }
 
+/* Buttons are interactive — show the pointer cursor (Tailwind's preflight
+   doesn't set this in v4). Explicit cursor-* utilities still win via class
+   specificity, so e.g. disabled amenity hotspots keep their cursor-default. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 .scrollbar-hidden {
   scrollbar-width: none;
 }
@@ -176,4 +183,31 @@ body {
   border-color: #666666;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(4px);
+}
+
+/* Amenity hotspot icon — the whole circular SVG scales up when the hotspot is
+   hovered or focused. Keyed off .amenity-hotspot (the button wrapping both the
+   icon and its label), so hovering EITHER the circle or the name triggers it. */
+.amenity-hotspot .amenity-icon {
+  transform: scale(1);
+  /* Pin the bottom edge so the hover scale grows the icon UPWARD (away from its
+     label) instead of from the centre. !important beats the inline
+     transform-origin (50% 50%) the entrance animation leaves on the wrapper;
+     set on the base rule (not just :hover) so the origin stays consistent and
+     the icon doesn't jump when it scales back down on mouse-out. */
+  transform-origin: 50% 100% !important;
+  transition:
+    transform 220ms ease-out,
+    filter 220ms ease-out;
+}
+.amenity-hotspot.is-clickable:hover .amenity-icon,
+.amenity-hotspot.is-clickable:focus-visible .amenity-icon {
+  /* Only available (clickable) hotspots react; disabled ones stay inert.
+     !important is required: the entrance animation leaves an inline transform
+     on the icon wrapper, which would otherwise override this. */
+  transform: scale(1.1) !important;
+}
+.amenity-hotspot.is-clickable:hover .amenity-icon,
+.amenity-hotspot.is-clickable:focus-visible .amenity-icon {
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.12));
 }

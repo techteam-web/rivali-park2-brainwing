@@ -22,7 +22,9 @@ const masters = [
     role: 'Landscaping',
     image: '/about/master-predapond.webp',
     className: "object-[50%_0%] origin-top -translate-y-[5%] scale-135",
-    modalClassName: 'object-[50%_0%] scale-110',
+    // Full-body source — zoom in from the top so the modal column frames the
+    // head + upper torso (small headroom, cropped around the mid-chest).
+    modalClassName: 'object-[50%_0%] origin-top scale-[1.6]',
     accentColor: '#557E92',
     bio: 'Founded in 1989, Landscape Architects 49 Limited (L49) is a leading consultancy specializing in landscape architecture, urban design, and site planning. With a team of skilled professionals and roots in Architects 49 Limited, the firm brings thoughtful, workable solutions to a wide range of urban and environmental projects.',
     quote:
@@ -33,7 +35,10 @@ const masters = [
     role: 'Amenities',
     image: '/about/master-augustdesign.webp',
     className: "object-[10%_0%] origin-top -translate-y-[3%] scale-135",
-    modalClassName: 'object-[50%_0%] scale-110',
+    // Landscape source with the subject left of centre (a painting fills the
+    // right). Recentre horizontally on his face and zoom from the top so the
+    // column frames head → mid-chest without the painting creeping in.
+    modalClassName: 'object-[28%_0%] origin-top scale-[1.18]',
     accentColor: '#6E8664',
     bio: 'August Design Consultant is a Bangkok-based interior design studio with 30+ years of experience in hospitality and residential spaces. Known for refined creativity and cultural sensitivity, they craft timeless, purpose-driven interiors. Their concept-led, detail-focused approach delivers bespoke environments that elevate everyday living.',
     quote:
@@ -560,7 +565,7 @@ const DesignedByMasters = forwardRef((_props, ref) => {
               data-dbm-cursive
               data-fade-out="decor"
               data-clip-reverse
-              className="invisible mt-3 h-6.5 lg:h-5.5 xl:h-8 2xl:h-9 3xl:h-11 4xl:h-15 5xl:h-22 w-auto"
+              className="invisible mt-3 lg:w-[8.5rem] xl:w-[10.5rem] 2xl:w-[12rem] 3xl:w-[14.5rem] 4xl:w-[19rem] 5xl:w-[27rem] h-auto"
             />
             <p
               data-dbm-body

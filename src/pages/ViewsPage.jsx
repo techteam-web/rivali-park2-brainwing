@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from '../lib/gsap';
+import { usePageTransition } from '../hooks/usePageTransition';
+import useLoaderReady from '../hooks/useLoaderReady';
+import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen';
+import LoaderVector from '../assets/svgs-viewspage/views-loader-vector.svg?react';
+import LoaderSubheading from '../assets/svgs-viewspage/views-loader-subheading.svg?react';
 
 const SunSvg = ({ className }) => (
   <svg className={className} width="34" height="26" viewBox="0 0 34 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,7 +43,15 @@ const ViewsPage = () => {
   const iframeRef = useRef(null);
   const navigate = useNavigate();
 
+  // Hand-sketch loading overlay: stays until the 360 viewer iframe has loaded
+  // (and a minimum display window so the draw-in animation is seen).
+  const ready = useLoaderReady(isViewerReady);
+  const [overlayGone, setOverlayGone] = useState(false);
+
   const containerRef = useRef(null);
+  // Entrance is handled by the sketch loader above; we only need the animated
+  // exit so going back home matches the rest of the app's scale+blur+fade.
+  const { exitWith } = usePageTransition({ containerRef, skipEntrance: true });
 
   const activateScene = (sceneId) => {
     const iframeDocument = iframeRef.current?.contentDocument;
@@ -89,7 +102,7 @@ const ViewsPage = () => {
 
       {/* Header */}
       <div
-        className="absolute left-0 top-0 z-10 flex h-22.5 w-full items-center px-10 pb-2.5 pt-5"
+        className="absolute left-0 top-0 z-10 flex w-full items-center h-12 xl:h-15 2xl:h-18 3xl:h-22.5 4xl:h-30 5xl:h-45 px-5.25 xl:px-6.75 2xl:px-8 3xl:px-10 4xl:px-13.25 5xl:px-20 pt-2.5 xl:pt-3.25 2xl:pt-4 3xl:pt-5 4xl:pt-6.75 5xl:pt-10 pb-1.25 xl:pb-1.75 2xl:pb-2 3xl:pb-2.5 4xl:pb-3.25 5xl:pb-5"
         style={{
           background:
             'linear-gradient(180deg, rgba(243, 198, 143, 0.0009) 0%, rgba(243, 198, 143, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.7) -134.3%, rgba(0, 0, 0, 0) 79.65%)'
@@ -97,17 +110,17 @@ const ViewsPage = () => {
       >
         <button
           data-back-btn
-          onClick={() => navigate(-1)}
-          className="flex h-15 w-15 items-center justify-center rounded-full bg-on-light-black/20 transition-colors hover:bg-on-light-black/40 backdrop-blur-sm"
+          onClick={() => exitWith(() => navigate(-1))}
+          className="flex items-center justify-center rounded-full bg-on-light-black/20 transition-colors hover:bg-on-light-black/40 backdrop-blur-sm h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
             <path d="M22 12H2M2 12L10.4 3.65M2 12L10.4 20.35" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       </div>
 
       {/* Day / Night Toggle */}
-      <div className="absolute bottom-13 left-13 z-10 flex h-19 w-54 lg:h-16 lg:w-49 overflow-hidden rounded-lg bg-pastel-brown-bg/90 shadow-2xl backdrop-blur-md">
+      <div className="absolute z-10 flex overflow-hidden bg-pastel-brown-bg/90 shadow-2xl backdrop-blur-md bottom-7 left-7 xl:bottom-8.75 xl:left-8.75 2xl:bottom-10.5 2xl:left-10.5 3xl:bottom-13 3xl:left-13 4xl:bottom-17.25 4xl:left-17.25 5xl:bottom-26 5xl:left-26 h-8.5 w-26 xl:h-10.75 xl:w-32.75 2xl:h-12.75 2xl:w-39.25 3xl:h-16 3xl:w-49 4xl:h-21.25 4xl:w-65.25 5xl:h-32 5xl:w-98 rounded-sm xl:rounded-[5px] 2xl:rounded-md 3xl:rounded-lg 4xl:rounded-[11px] 5xl:rounded-2xl">
         {/* Borders: static grey outline on both halves + animated brown on the selected one */}
         <svg className="pointer-events-none absolute inset-0 z-20 h-full w-full" viewBox="0 0 240 84" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d={DAY_BORDER} stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
@@ -119,13 +132,13 @@ const ViewsPage = () => {
         {/* Day Button */}
         <button
           onClick={() => setIsDay(true)}
-          className="group relative flex flex-1 flex-col items-center justify-center gap-2 py-3"
+          className="group relative flex flex-1 flex-col items-center justify-center gap-1 xl:gap-1.5 2xl:gap-1.5 3xl:gap-2 4xl:gap-2.5 5xl:gap-4 py-1.5 xl:py-2 2xl:py-2.5 3xl:py-3 4xl:py-4 5xl:py-6"
         >
           {isDay && <div className="pointer-events-none absolute inset-0 bg-brand-brown/16" />}
-          <SunSvg className={`relative z-10 w-auto h-6 transition-colors duration-500 ${isDay ? 'text-on-light-black' : 'text-on-light-grey'}`} />
+          <SunSvg className={`relative z-10 w-auto h-3.5 xl:h-4 2xl:h-5 3xl:h-6 4xl:h-8 5xl:h-12 transition-colors duration-500 ${isDay ? 'text-on-light-black' : 'text-on-light-grey'}`} />
           <span
             data-card-label
-            className={`relative z-10 text-xs uppercase leading-none transition-colors duration-500 ${isDay ? 'font-semibold tracking-[0.07em] text-on-light-black' : 'font-normal tracking-widest text-on-light-grey'}`}
+            className={`relative z-10 text-[7px] xl:text-[8px] 2xl:text-[10px] 3xl:text-xs 4xl:text-[16px] 5xl:text-[24px] uppercase leading-none transition-colors duration-500 ${isDay ? 'font-semibold tracking-[0.07em] text-on-light-black' : 'font-normal tracking-widest text-on-light-grey'}`}
           >
             Day
           </span>
@@ -134,23 +147,29 @@ const ViewsPage = () => {
         {/* Night Button */}
         <button
           onClick={() => setIsDay(false)}
-          className="group relative flex flex-1 flex-col items-center justify-center gap-2 py-3"
+          className="group relative flex flex-1 flex-col items-center justify-center gap-1 xl:gap-1.5 2xl:gap-1.5 3xl:gap-2 4xl:gap-2.5 5xl:gap-4 py-1.5 xl:py-2 2xl:py-2.5 3xl:py-3 4xl:py-4 5xl:py-6"
         >
           {!isDay && <div className="pointer-events-none absolute inset-0 bg-brand-brown/16" />}
-          <MoonSvg className={`relative z-10 w-auto h-6 transition-colors duration-500 ${!isDay ? 'text-on-light-black' : 'text-on-light-grey'}`} />
+          <MoonSvg className={`relative z-10 w-auto h-3.5 xl:h-4 2xl:h-5 3xl:h-6 4xl:h-8 5xl:h-12 transition-colors duration-500 ${!isDay ? 'text-on-light-black' : 'text-on-light-grey'}`} />
           <span
             data-card-label
-            className={`relative z-10 text-xs uppercase leading-none transition-colors duration-500 ${!isDay ? 'font-semibold tracking-[0.07em] text-on-light-black' : 'font-normal tracking-widest text-on-light-grey'}`}
+            className={`relative z-10 text-[7px] xl:text-[8px] 2xl:text-[10px] 3xl:text-xs 4xl:text-[16px] 5xl:text-[24px] uppercase leading-none transition-colors duration-500 ${!isDay ? 'font-semibold tracking-[0.07em] text-on-light-black' : 'font-normal tracking-widest text-on-light-grey'}`}
           >
             Night
           </span>
         </button>
       </div>
 
-      {!isViewerReady && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-white/80">
-          Loading 360 view...
-        </div>
+      {!overlayGone && (
+        <SketchLoadingScreen
+          ready={ready}
+          onExitComplete={() => setOverlayGone(true)}
+          Vector={LoaderVector}
+          vectorClassName="w-52 md:w-60 lg:w-60 2xl:w-72 3xl:w-80 h-auto"
+          heading="The view"
+          Subheading={LoaderSubheading}
+          subheadingClassName="w-64 md:w-72 lg:w-72 2xl:w-80 h-auto"
+        />
       )}
     </div>
   );
