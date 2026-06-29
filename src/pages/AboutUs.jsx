@@ -15,7 +15,7 @@ const AboutUs = () => {
   // Gallery-style page entrance on an outer wrapper so the slide container and
   // its per-slide animations are left untouched.
   const pageRef = useRef(null)
-  usePageTransition({ containerRef: pageRef })
+  const { exitTo } = usePageTransition({ containerRef: pageRef })
   const slideRefs = useRef([])
   const sectionRefs = useRef([])
   const headerRef = useRef(null)
@@ -127,7 +127,7 @@ const AboutUs = () => {
         ref={headerRef}
         className="absolute top-0 left-0 right-0 z-50"
       >
-        <Header />
+        <Header onBack={() => exitTo('/')} />
       </div>
       {sections.map(({ Component, key, scale, bg }, index) => {
         const isLast = index === sections.length - 1

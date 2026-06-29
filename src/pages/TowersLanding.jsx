@@ -31,7 +31,9 @@ const PILL_GRADIENT =
 
 const TowersLanding = ({ onSelect }) => {
   const pageRef = useRef(null)
-  const { exitTo } = usePageTransition({ containerRef: pageRef })
+  // exitTo drives the route change back home; exitWith plays the same scale +
+  // blur + fade for the in-page handoff to a tower's detail view.
+  const { exitTo, exitWith } = usePageTransition({ containerRef: pageRef })
 
   return (
     <div ref={pageRef} className="relative h-screen w-full overflow-hidden bg-black">
@@ -56,7 +58,7 @@ const TowersLanding = ({ onSelect }) => {
             <button
               key={t.id}
               type="button"
-              onClick={() => onSelect(t)}
+              onClick={() => exitWith(() => onSelect(t))}
               aria-label={t.name}
               className={PILL_CLASS}
               style={{

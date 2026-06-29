@@ -22,7 +22,9 @@ const masters = [
     role: 'Landscaping',
     image: '/about/master-predapond.webp',
     className: "object-[50%_0%] origin-top -translate-y-[5%] scale-135",
-    modalClassName: 'object-[50%_0%] scale-110',
+    // Full-body source — zoom in from the top so the modal column frames the
+    // head + upper torso (small headroom, cropped around the mid-chest).
+    modalClassName: 'object-[50%_0%] origin-top scale-[1.6]',
     accentColor: '#557E92',
     bio: 'Founded in 1989, Landscape Architects 49 Limited (L49) is a leading consultancy specializing in landscape architecture, urban design, and site planning. With a team of skilled professionals and roots in Architects 49 Limited, the firm brings thoughtful, workable solutions to a wide range of urban and environmental projects.',
     quote:
@@ -33,7 +35,10 @@ const masters = [
     role: 'Amenities',
     image: '/about/master-augustdesign.webp',
     className: "object-[10%_0%] origin-top -translate-y-[3%] scale-135",
-    modalClassName: 'object-[50%_0%] scale-110',
+    // Landscape source with the subject left of centre (a painting fills the
+    // right). Recentre horizontally on his face and zoom from the top so the
+    // column frames head → mid-chest without the painting creeping in.
+    modalClassName: 'object-[28%_0%] origin-top scale-[1.18]',
     accentColor: '#6E8664',
     bio: 'August Design Consultant is a Bangkok-based interior design studio with 30+ years of experience in hospitality and residential spaces. Known for refined creativity and cultural sensitivity, they craft timeless, purpose-driven interiors. Their concept-led, detail-focused approach delivers bespoke environments that elevate everyday living.',
     quote:
@@ -87,10 +92,49 @@ const MasterCard = ({ name, role, image, className = '', onOpen }) => (
 // so its `fixed` positioning is relative to the viewport — the about page
 // slides live inside transformed containers, which would otherwise become the
 // containing block for `position: fixed` and mis-place the overlay.
+// Design frame is a fixed 900×573 card on a 1440×1024 artboard (Figma "Hafeez
+// Contractor"). To stay pixel-perfect — same px layout, same text line-breaks —
+// the whole card is rendered at that exact size and uniformly scaled by the
+// viewport's ratio to the artboard, so it occupies the same fraction of the
+// screen (and looks identical) at every breakpoint.
+const MODAL_W = 900
+const MODAL_H = 573
+const FONT = 'Poppins, sans-serif'
+
+// ── Tweak the card size here ─────────────────────────────────────────────
+// Fraction of the viewport WIDTH the card should occupy (Figma design ≈ 0.625).
+// Lower = smaller card. Stepped down on very large screens (3xl+) so the card
+// doesn't feel oversized there.
+const cardWidthFraction = (vw) => {
+  if (vw >= 1920) return 0.4 // 3xl and up
+  return 0.46
+}
+// Max fraction of the viewport HEIGHT, as a safety clamp on short screens.
+const CARD_MAX_HEIGHT_FRACTION = 0.9
+// ─────────────────────────────────────────────────────────────────────────
+
 const MasterModal = ({ master, onClose }) => {
   const overlayRef = useRef(null)
   const dialogRef = useRef(null)
   const closingRef = useRef(false)
+  const [fitScale, setFitScale] = useState(1)
+
+  // Width-driven scale so the card stays a consistent fraction of the viewport
+  // width (see cardWidthFraction) at every breakpoint. Clamped by height so it
+  // never overflows on short screens.
+  useEffect(() => {
+    const update = () => {
+      setFitScale(
+        Math.min(
+          (window.innerWidth * cardWidthFraction(window.innerWidth)) / MODAL_W,
+          (window.innerHeight * CARD_MAX_HEIGHT_FRACTION) / MODAL_H,
+        ),
+      )
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   // Animated close: fade/scale out, then unmount via onClose. Guarded so a
   // second trigger (backdrop + Escape racing) doesn't start a second timeline.
@@ -133,71 +177,137 @@ const MasterModal = ({ master, onClose }) => {
     <div
       ref={overlayRef}
       onClick={close}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/45 px-4 py-6"
+      className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
     >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={master.name}
-        onClick={(e) => e.stopPropagation()}
-        className="relative flex w-full max-w-[900px] max-h-[90vh] flex-col overflow-hidden bg-white shadow-2xl sm:flex-row"
-      >
-        <button
-          type="button"
-          onClick={close}
-          aria-label="Close"
-          className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center"
+      {/* Fit wrapper scales the fixed-size card; GSAP animates the card itself. */}
+      <div style={{ transform: `scale(${fitScale})` }}>
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={master.name}
+          onClick={(e) => e.stopPropagation()}
+          className="relative overflow-hidden bg-white shadow-2xl"
+          style={{ width: MODAL_W, height: MODAL_H, fontFamily: FONT }}
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M0.900391 0.900391L16.9004 16.9004M0.900391 16.9004L16.9004 0.900391"
-              stroke="#313131"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {/* Portrait — fixed 360px column, full height */}
+          <div className="absolute left-0 top-0 h-143.25 w-90 overflow-hidden">
+            <img
+              src={master.image}
+              alt={master.name}
+              className={`h-full w-full object-cover ${master.modalClassName ?? ''}`}
             />
-          </svg>
-        </button>
-
-        <div className="h-56 w-full shrink-0 overflow-hidden sm:h-auto sm:w-[40%]">
-          <img
-            src={master.image}
-            alt={master.name}
-            className={`h-full w-full object-cover ${master.modalClassName ?? ''}`}
-          />
-        </div>
-
-        <div className="flex flex-1 flex-col overflow-y-auto">
-          <div className="px-6 pb-6 pt-8 sm:px-8 sm:pt-10">
-            <h3 className="pr-8 text-[22px] font-medium leading-tight text-on-light-black sm:text-2xl">
-              {master.name}
-            </h3>
-            <p className="mt-2 text-base text-on-light-grey sm:text-lg">{master.role}</p>
-            <p className="mt-5 text-[15px] leading-[1.6] text-on-light-grey sm:mt-6 sm:text-base">
-              {master.bio}
-            </p>
           </div>
 
-          <div
-            className="mt-auto px-6 py-6 text-white sm:px-8"
-            style={{ backgroundColor: master.accentColor ?? '#B08D66' }}
+          {/* Close — 32px hit area at (852,16); 16px glyph, 1.8px stroke */}
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close"
+            className="absolute right-4 top-4 z-10 flex h-8 w-8 cursor-pointer items-center justify-center"
           >
-            <svg
-              width="16"
-              height="13"
-              viewBox="0 0 16 13"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="mb-3"
-            >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M7 5.5V12.5H0V5.4C0 0.6 4.5 0 4.5 0L5.1 1.4C5.1 1.4 3.1 1.7 2.7 3.3C2.3 4.5 3.1 5.5 3.1 5.5H7ZM16 5.5V12.5H9V5.4C9 0.6 13.5 0 13.5 0L14.1 1.4C14.1 1.4 12.1 1.7 11.7 3.3C11.3 4.5 12.1 5.5 12.1 5.5H16Z"
-                fill="white"
+                d="M1 1L15 15M15 1L1 15"
+                stroke="#313131"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
-            <p className="text-[15px] leading-[1.6]">{master.quote}</p>
-          </div>
+          </button>
+
+          {/* Title (24/120%/500) */}
+          <h3
+            className="absolute capitalize"
+            style={{
+              left: 384,
+              top: 52,
+              width: 360,
+              fontWeight: 500,
+              fontSize: 24,
+              lineHeight: '120%',
+              color: '#313131',
+            }}
+          >
+            {master.name}
+          </h3>
+
+          {/* Role (18/200%/400) */}
+          <p
+            className="absolute"
+            style={{
+              left: 384,
+              top: 88,
+              width: 360,
+              fontWeight: 400,
+              fontSize: 18,
+              lineHeight: '200%',
+              color: '#666666',
+            }}
+          >
+            {master.role}
+          </p>
+
+          {/* Bio (16/150%/400, 492px → governs line breaks) */}
+          <p
+            className="absolute"
+            style={{
+              left: 384,
+              top: 156,
+              width: 492,
+              fontWeight: 400,
+              fontSize: 16,
+              lineHeight: '150%',
+              color: '#666666',
+            }}
+          >
+            {master.bio}
+          </p>
+
+          {/* Accent quote panel — 540×210 pinned bottom-right */}
+          <div
+            className="absolute"
+            style={{
+              left: 360,
+              top: 363,
+              width: 540,
+              height: 210,
+              backgroundColor: master.accentColor ?? '#B08D66',
+            }}
+          />
+
+          {/* Quote mark (16×16 at 398,398) */}
+          <svg
+            className="absolute"
+            style={{ left: 398, top: 398 }}
+            width="16"
+            height="16"
+            viewBox="0 0 16 13"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 5.5V12.5H0V5.4C0 0.6 4.5 0 4.5 0L5.1 1.4C5.1 1.4 3.1 1.7 2.7 3.3C2.3 4.5 3.1 5.5 3.1 5.5H7ZM16 5.5V12.5H9V5.4C9 0.6 13.5 0 13.5 0L14.1 1.4C14.1 1.4 12.1 1.7 11.7 3.3C11.3 4.5 12.1 5.5 12.1 5.5H16Z"
+              fill="white"
+            />
+          </svg>
+
+          {/* Quote text (16/150%/400, 423px → governs line breaks) */}
+          <p
+            className="absolute"
+            style={{
+              left: 418,
+              top: 413,
+              width: 423,
+              fontWeight: 400,
+              fontSize: 16,
+              lineHeight: '150%',
+              color: '#FFFFFF',
+            }}
+          >
+            {master.quote}
+          </p>
         </div>
       </div>
     </div>,
@@ -455,7 +565,7 @@ const DesignedByMasters = forwardRef((_props, ref) => {
               data-dbm-cursive
               data-fade-out="decor"
               data-clip-reverse
-              className="invisible mt-3 h-6.5 lg:h-5.5 xl:h-8 2xl:h-9 3xl:h-11 4xl:h-15 5xl:h-22 w-auto"
+              className="invisible mt-3 lg:w-[8.5rem] xl:w-[10.5rem] 2xl:w-[12rem] 3xl:w-[14.5rem] 4xl:w-[19rem] 5xl:w-[27rem] h-auto"
             />
             <p
               data-dbm-body

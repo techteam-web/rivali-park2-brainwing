@@ -20,13 +20,26 @@ const prefersReducedMotion = () =>
 // page mounts and plays its own entrance). For same-route param changes (e.g.
 // switching unit within the detail page) animate the content directly instead —
 // exitTo would fade the persistent node out and leave it hidden.
-export function usePageTransition({ containerRef } = {}) {
+//
+// Options:
+// - `skipEntrance`: opt out of the entrance entirely (page renders visible),
+//   while keeping exitTo()/exitWith() intact.
+// - `play` (default true): defer the entrance until it flips true. The root is
+//   still hidden synchronously on mount, so nothing flashes while you wait — used
+//   by the towers detail, which holds its entrance until the WebGL scene's first
+//   frame so the canvas-init stall can't make the animation stutter.
+//
+// exitWith(onDone) runs the same exit animation as exitTo but calls onDone on
+// completion instead of navigating — for in-page view swaps (e.g. the towers
+// landing↔detail handoff, which is a state change, not a route change).
+export function usePageTransition({ containerRef, skipEntrance = false, play = true } = {}) {
   const navigate = useNavigate()
   const isExitingRef = useRef(false)
 
   useLayoutEffect(() => {
     const root = containerRef.current
     if (!root) return
+    if (skipEntrance) return
     if (root.dataset.pageEntrancePlayed === '1') return
     gsap.set(root, {
       autoAlpha: 0,
@@ -34,11 +47,18 @@ export function usePageTransition({ containerRef } = {}) {
       filter: 'blur(8px)',
       transformOrigin: '50% 50%',
     })
-  }, [containerRef])
+  }, [containerRef, skipEntrance])
 
   useEffect(() => {
     const root = containerRef.current
     if (!root) return
+    if (skipEntrance) {
+      // No entrance to play; just mark it so exit gating stays consistent.
+      root.dataset.pageEntrancePlayed = '1'
+      isExitingRef.current = false
+      return
+    }
+    if (!play) return
     if (root.dataset.pageEntrancePlayed === '1') return
     root.dataset.pageEntrancePlayed = '1'
     isExitingRef.current = false
@@ -57,15 +77,16 @@ export function usePageTransition({ containerRef } = {}) {
       duration: 0.9,
       ease: 'power2.out',
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [containerRef, skipEntrance, play])
 
-  const exitTo = useCallback(
-    (path) => {
+  // Shared exit tween. onDone runs when it finishes (navigate, or an in-page
+  // state swap). Guarded so a double-click can't fire two exits.
+  const runExit = useCallback(
+    (onDone) => {
       if (isExitingRef.current) return
       const root = containerRef.current
       if (!root) {
-        navigate(path)
+        onDone?.()
         return
       }
       isExitingRef.current = true
@@ -75,7 +96,7 @@ export function usePageTransition({ containerRef } = {}) {
       if (entranceTl) entranceTl.kill()
 
       if (prefersReducedMotion()) {
-        navigate(path)
+        onDone?.()
         return
       }
 
@@ -86,11 +107,15 @@ export function usePageTransition({ containerRef } = {}) {
         transformOrigin: '50% 50%',
         duration: 0.55,
         ease: 'power2.inOut',
-        onComplete: () => navigate(path),
+        onComplete: onDone,
       })
     },
-    [navigate, containerRef],
+    [containerRef],
   )
 
-  return { exitTo }
+  const exitTo = useCallback((path) => runExit(() => navigate(path)), [runExit, navigate])
+
+  const exitWith = useCallback((onDone) => runExit(onDone), [runExit])
+
+  return { exitTo, exitWith }
 }

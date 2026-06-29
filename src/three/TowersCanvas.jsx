@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Suspense, useRef } from 'react'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { towers } from '../data/towers'
@@ -8,6 +8,26 @@ import TowerDepthPlane from './TowerDepthPlane'
 const ALL_TOWER_PATHS = towers.flatMap((t) => [t.image, t.depth])
 
 useTexture.preload(ALL_TOWER_PATHS)
+
+// Fires onReady after a couple of rendered frames. It lives inside the same
+// Suspense boundary as TextureProvider, so by the time it ticks the textures
+// have resolved, the depth shader has compiled, and the first real frame has
+// been uploaded to the GPU — i.e. the heavy, main-thread-blocking init burst is
+// over. The detail view waits for this before playing its reveal so the entrance
+// animations never run against that stall (which is what looked glitchy).
+const FirstFrameSignal = ({ onReady }) => {
+  const frames = useRef(0)
+  const done = useRef(false)
+  useFrame(() => {
+    if (done.current) return
+    frames.current += 1
+    if (frames.current >= 2) {
+      done.current = true
+      onReady?.()
+    }
+  })
+  return null
+}
 
 // Single useTexture call with a stable input array. Suspends only on initial
 // mount (or never, if drei's preload populated the cache). Tower selection is
@@ -43,7 +63,7 @@ const TextureProvider = ({ activeIndex }) => {
   return <TowerDepthPlane tower={tower} color={color} depth={depth} />
 }
 
-const TowersCanvas = ({ activeIndex }) => (
+const TowersCanvas = ({ activeIndex, onReady }) => (
   <Canvas
     dpr={2}
     // Measure the container via offsetWidth/offsetHeight (untransformed layout
@@ -64,6 +84,7 @@ const TowersCanvas = ({ activeIndex }) => (
   >
     <Suspense fallback={null}>
       <TextureProvider activeIndex={activeIndex} />
+      <FirstFrameSignal onReady={onReady} />
     </Suspense>
   </Canvas>
 )

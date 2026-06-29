@@ -1,5 +1,9 @@
 import { useRef, useState } from 'react'
 import { usePageTransition } from '../hooks/usePageTransition'
+import useLoaderReady from '../hooks/useLoaderReady'
+import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
+import LoaderVector from '../assets/construction/loader-vector.svg?react'
+import LoaderSubheading from '../assets/construction/loader-subheading.svg?react'
 
 // Full-screen YouTube playback reached from the home navbar (the "Video" and
 // "Construction" tabs both render this with their own `videoId`). The video is
@@ -7,10 +11,14 @@ import { usePageTransition } from '../hooks/usePageTransition'
 // extra page height reads as clean black bars. Click-to-play: the iframe only
 // mounts on click and starts muted (autoplay+mute), so the page opens silent
 // and the user can unmute via the native YouTube controls.
-const Video = ({ videoId = 'fYk0s5Ja9iM' }) => {
+//
+// `showLoader` enables the hand-sketch loading overlay (used by /construction).
+const Video = ({ videoId = 'fYk0s5Ja9iM', showLoader = false }) => {
   const pageRef = useRef(null)
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   const [playing, setPlaying] = useState(false)
+  const ready = useLoaderReady()
+  const [overlayGone, setOverlayGone] = useState(!showLoader)
 
   const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`
 
@@ -70,6 +78,18 @@ const Video = ({ videoId = 'fYk0s5Ja9iM' }) => {
           <polyline points="12 19 5 12 12 5" />
         </svg>
       </button>
+
+      {showLoader && !overlayGone && (
+        <SketchLoadingScreen
+          ready={ready}
+          onExitComplete={() => setOverlayGone(true)}
+          Vector={LoaderVector}
+          vectorClassName="w-32 md:w-36 lg:w-36 2xl:w-44 3xl:w-52 h-auto"
+          heading="Progress"
+          Subheading={LoaderSubheading}
+          subheadingClassName="w-60 md:w-72 lg:w-72 2xl:w-80 h-auto"
+        />
+      )}
     </div>
   )
 }

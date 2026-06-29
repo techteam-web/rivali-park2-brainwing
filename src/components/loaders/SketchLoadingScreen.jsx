@@ -1,9 +1,22 @@
 import { useRef } from 'react'
 import { gsap, useGSAP } from '../../gsap/Gsapconfig'
-import LoaderFloorplan from '../../assets/towers/loader-floorplan.svg?react'
-import LoaderSubheading from '../../assets/towers/loader-subheading.svg?react'
 
-const TowersLoadingScreen = ({ ready, onExitComplete }) => {
+// Shared hand-sketch loading overlay (mirrors the towers loader): a line-art
+// vector "draws" itself in, a plain heading lifts up, and a cursive subheading
+// "writes" left-to-right. When `ready` flips true the whole overlay slides up
+// and off, then calls `onExitComplete`.
+//
+// Pass the vector / subheading as imported `?react` SVG components so their
+// individual <path>s can be animated.
+const SketchLoadingScreen = ({
+  ready,
+  onExitComplete,
+  Vector,
+  vectorClassName,
+  heading,
+  Subheading,
+  subheadingClassName,
+}) => {
   const containerRef = useRef(null)
   const overlayRef = useRef(null)
   const vectorRef = useRef(null)
@@ -29,7 +42,7 @@ const TowersLoadingScreen = ({ ready, onExitComplete }) => {
 
       const tl = gsap.timeline()
 
-      // 1. Draw the floor-plan strokes.
+      // 1. Draw the line-art strokes.
       tl.to(
         strokePaths,
         {
@@ -84,22 +97,16 @@ const TowersLoadingScreen = ({ ready, onExitComplete }) => {
         className="fixed inset-0 z-50 flex items-center justify-center bg-pastel-brown-bg"
       >
         <div className="flex flex-col items-center gap-6 md:gap-8 2xl:gap-10">
-          <LoaderFloorplan
-            ref={vectorRef}
-            className="w-40 md:w-44 lg:w-44 2xl:w-52 3xl:w-60 h-auto"
-          />
+          <Vector ref={vectorRef} className={vectorClassName} />
 
           <div className="flex flex-col items-center gap-3 md:gap-4">
             <h1
               ref={headingRef}
               className="font-sans font-semibold text-on-light-black text-3xl md:text-4xl lg:text-4xl 2xl:text-5xl leading-none tracking-[-0.5px]"
             >
-              Finding the right space
+              {heading}
             </h1>
-            <LoaderSubheading
-              ref={subheadingRef}
-              className="w-56 md:w-64 lg:w-64 2xl:w-72 h-auto"
-            />
+            <Subheading ref={subheadingRef} className={subheadingClassName} />
           </div>
         </div>
       </div>
@@ -107,4 +114,4 @@ const TowersLoadingScreen = ({ ready, onExitComplete }) => {
   )
 }
 
-export default TowersLoadingScreen
+export default SketchLoadingScreen

@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 
+// Shared Poppins type for the dropdown (H4: 18px / 0.1em / uppercase).
+const LABEL_FONT = {
+  fontFamily: 'Poppins, sans-serif',
+  fontSize: 18,
+  lineHeight: '120%',
+  letterSpacing: '0.1em',
+}
+
 // Generic white, bordered dropdown used by the compare cards (tower + unit
 // selectors). `options` is [{ value, label, disabled? }]; `onChange(value)`
 // fires on selection. Disabled options render greyed and are not selectable.
@@ -24,31 +32,25 @@ const Dropdown = ({ value, options, onChange, className = '' }) => {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-sm border border-[#D8D6D0] bg-white px-4 py-3 text-left"
+        className="flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-sm border border-[rgba(122,72,51,0.2)] bg-white px-6 py-5 text-left"
       >
         <span
           className="truncate uppercase"
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 600,
-            fontSize: 15,
-            letterSpacing: '0.04em',
-            color: '#313131',
-          }}
+          style={{ ...LABEL_FONT, fontWeight: 500, color: '#313131' }}
         >
           {selected ? selected.label : '—'}
         </span>
         <img
           src="/unit/svgs/keyboard_arrow_down.svg"
           alt=""
-          className={`h-2.5 w-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+4px)] z-20 max-h-64 overflow-auto rounded-sm border border-[#D8D6D0] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+          className="absolute left-0 right-0 top-[calc(100%+12px)] z-20 max-h-64 overflow-auto rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] pb-1.5 shadow-[0_0_20px_rgba(0,0,0,0.08)]"
         >
           {options.map((o) => {
             const isSelected = o.value === value
@@ -61,18 +63,14 @@ const Dropdown = ({ value, options, onChange, className = '' }) => {
                     setOpen(false)
                     onChange(o.value)
                   }}
-                  className={`w-full px-4 py-2.5 text-left uppercase transition-colors ${
+                  className={`flex h-13.5 w-full items-center px-6 text-left uppercase transition-colors ${
                     o.disabled
-                      ? 'cursor-not-allowed opacity-40'
-                      : 'hover:bg-[#F4F3F0]'
-                  } ${isSelected ? 'bg-[#F4F3F0]' : ''}`}
-                  style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontWeight: isSelected ? 600 : 400,
-                    fontSize: 14,
-                    letterSpacing: '0.04em',
-                    color: '#313131',
-                  }}
+                      ? 'cursor-not-allowed font-medium text-black/20'
+                      : isSelected
+                        ? 'cursor-pointer bg-[#F7F4F3] font-semibold text-on-light-black hover:text-brand-brown'
+                        : 'cursor-pointer font-medium text-on-light-black hover:bg-[#F7F4F3] hover:text-brand-brown'
+                  }`}
+                  style={LABEL_FONT}
                 >
                   {o.label}
                 </button>

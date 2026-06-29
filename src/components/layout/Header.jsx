@@ -8,7 +8,11 @@ const titles = {
   '/360': '360',
 }
 
-const Header = () => {
+// `onBack` lets the hosting page run its own animated exit (e.g. the gallery
+// scale+blur+fade) before leaving, so back-to-home feels smooth instead of a
+// hard cut. When omitted (e.g. the shared Layout header) it falls back to an
+// immediate navigate home.
+const Header = ({ onBack }) => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const title = titles[pathname] ?? ''
@@ -26,7 +30,7 @@ const Header = () => {
         <button
           type="button"
           aria-label="Go to homepage"
-          onClick={() => navigate('/')}
+          onClick={() => (onBack ? onBack() : navigate('/'))}
           className={`grid place-items-center w-9 h-9 lg:w-7 lg:h-7 ${
             isTowers
               ? '3xl:w-8 3xl:h-8 4xl:w-11 4xl:h-11 5xl:w-16 5xl:h-16'

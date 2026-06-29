@@ -48,7 +48,7 @@ const FloorSelect = ({ value, floors, onChange }) => {
                     setOpen(false)
                     onChange(f)
                   }}
-                  className={`w-full px-5 py-2.5 text-center uppercase transition-colors hover:bg-on-light-highlight-brown ${
+                  className={`w-full cursor-pointer px-5 py-2.5 text-center uppercase transition-colors hover:bg-on-light-highlight-brown ${
                     isSelected ? 'bg-on-light-highlight-brown' : ''
                   }`}
                   style={{
@@ -72,7 +72,7 @@ const FloorSelect = ({ value, floors, onChange }) => {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-center gap-2 rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] px-6 py-5 transition-[box-shadow,transform] hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] active:scale-[0.98]"
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] px-6 py-5 transition-[box-shadow,transform] hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] active:scale-[0.98]"
       >
         <span
           className="uppercase"
@@ -366,7 +366,7 @@ const CourtyardView = ({ title, position, onClose }) => {
           type="button"
           aria-label="Close"
           onClick={handleClose}
-          className="pointer-events-auto absolute right-12 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
+          className="pointer-events-auto absolute right-12 top-1/2 grid h-8 w-8 -translate-y-1/2 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
         >
           <img src="/unit/svgs/close cross.svg" alt="" className="h-4.5 w-4.5" />
         </button>
