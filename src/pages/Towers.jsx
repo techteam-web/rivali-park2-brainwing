@@ -6,28 +6,28 @@ import TowerDetail from '../components/towers/TowerDetail'
 import TowersLoadingScreen from '../components/towers/TowersLoadingScreen'
 import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
 
-// /towers is a single, state-driven route: an aerial landing (four tower pills)
-// and a single-tower detail view. Picking a pill opens that tower's detail; the
-// detail's back arrow returns to the landing. Tower switching happens by going
-// back to the landing, never by scrolling.
-//
-// A ?tower= param (set when leaving for a tower's unit plan) opens that tower's
-// detail directly on mount, so returning from the unit plan restores the view.
+// /towers is a single route with an aerial landing (four tower pills) and a
+// single-tower detail view. Which view shows is driven entirely by the URL: the
+// selected tower lives in ?tower=<id>, so a detail view is shareable and
+// deep-linkable — opening /towers?tower=stargaze lands straight on Stargaze.
+// Picking a pill sets the param; the detail's back arrow clears it. Tower
+// switching happens by going back to the landing, never by scrolling.
 const Towers = () => {
   const ready = useTowersAssetsReady()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Arriving with a ?tower= param means we're returning from a tower's unit
-  // plan (or deep-linking to a detail) — skip the loading screen and render the
-  // view immediately. Captured once on mount so it survives backToLanding
-  // clearing the param.
+  // Arriving with a ?tower= param means we're deep-linking to (or returning to)
+  // a detail view — skip the loading screen and render it immediately. Captured
+  // once on mount so it survives backToLanding clearing the param.
   const [skipLoader] = useState(() => searchParams.get('tower') != null)
   const [overlayGone, setOverlayGone] = useState(skipLoader)
 
-  const [selectedTower, setSelectedTower] = useState(() => {
-    const id = searchParams.get('tower')
-    return towers.find((t) => t.id === id) ?? null
-  })
+  // The URL is the single source of truth for which tower is open.
+  const selectedTower =
+    towers.find((t) => t.id === searchParams.get('tower')) ?? null
+
+  // Push a history entry so the browser back button returns to the landing too.
+  const selectTower = (tower) => setSearchParams({ tower: tower.id })
 
   useEffect(() => {
     const body = document.body
@@ -46,9 +46,8 @@ const Towers = () => {
     }
   }, [])
 
+  // Drop the ?tower= param so the URL (and view) reflects the landing.
   const backToLanding = () => {
-    setSelectedTower(null)
-    // Drop the ?tower= param so the URL reflects the landing.
     if (searchParams.has('tower')) setSearchParams({}, { replace: true })
   }
 
@@ -63,7 +62,7 @@ const Towers = () => {
             play={overlayGone}
           />
         ) : (
-          <TowersLanding onSelect={setSelectedTower} />
+          <TowersLanding onSelect={selectTower} />
         ))}
       {!overlayGone && (
         <TowersLoadingScreen
