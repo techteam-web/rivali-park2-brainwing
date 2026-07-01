@@ -6,7 +6,7 @@ import InlineSVG from './InlineSVG'
 const visionaries = [
   { name: 'Rohan Khatau', role: 'Director', image: '/about/visionary-rohan.webp', className:"object-[100%_0%]" },
   { name: 'Shijil Meledath', role: 'Chief Operating Officer', image: '/about/visionary-shijil.webp', className:"object-[100%_0%]" },
-  { name: 'Raunaq Rathi', role: 'VP, Strategy and Business', image: '/about/visionary-raunaq.webp', className:"object-[100%_0%]" },
+  { name: 'Raunaq Rathi', role: 'Chief Business & Strategy Officer', image: '/about/visionary-raunaq.webp', className:"object-[100%_0%]" },
   { name: 'Vatsal Vazir', role: 'Head of Design', image: '/about/visionary-vatsal.webp', className:"object-[100%_0%]" },
   { name: 'Harshil Shah', role: 'Head of Customer Experience', image: '/about/visionary-harshil.webp', className:"object-[100%_0%]" },
 ]
