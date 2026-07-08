@@ -8,7 +8,7 @@ import InlineSVG from '../about/InlineSVG'
 // [data-home-navbar] currentColor rules in index.css.
 const items = [
   { id: 'about',        label: 'About Us',     icon: '/home/svgs/about.svg',        to: '/about' },
-  { id: 'location',     label: 'Location',     icon: '/home/svgs/map.svg',           to: null },
+  { id: 'location',     label: 'Location',     icon: '/home/svgs/map.svg',           to: '/locations' },
   { id: 'video',        label: 'AV',           icon: '/home/svgs/video.svg',         to: '/video' },
   { id: 'amenities',    label: 'Amenities',    icon: '/home/svgs/aminities.svg',     to: '/gallery' },
   { id: 'towers',       label: 'Towers',       icon: '/home/svgs/towers.svg',        to: '/towers' },

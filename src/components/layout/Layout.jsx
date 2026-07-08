@@ -30,6 +30,9 @@ const Layout = () => {
   // /video and /construction are self-contained fullscreen players on a black
   // stage with their own back button — no Header/Footer chrome.
   const isVideo = pathname === '/video' || pathname === '/construction'
+  // /locations is a fullscreen 3D map with its own back button and no title —
+  // chrome-free on a black stage like the video players.
+  const isLocations = pathname === '/locations'
   const isUnitPlans = pathname.startsWith('/unit-plans')
   // /towers is a self-contained fullscreen flow (aerial landing + tower detail),
   // each with its own back button — no Header/Footer chrome.
@@ -49,7 +52,7 @@ const Layout = () => {
     )
   }
 
-  if (isVideo) {
+  if (isVideo || isLocations) {
     return (
       <div className="h-screen w-screen relative bg-black overflow-hidden">
         <main className="absolute inset-0">

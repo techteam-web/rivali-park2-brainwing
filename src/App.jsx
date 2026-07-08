@@ -18,6 +18,7 @@ import UnitPlans from './pages/UnitPlans'
 import UnitPlanDetail from './pages/UnitPlanDetail'
 import UnitPlanCompare from './pages/UnitPlanCompare'
 import Maps from './pages/Maps'
+import Locations from './pages/Locations'
 import Viewspage from './pages/ViewsPage'
 import Video from './pages/Video'
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
         <Route path="/unit-plans/compare" element={<UnitPlanCompare />} />
         <Route path="/unit-plans/:tower/:n" element={<UnitPlanDetail />} />
         <Route path="/maps" element={<Maps />} />
+        <Route path="/locations" element={<Locations />} />
         {/* The navbar's "360" links here; it shows the Marzipano panorama
             viewer (formerly /viewspage, kept below as an alias). */}
         <Route path="/360" element={<Viewspage />} />
