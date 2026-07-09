@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from '../../lib/gsap'
-import { floorsForPosition, viewImage } from '../../data/stargazeViews'
+import * as stargazeViews from '../../data/stargazeViews'
+import * as moonriseViews from '../../data/moonriseViews'
+
+// Per-tower panorama manifests (each exposes floorsForPosition + viewImage over
+// its own /unit/views assets). Towers without panoramas are simply absent, so
+// the viewer falls back to "coming soon".
+const VIEW_SOURCES = {
+  stargaze: stargazeViews,
+  moonrise: moonriseViews,
+}
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
@@ -158,20 +167,36 @@ const Panorama = ({ src }) => {
   const overflowRef = useRef(0)
   const activeImgRef = useRef(null)
   const latestIdRef = useRef(0)
-  const idRef = useRef(1)
 
   const [layers, setLayers] = useState(() => [{ id: 0, src, fade: false }])
 
   // Append a new layer whenever the source changes (this effect also runs on
-  // mount, where src already matches the seed layer — so it no-ops).
+  // mount, where src already matches the seed layer — so it no-ops). The new id
+  // is derived purely from the current layers (last id + 1). It must NOT come
+  // from a mutating counter inside this updater: React StrictMode double-invokes
+  // state updaters to surface impure side effects, and mutating a ref there
+  // desynced the committed layer's id from latestIdRef by one — which then made
+  // handleReady skip setActive on the 2nd+ floor switch, freezing the pan. A
+  // pure updater is immune to the double-invoke.
   useEffect(() => {
+    // Appending a crossfade layer when the source changes is exactly what this
+    // effect is for (the panorama stacks the new floor over the old and
+    // dissolves), so the set-state-in-effect rule doesn't apply here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLayers((ls) => {
       if (ls[ls.length - 1].src === src) return ls
-      const id = idRef.current++
-      latestIdRef.current = id
+      const id = ls[ls.length - 1].id + 1
       return [...ls, { id, src, fade: true }]
     })
   }, [src])
+
+  // The newest layer's id — the only layer allowed to become the live pan
+  // target. Synced from committed state in a layout effect (runs before a
+  // freshly-mounted Slide reports its image ready), so handleReady always sees
+  // the correct latest id.
+  useLayoutEffect(() => {
+    latestIdRef.current = layers[layers.length - 1].id
+  }, [layers])
 
   // Fraction (0-1) of the pan range for a given viewport X.
   const fracForX = useCallback((clientX) => {
@@ -264,20 +289,42 @@ const Panorama = ({ src }) => {
 }
 
 // Fullscreen courtyard-view viewer, opened from the "Courtyard View" link on a
-// Stargaze unit. `position` is the floor-plan svg number (1-6); the apartment
-// shown is floor*100 + position. The floor drop-up lists only floors where that
-// apartment is available. Layout matches PlanLightbox: the raggedy white tear IS
-// the header (title + close on its solid top band).
+// unit. `position` is the floor-plan unit number (1-6); the apartment shown is
+// floor*100 + position, drawn from `tower`'s panorama manifest. The floor
+// drop-up lists only floors where that apartment is available. Layout matches
+// PlanLightbox: the raggedy white tear IS the header (title + close on its solid
+// top band).
 //
 // Rendered outside the scaled <UnitArtboard> so it covers the real viewport. It
 // rises forward out of a soft blur on open and eases back on close (matching the
 // gallery / plan-lightbox transition feel).
-const CourtyardView = ({ title, position, onClose }) => {
+const CourtyardView = ({ title, tower, position, onClose }) => {
   const rootRef = useRef(null)
   const closingRef = useRef(false)
-  const floors = position ? floorsForPosition(position) : []
+  const views = VIEW_SOURCES[tower] ?? null
+  const floors = views && position ? views.floorsForPosition(position) : []
   const [floor, setFloor] = useState(() => floors[0] ?? null)
-  const src = floor != null ? viewImage(floor, position) : null
+  const src = views && floor != null ? views.viewImage(floor, position) : null
+
+  // Warm the browser cache for every floor's panorama the moment the viewer
+  // opens, so switching floors is instant instead of waiting on a ~2MB download
+  // (an uncached image can otherwise still be loading when you pan, reading as
+  // "stuck on the left"). Purely a prefetch — it does not touch the pan /
+  // crossfade engine below.
+  useEffect(() => {
+    if (!views || !position) return
+    const preloaded = views
+      .floorsForPosition(position)
+      .map((f) => views.viewImage(f, position))
+      .filter(Boolean)
+      .map((s) => {
+        const img = new Image()
+        img.src = s
+        return img
+      })
+    return () => preloaded.forEach((img) => (img.src = ''))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tower, position])
 
   useLayoutEffect(() => {
     const el = rootRef.current
