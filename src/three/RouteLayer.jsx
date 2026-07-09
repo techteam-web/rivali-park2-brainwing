@@ -15,7 +15,7 @@ import { getLocationPath } from '../components/locations/locationsPaths'
 // Category switch / toggle-off is a hard-clear handled by the key in LocationsCanvas (this whole
 // component unmounts), so there is no 'out' branch for the category changing.
 export default function RouteLayer({ category, selectedLocationId }) {
-  // Only locations with a captured path get a route (Sanchiti and any path-less ones drop out).
+  // Only locations with a captured path get a route (path-less ones drop out).
   const allIds = useMemo(
     () =>
       getCategoryLocations(category)

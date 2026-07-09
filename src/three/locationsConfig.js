@@ -60,6 +60,40 @@ export const locationsConfig = {
   // Placement for MainBuilding.glb, dialed in with the dev gizmo on /locations.
   // rotation in radians (~6 deg yaw); re-log and paste here to adjust.
   mainBuilding: { position: [2173.201, 37.724, -2.884], rotation: [0, 0.099, 0], scale: [1, 1, 1] },
+  // Flock of birds circling in the sky above MainBuilding (see src/three/BirdFlock.jsx).
+  // The GLB bakes flap + bob for a stationary formation; the orbit is added there.
+  birds: {
+    heightOffset: 400,   // world units above mainBuilding.position.y; tune to clear the towers
+    scale: 1,            // wingspan ~21u, ~14px from the default camera; drop to 0.6 for smaller
+    orbitRadius: 600,    // how far out from the building the flock circles
+    orbitSpeed: 0.08,    // radians/sec; slow wheel around the building
+    tangentYaw: Math.PI, // aligns the birds' baked +Z forward to the travel direction (derived,
+                         // see BirdFlock.jsx); becomes 0 if orbitSpeed is ever negated
+    color: '#ffffff',    // unlit white; sits AT bloom.threshold (1.0) so it does not smear
+  },
+  // Brighten MainBuilding's embedded (dull) base colors a touch. Applied ONCE as
+  // material.color *= this factor when the pulse is attached (see MainBuilding.jsx).
+  // 1 = unchanged; raise for brighter towers. Also brightens the pulse (uses diffuse).
+  mainBuildingColorBoost: 1.4,
+  // Always-on glowing band that flows continuously up MainBuilding in each tower's
+  // own base color and loops seamlessly (see src/three/buildingPulse.js). HDR-bright
+  // so it crosses the bloom threshold below and glows into the air.
+  buildingPulse: {
+    speed: 0.16,     // cycles/sec; continuous seamless upward flow (~6.25s per pass)
+    bandWidth: 0.25, // band half-thickness as a fraction of building height (0..0.5)
+    intensity: 2.4,  // HDR-bright base-color add (raise toward ~4-6 if towers barely glow)
+  },
+  // Bloom for the HDR pulse (see src/three/LocationsCanvas.jsx). The baked map is
+  // unlit (<=1) and stays out. NOTE: the water's specular sun-glint can exceed 1.0,
+  // so tiny water sparkles may also bloom - since that glint peak (~2.0) can be
+  // brighter than a muted tower's pulse, RAISE buildingPulse.intensity so the column
+  // is clearly the brightest thing rather than lowering this threshold (lowering it
+  // blooms more of the scene; water is out of scope to change here).
+  bloom: {
+    intensity: 1.1,
+    threshold: 1.0,
+    smoothing: 0.2,
+  },
   // Animated route line drawn on /locations when a location is selected
   // (see src/three/RouteCurve.jsx). Tunables for the aerial camera.
   route: {

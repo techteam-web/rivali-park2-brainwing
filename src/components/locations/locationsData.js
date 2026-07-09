@@ -60,7 +60,6 @@ export const locationsData = {
       { id: 'healthcare-apex', name: 'Apex Hospital', position: null },
       { id: 'healthcare-surbhi', name: 'Surbhi Hospital', position: null },
       { id: 'healthcare-seven-star', name: 'Seven Star Hospital', position: null },
-      { id: 'healthcare-sanchiti', name: 'Sanchiti Hospital', position: null },
     ],
   },
   schools: {

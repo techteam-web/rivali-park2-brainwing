@@ -1,16 +1,29 @@
+// [dev camera capture - commented out, restore together] useEffect was used only by the
+// capture-mode sync effect at the bottom of this file. Restore it in this import when that
+// effect comes back: import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useLayoutEffect, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { gsap } from '../gsap/Gsapconfig'
+import { getLocationCamera } from '../components/locations/locationCameras'
 import { locationsConfig } from './locationsConfig'
 
-// Drives the /locations camera with GSAP off activeCategory. Tapping a category flies to its saved
-// framing (locationsConfig.cameraViews) and LOCKS orbit (controls.enabled = false) for the whole
-// flight and after; tapping off (activeCategory -> null) flies back to the default framing
-// (locationsConfig.camera.position + controls.target) and UNLOCKS. Mounted at Canvas root as a
-// sibling of RivaliMap/RouteLayer, so the route draw-on and the flight fire together off the same
-// prop. No fly on mount; an interruption redirects from the CURRENT framing (no snap).
+// Drives the /locations camera with GSAP off activeCategory + selectedLocationId. The framing is
+// resolved in priority order: the selected route's saved camera (locationCameras), else the open
+// category's framing (locationsConfig.cameraViews), else the default (locationsConfig.camera.position
+// + controls.target). Orbit stays LOCKED (controls.enabled = false) for as long as a category is
+// open, whether or not a route is selected; toggling the category off flies back to the default
+// framing and UNLOCKS. Selecting a route only reframes, it never changes the lock. Mounted at Canvas
+// root as a sibling of RivaliMap/RouteLayer, so the route draw-on and the flight fire together off
+// the same props. No fly on mount; an interruption redirects from the CURRENT framing (no snap).
 const { cameraViews, camera: defaultCamera, controls: defaultControls, cameraFlightDuration } = locationsConfig
+
+// The framing a given (category, route) pair resolves to. The flight effect fires only when this key
+// changes, so selecting a location with no saved camera keeps the category key and does not re-fly.
+const resolveFlyKey = (activeCategory, selectedLocationId) => {
+  if (selectedLocationId && getLocationCamera(selectedLocationId)) return selectedLocationId
+  return activeCategory ?? '__default__'
+}
 
 // A framing whose camera sits almost directly over its target (offset nearly parallel to world up)
 // is a gimbal-lock case for lookAt: driving orientation with controls.update() snaps at the pole.
@@ -24,27 +37,44 @@ const isNearPole = (px, py, pz, tx, ty, tz) => {
   return horizontal < Math.abs(py - ty) * NEAR_POLE_TAN
 }
 
-export default function CameraRig({ activeCategory }) {
+// [dev camera capture - commented out, restore together] The captureMode prop below came from
+// LocationsCanvas (and before it the LocationsView dev panel). Restore the signature as:
+// export default function CameraRig({ activeCategory, selectedLocationId, captureMode }) {
+export default function CameraRig({ activeCategory, selectedLocationId }) {
   // Imperative store accessor: camera/controls are read from get() inside the effect and mutated
   // directly (the R3F way to drive a camera). controls is null until OrbitControls (makeDefault)
   // registers, so guard for it.
   const get = useThree((s) => s.get)
-  const prevRef = useRef(activeCategory) // skip the fly on first run; only a real change flies
+  // Seeded with the mount-time resolve key: skip the fly on first run; only a real change flies.
+  const prevRef = useRef(resolveFlyKey(activeCategory, selectedLocationId))
   const tlRef = useRef(null)             // running flight; killed to redirect from current values
   const slerpingRef = useRef(false)      // true while a slerp flight is in progress (for redirects)
 
+  /* [dev camera capture - commented out, restore together]
+     DEV capture mode: read through a ref so the flight callbacks below see the latest value
+     without re-subscribing the effect (no killing an in-flight tween on toggle). Kept in sync by
+     the capture-toggle effect at the bottom of this file, not during render.
+
+  const captureModeRef = useRef(captureMode)
+  */
+
   useLayoutEffect(() => {
-    const prev = prevRef.current
-    if (prev === activeCategory) return
+    const flyKey = resolveFlyKey(activeCategory, selectedLocationId)
+    if (prevRef.current === flyKey) return
     const { camera, controls } = get()
     if (!controls) return
-    prevRef.current = activeCategory
+    prevRef.current = flyKey
 
-    const view = (activeCategory && cameraViews[activeCategory]) || {
+    // Framing hierarchy: the selected route's saved camera wins, else the open category's framing,
+    // else the default. A selected location with no saved camera falls back to the category framing
+    // rather than flying to nothing.
+    const routeView = selectedLocationId ? getLocationCamera(selectedLocationId) : null
+    const categoryView = (activeCategory && cameraViews[activeCategory]) || null
+    const view = routeView || categoryView || {
       position: defaultCamera.position,
       target: defaultControls.target,
     }
-    const returningToDefault = !(activeCategory && cameraViews[activeCategory])
+    const returningToDefault = !routeView && !categoryView
 
     // Interrupt any running flight and start fresh FROM the current framing (no snap). Killing a
     // timeline leaves camera.position/controls.target where they are, so the new tweens snapshot
@@ -55,6 +85,8 @@ export default function CameraRig({ activeCategory }) {
 
     // Lock orbit immediately for the whole flight (drei only calls controls.update() while enabled,
     // so this also stops it fighting our tween).
+    // [dev camera capture - commented out, restore together] Capture mode suspended this lock so you
+    // could orbit with a category open. Restore as: if (!captureModeRef.current) controls.enabled = false
     controls.enabled = false
 
     // Slerp orientation when either end of the flight is a near-top-down framing (avoids the lookAt
@@ -87,11 +119,15 @@ export default function CameraRig({ activeCategory }) {
         : () => controls.update(), // keep the camera looking at the moving target each frame
       onComplete: () => {
         slerpingRef.current = false // flight landed; the next flight re-evaluates fresh
+        // [dev camera capture - commented out, restore together] Capture mode also force-unlocked
+        // here, ahead of the returningToDefault branch. Restore as:
+        // if (captureModeRef.current) { controls.enabled = true; controls.update() }
+        // else if (returningToDefault) { ...the branch below... }
         if (returningToDefault) {
           controls.enabled = true // unlock only after a completed return to default
           controls.update()
         }
-        // category view: leave controls.enabled = false (LOCKED, option B)
+        // category or route view: leave controls.enabled = false (LOCKED, option B)
       },
     })
     // Tween camera position and controls target together on one clock so the camera arcs to the
@@ -103,7 +139,24 @@ export default function CameraRig({ activeCategory }) {
     return () => {
       tlRef.current?.kill()
     }
-  }, [activeCategory, get])
+  }, [activeCategory, selectedLocationId, get])
+
+  /* [dev camera capture - commented out, restore together]
+     DEV capture mode toggle: re-sync the lock when the flag flips with a category already open
+     (the flight effect above does not run then, because activeCategory is unchanged). On -> unlock
+     so you can orbit; off -> restore the category lock. No-op in production (captureMode is always
+     false there, so it never unlocks and never touches the return-to-default flight).
+     Restoring this also needs: the captureMode prop, the captureModeRef above, the two lock sites
+     in the flight effect, and useEffect back in the react import.
+
+  useEffect(() => {
+    captureModeRef.current = captureMode // keep the flight callbacks' view of the flag current
+    const { controls } = get()
+    if (!controls) return
+    if (captureMode) controls.enabled = true
+    else if (activeCategory && cameraViews[activeCategory]) controls.enabled = false
+  }, [captureMode, activeCategory, get])
+  */
 
   return null
 }

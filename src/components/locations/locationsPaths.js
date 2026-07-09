@@ -2,7 +2,7 @@
 // Keyed by location id. Each path is an ordered list of [x, y, z] world points
 // from the start (near the project building) to the destination. The route-curve
 // component builds a Catmull-Rom curve through these points and draws it on.
-// Locations with no entry here (e.g. healthcare-sanchiti) draw no route until captured.
+// Locations with no entry here draw no route until captured.
 
 export const locationsPaths = {
   'access-western-express-highway': [

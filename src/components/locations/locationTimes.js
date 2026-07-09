@@ -1,5 +1,5 @@
 // Real travel times per location (walk / bike / car / transit), keyed by location id.
-// Consumed by LocationCard. healthcare-sanchiti has no entry yet (card falls back to '--').
+// Consumed by LocationCard. Locations with no entry here fall back to '--' on the card.
 // Photos, blurbs, and the distance pill are still placeholders elsewhere; only times are real.
 
 export const locationTimes = {

@@ -3,6 +3,8 @@ import { usePageTransition } from '../../hooks/usePageTransition'
 import LocationsCanvas from '../../three/LocationsCanvas'
 import LocationsNav from './LocationsNav'
 import LocationCard from './LocationCard'
+// [dev camera capture - commented out, restore together] Used only by the capture panel's dropdown.
+// import { getCategoryLocations } from './locationsData' // DEV capture panel only
 
 // Main view for the /locations route. Kept as a component (mirroring how
 // TowersLanding/TowerDetail live under components/towers) so the page file
@@ -22,6 +24,15 @@ const LocationsView = () => {
   // a location row keeps that one and retracts the others out. Cleared whenever the open
   // category changes (handleCategoryChange + the outside-click handler below).
   const [selectedLocationId, setSelectedLocationId] = useState(null)
+
+  /* [dev camera capture - commented out, restore together]
+     DEV-only camera capture: captureMode suspends the category lock in CameraRig so you can orbit
+     with a category open; selectedCaptureId tags the logged framing. Only the dev panel below flips
+     captureMode true, so it stays false in production (no behavior change).
+
+  const [captureMode, setCaptureMode] = useState(false)
+  const [selectedCaptureId, setSelectedCaptureId] = useState('')
+  */
 
   // Open, switch, or close a category. Resets the selection so the fresh category draws its
   // full set in; a null id (toggle off) hard-clears the routes.
@@ -50,6 +61,9 @@ const LocationsView = () => {
   // a sibling of the pill and positioned by measurement), so clicks on either stay
   // open while a click anywhere else closes it. Armed only while a panel is open;
   // mirrors the outside-close pattern used by the unit-plan menus.
+  // [dev camera capture - commented out, restore together] Capture mode used to disarm this, so
+  // dragging the map to orbit would not deselect the category. Restore as:
+  // if (!activeCategory || captureMode) return  ...and add captureMode back to the dep array.
   const navRef = useRef(null)
   useEffect(() => {
     if (!activeCategory) return
@@ -62,6 +76,17 @@ const LocationsView = () => {
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [activeCategory])
+
+  /* [dev camera capture - commented out, restore together]
+     DEV capture panel: the dropdown lists the open category's locations. captureId is the
+     effective, always-valid selection (the remembered pick if it belongs to the open category,
+     else the first option), so the controlled <select> never warns across a category switch.
+
+  const captureOptions = import.meta.env.DEV && activeCategory ? getCategoryLocations(activeCategory) : []
+  const captureId = captureOptions.some((l) => l.id === selectedCaptureId)
+    ? selectedCaptureId
+    : (captureOptions[0]?.id ?? '')
+  */
 
   return (
     <div
@@ -89,18 +114,54 @@ const LocationsView = () => {
         </svg>
       </button>
 
-      {/* Dev-only camera framing logger COMMENTED OUT. Re-enable together with
-          <CameraLogger /> in src/three/LocationsCanvas.jsx. Captures the current camera
-          framing to the console so it can be hardcoded in src/three/locationsConfig.js.
+      {/* [dev camera capture - commented out, restore together]
+          DEV-only camera capture panel. Capture mode ON suspends the category lock (see captureMode
+          in src/three/CameraRig.jsx) so you can orbit with a category open, frame a route, pick its
+          id, and Log camera to print a paste-ready block tagged with that id (see CameraLogger).
+          Restore together with: the captureMode/selectedCaptureId state and the captureOptions/
+          captureId derived values above, the getCategoryLocations import, the captureMode prop on
+          LocationsCanvas below, the captureMode plumbing in LocationsCanvas + CameraRig, and the
+          CameraLogger render in LocationsCanvas (the only listener for the 'log-camera' event
+          dispatched here).
 
       {import.meta.env.DEV && (
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event('log-camera'))}
-          className="absolute bottom-5 right-5 z-10 rounded-full bg-white/20 px-3 py-1.5 font-mono text-xs text-white transition-colors duration-200 hover:bg-white/30 focus:outline-none focus-visible:bg-white/30"
-        >
-          Log camera position
-        </button>
+        <div className="pointer-events-auto absolute bottom-5 right-5 z-20 flex w-56 flex-col gap-2 rounded-lg bg-black/70 p-3 font-mono text-xs text-white backdrop-blur-sm">
+          <div className="text-[11px] font-bold text-white/80">Camera capture</div>
+          <button
+            type="button"
+            onClick={() => setCaptureMode((v) => !v)}
+            className={`rounded px-2 py-1 transition-colors ${captureMode ? 'bg-amber-500/80 text-black hover:bg-amber-500' : 'bg-white/20 hover:bg-white/30'}`}
+          >
+            Capture mode: {captureMode ? 'ON' : 'OFF'}
+          </button>
+          <select
+            value={captureId}
+            onChange={(e) => setSelectedCaptureId(e.target.value)}
+            disabled={captureOptions.length === 0}
+            className="rounded bg-white/10 px-2 py-1 text-white outline-none focus:bg-white/15 disabled:opacity-40"
+          >
+            {captureOptions.length === 0 ? (
+              <option value="">open a category</option>
+            ) : (
+              captureOptions.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))
+            )}
+          </select>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('log-camera', { detail: { locationId: captureId } }))}
+            disabled={!captureId}
+            className="rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30 disabled:opacity-40"
+          >
+            Log camera
+          </button>
+          <div className="text-[10px] leading-tight text-white/50">
+            {captureMode ? 'Orbit unlocked. Frame a route, pick its id, Log camera.' : 'Turn ON, then open a category to orbit.'}
+          </div>
+        </div>
       )}
       */}
 
@@ -178,7 +239,8 @@ const LocationsView = () => {
       )}
       */}
 
-      {/* Fullscreen 3D map fills the container; back button sits above at z-10. */}
+      {/* Fullscreen 3D map fills the container; back button sits above at z-10.
+          [dev camera capture - commented out, restore together] also passed captureMode={captureMode} */}
       <div className="absolute inset-0">
         <LocationsCanvas activeCategory={activeCategory} selectedLocationId={selectedLocationId} />
       </div>
@@ -190,14 +252,17 @@ const LocationsView = () => {
 
       {/* Bottom-center category bar. Clicking a category opens its panel above the
           bar, anchored to the tapped button and measured so it clears the bar; it
-          stays open until an outside click. Placeholder select for now; the camera
-          flight wires in a later pass. */}
+          stays open until an outside click. Rows toggle like the category buttons do:
+          re-tapping the selected row clears it, so the route and card go away and the
+          camera flies back to the category framing. */}
       <LocationsNav
         navRef={navRef}
         activeCategory={activeCategory}
         selectedLocationId={selectedLocationId}
         onCategoryChange={handleCategoryChange}
-        onSelectLocation={(location) => setSelectedLocationId(location.id)}
+        onSelectLocation={(location) =>
+          setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
+        }
       />
     </div>
   )

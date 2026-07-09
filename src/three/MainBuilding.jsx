@@ -1,6 +1,11 @@
+import { useEffect } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 import mainBuildingUrl from '../assets/locations/MainBuilding.glb?url'
+import { locationsConfig } from './locationsConfig'
+import { patchBuildingPulse } from './buildingPulse'
+
+const colorBoost = locationsConfig.mainBuildingColorBoost
 
 // gltfjsx output for MainBuilding.glb. Unlike the unlit map, this GLB keeps its
 // embedded standard materials (adskMat*, Central_Courtyard) — they need the lights
@@ -9,6 +14,24 @@ import mainBuildingUrl from '../assets/locations/MainBuilding.glb?url'
 // keep the cached useGLTF geometry alive across unmounts.
 export default function MainBuilding(props) {
   const { nodes, materials } = useGLTF(mainBuildingUrl)
+
+  // Inject the always-on pulse into every embedded material via onBeforeCompile
+  // (they are lit standard materials, not JSX ShaderMaterials, so patch not swap),
+  // and brighten each material's dull base color once. Materials may be shared
+  // across meshes; process each unique one once. The identity guard avoids
+  // re-triggering a recompile - and re-multiplying the color - on kiosk re-entry
+  // (materials are cached across unmounts via dispose={null}).
+  useEffect(() => {
+    const seen = new Set()
+    Object.values(materials).forEach((m) => {
+      if (!m || seen.has(m) || m.onBeforeCompile === patchBuildingPulse) return
+      seen.add(m)
+      if (m.color && colorBoost !== 1) m.color.multiplyScalar(colorBoost)
+      m.onBeforeCompile = patchBuildingPulse
+      m.needsUpdate = true
+    })
+  }, [materials])
+
   return (
     <group {...props} dispose={null}>
       <group
