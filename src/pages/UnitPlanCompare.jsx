@@ -269,7 +269,8 @@ const UnitPlanCompare = () => {
                   onClick={() =>
                     setCourtyard({
                       title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
-                      position: col.tower === 'stargaze' ? unit.n : null,
+                      tower: col.tower,
+                      position: unit.n,
                     })
                   }
                   className="flex items-center gap-2 px-6 py-5 transition-[opacity,transform] hover:opacity-80 active:scale-[0.98]"
@@ -343,6 +344,7 @@ const UnitPlanCompare = () => {
       {courtyard && (
         <CourtyardView
           title={courtyard.title}
+          tower={courtyard.tower}
           position={courtyard.position}
           onClose={() => setCourtyard(null)}
         />

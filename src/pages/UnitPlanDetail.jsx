@@ -215,7 +215,8 @@ const UnitPlanDetail = () => {
       {courtyardOpen && (
         <CourtyardView
           title={`View From ${label} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`}
-          position={tower === 'stargaze' ? unit.n : null}
+          tower={tower}
+          position={unit.n}
           onClose={() => setCourtyardOpen(false)}
         />
       )}
