@@ -8,7 +8,6 @@ import CourtyardView from '../components/unitplan/CourtyardView'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 import {
-  POSSESSION,
   fmtSqft,
   fmtBalcony,
   findUnit,
@@ -152,14 +151,6 @@ const UnitPlanDetail = () => {
                   {fmtBalcony(unit)}
                 </p>
               </div>
-              <div>
-                <p className="uppercase" style={labelStyle}>
-                  Expected Possession
-                </p>
-                <p className="mt-1" style={valueStyle}>
-                  {POSSESSION}
-                </p>
-              </div>
 
               <button
                 type="button"
@@ -173,7 +164,7 @@ const UnitPlanDetail = () => {
                 }}
               >
                 <img src="/unit/svgs/view.svg" alt="" className="h-5 w-5" />
-                Courtyard View
+                View from apartment
                 <img
                   src="/unit/svgs/arrow_forward.svg"
                   alt=""
