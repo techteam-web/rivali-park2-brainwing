@@ -3,7 +3,14 @@ import { useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import StargazeOverlay from '../components/unitplan/StargazeOverlay'
-import { STARGAZE_OVERLAY_VB, TOWER_TABS } from '../data/unitPlans'
+import {
+  STARGAZE_OVERLAY_VB,
+  STARGAZE_OVERLAY,
+  OVERLAY_TOWER,
+  PLAN_W,
+  PLAN_H,
+  TOWER_TABS,
+} from '../data/unitPlans'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 
@@ -11,20 +18,10 @@ const reduceMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-// Floor-plan box (artboard units). Keeps the exported sheet's ~1.875 aspect so
-// the overlay shapes stay aligned with the plan.
-const PLAN_W = 1320
-const PLAN_H = 704
 // Wheel zoom never shrinks below the original size (min 1), so "zoom out" just
 // returns to the base view rather than making the plan smaller.
 const MIN_ZOOM = 1
 const MAX_ZOOM = 2.5
-
-// Towers whose units are clickable footprint-shape overlays.
-const OVERLAY_TOWER = 'stargaze'
-// Placement of the Stargaze overlay over the plan (centre %, width % of the
-// plan box), arranged to line up with the floor plan.
-const STARGAZE_OVERLAY = { left: 48.8, top: 47, width: 53.7 }
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
 
@@ -117,6 +114,7 @@ const UnitPlans = () => {
             entryOrigin === 'towers' ? `/towers?tower=${activeTower}` : '/',
           )
         }
+        onHome={() => exitTo('/')}
       />
 
       {/* Courtyard / external facing labels + floor plan */}

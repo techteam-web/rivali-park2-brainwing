@@ -5,15 +5,23 @@ import UnitHeader from '../components/unitplan/UnitHeader'
 import UnitSelect from '../components/unitplan/UnitSelect'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
 import CourtyardView from '../components/unitplan/CourtyardView'
+import StargazeOverlay from '../components/unitplan/StargazeOverlay'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 import {
   fmtSqft,
   fmtBalcony,
+  fmtTotalArea,
   findUnit,
   towerLabel,
   towerBg,
   towerTint,
+  towerPlan,
+  OVERLAY_TOWER,
+  PLAN_W,
+  PLAN_H,
+  STARGAZE_OVERLAY,
+  STARGAZE_OVERLAY_VB,
 } from '../data/unitPlans'
 
 const labelStyle = {
@@ -82,7 +90,10 @@ const UnitPlanDetail = () => {
     <>
       <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
-        <UnitHeader onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}`)}>
+        <UnitHeader
+          onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}`)}
+          onHome={() => exitTo('/')}
+        >
           <h1
             className="whitespace-nowrap uppercase"
             style={{
@@ -143,13 +154,24 @@ const UnitPlanDetail = () => {
             />
 
             <div className="mt-8 space-y-6">
-              <div>
-                <p className="uppercase" style={labelStyle}>
-                  Balcony
-                </p>
-                <p className="mt-1" style={valueStyle}>
-                  {fmtBalcony(unit)}
-                </p>
+              <div className="flex gap-12">
+                <div>
+                  <p className="uppercase" style={labelStyle}>
+                    Balcony
+                  </p>
+                  <p className="mt-1" style={valueStyle}>
+                    {fmtBalcony(unit)}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="uppercase" style={labelStyle}>
+                    Total Area
+                  </p>
+                  <p className="mt-1" style={valueStyle}>
+                    {fmtTotalArea(unit)}
+                  </p>
+                </div>
               </div>
 
               <button
@@ -172,6 +194,37 @@ const UnitPlanDetail = () => {
                 />
               </button>
             </div>
+
+            {/* Locator plan: the tower's whole-floor plate with just this
+                unit's footprint highlighted, so the user can see where it
+                sits on the floor. Reuses the same plan image + hand-tuned
+                overlay placement as the floor-plan selector (UnitPlans),
+                just shown non-interactively and filtered to one shape. */}
+            {tower === OVERLAY_TOWER && (
+              <div className="mt-6 flex min-h-0 flex-1 items-center justify-center">
+                <div
+                  className="relative w-full"
+                  style={{ aspectRatio: `${PLAN_W} / ${PLAN_H}` }}
+                >
+                  <img
+                    src={towerPlan(tower)}
+                    alt={`${label} floor plan`}
+                    className="h-full w-full object-contain"
+                  />
+                  <div
+                    className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2"
+                    style={{
+                      left: `${STARGAZE_OVERLAY.left}%`,
+                      top: `${STARGAZE_OVERLAY.top}%`,
+                      width: `${STARGAZE_OVERLAY.width}%`,
+                      aspectRatio: `${STARGAZE_OVERLAY_VB.w} / ${STARGAZE_OVERLAY_VB.h}`,
+                    }}
+                  >
+                    <StargazeOverlay highlightOnly={unit.n} />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               type="button"
@@ -200,6 +253,7 @@ const UnitPlanDetail = () => {
           title={`${label} Unit Plan`}
           bg={towerBg(tower)}
           onClose={() => setZoomed(false)}
+          onHome={() => exitTo('/')}
         />
       )}
 
@@ -209,6 +263,7 @@ const UnitPlanDetail = () => {
           tower={tower}
           position={unit.n}
           onClose={() => setCourtyardOpen(false)}
+          onHome={() => exitTo('/')}
         />
       )}
     </>

@@ -12,7 +12,10 @@ const titles = {
 // scale+blur+fade) before leaving, so back-to-home feels smooth instead of a
 // hard cut. When omitted (e.g. the shared Layout header) it falls back to an
 // immediate navigate home.
-const Header = ({ onBack }) => {
+// `arrowOnly` renders just the back arrow, skipping the title/spacer — used
+// where the header needs to persist across multiple views (e.g. About Us
+// slides) without implying a full page navbar.
+const Header = ({ onBack, arrowOnly = false }) => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const title = titles[pathname] ?? ''
@@ -23,7 +26,9 @@ const Header = ({ onBack }) => {
       className={`sticky top-0 z-50 pt-6 pb-4 px-6 ${
         isTowers
           ? 'md:pt-1 md:px-2 xl:pt-3 xl:px-6 2xl:pt-6 2xl:px-10 3xl:pt-6 3xl:px-12 4xl:pt-8 4xl:px-16 5xl:pt-12 5xl:px-24 bg-transparent'
-          : 'lg:px-10 xl:px-12 2xl:px-14 3xl:px-16 4xl:px-20 5xl:px-28 xl:pt-8 xl:pb-5 2xl:pt-10 2xl:pb-6 3xl:pt-12 3xl:pb-8 4xl:pt-16 4xl:pb-10 5xl:pt-24 5xl:pb-14 bg-white'
+          : `lg:px-10 xl:px-12 2xl:px-14 3xl:px-16 4xl:px-20 5xl:px-28 xl:pt-8 xl:pb-5 2xl:pt-10 2xl:pb-6 3xl:pt-12 3xl:pb-8 4xl:pt-16 4xl:pb-10 5xl:pt-24 5xl:pb-14 ${
+              arrowOnly ? 'bg-transparent' : 'bg-white'
+            }`
       }`}
     >
       <div className="flex items-center justify-between">
@@ -47,7 +52,7 @@ const Header = ({ onBack }) => {
             }`}
           />
         </button>
-        {!isTowers && (
+        {!isTowers && !arrowOnly && (
           <>
             <h1 className="font-medium text-[18px] lg:text-[13px] xl:text-[16px] 2xl:text-[19px] 3xl:text-[24px] 4xl:text-[30px] 5xl:text-[42px] tracking-[2.5px] lg:tracking-[2px] xl:tracking-[2.4px] 2xl:tracking-[2.6px] 3xl:tracking-[3.2px] 4xl:tracking-[4px] 5xl:tracking-[5.5px] text-on-light-black uppercase">
               {title}

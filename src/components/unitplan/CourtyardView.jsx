@@ -298,7 +298,7 @@ const Panorama = ({ src }) => {
 // Rendered outside the scaled <UnitArtboard> so it covers the real viewport. It
 // rises forward out of a soft blur on open and eases back on close (matching the
 // gallery / plan-lightbox transition feel).
-const CourtyardView = ({ title, tower, position, onClose }) => {
+const CourtyardView = ({ title, tower, position, onClose, onHome }) => {
   const rootRef = useRef(null)
   const closingRef = useRef(false)
   const views = VIEW_SOURCES[tower] ?? null
@@ -346,23 +346,31 @@ const CourtyardView = ({ title, tower, position, onClose }) => {
     return () => tl.kill()
   }, [])
 
-  const handleClose = useCallback(() => {
-    if (closingRef.current) return
-    const el = rootRef.current
-    if (!el || prefersReducedMotion()) {
-      onClose()
-      return
-    }
-    closingRef.current = true
-    gsap.to(el, {
-      autoAlpha: 0,
-      scale: 1.015,
-      filter: 'blur(10px)',
-      duration: 0.5,
-      ease: 'power2.inOut',
-      onComplete: onClose,
-    })
-  }, [onClose])
+  // Shared exit choreography for both Close (return to the unit sheet) and
+  // Home (jump to the homepage) — same fade/scale/blur, different onDone.
+  const runExit = useCallback(
+    (onDone) => {
+      if (closingRef.current) return
+      const el = rootRef.current
+      if (!el || prefersReducedMotion()) {
+        onDone()
+        return
+      }
+      closingRef.current = true
+      gsap.to(el, {
+        autoAlpha: 0,
+        scale: 1.015,
+        filter: 'blur(10px)',
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: onDone,
+      })
+    },
+    [],
+  )
+
+  const handleClose = useCallback(() => runExit(onClose), [runExit, onClose])
+  const handleHome = useCallback(() => runExit(onHome), [runExit, onHome])
 
   return (
     <div ref={rootRef} className="fixed inset-0 z-50 overflow-hidden bg-[#23211E]">
@@ -409,14 +417,24 @@ const CourtyardView = ({ title, tower, position, onClose }) => {
         >
           {title}
         </h2>
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={handleClose}
-          className="pointer-events-auto absolute right-12 top-1/2 grid h-8 w-8 -translate-y-1/2 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
-        >
-          <img src="/unit/svgs/close cross.svg" alt="" className="h-4.5 w-4.5" />
-        </button>
+        <div className="pointer-events-auto absolute right-12 top-1/2 flex -translate-y-1/2 items-center gap-3">
+          <button
+            type="button"
+            aria-label="Go to homepage"
+            onClick={handleHome}
+            className="grid h-8 w-8 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
+          >
+            <img src="/unit/svgs/home.svg" alt="" className="h-4.5 w-4.5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={handleClose}
+            className="grid h-8 w-8 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
+          >
+            <img src="/unit/svgs/close cross.svg" alt="" className="h-4.5 w-4.5" />
+          </button>
+        </div>
       </header>
 
       {floor != null && (

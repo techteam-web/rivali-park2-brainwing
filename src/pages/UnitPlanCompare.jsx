@@ -10,11 +10,13 @@ import {
   POSSESSION_SHORT,
   fmtSqft,
   fmtBalcony,
+  fmtTotalArea,
   findUnit,
   towerUnits,
   towerLabel,
   towerBg,
   towerTint,
+  unitLabel,
 } from '../data/unitPlans'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
@@ -38,7 +40,7 @@ const TOWER_OPTIONS = TOWER_TABS.map((t) => ({
 const unitOptions = (tower) =>
   towerUnits(tower).map((u) => ({
     value: u.n,
-    label: `${u.bhk} BHK - ${fmtSqft(u.carpet)} Sq Ft`,
+    label: unitLabel(u),
   }))
 
 // Stable ids so removing a column doesn't reshuffle React keys.
@@ -179,7 +181,7 @@ const UnitPlanCompare = () => {
     <>
       <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
-        <UnitHeader onBack={goBack}>
+        <UnitHeader onBack={goBack} onHome={() => exitTo('/')}>
           <h1
             className="whitespace-nowrap capitalize"
             style={{
@@ -226,8 +228,9 @@ const UnitPlanCompare = () => {
                     />
                   </div>
 
-                  <div className="mt-6 flex gap-12">
+                  <div className="mt-6 flex flex-wrap gap-x-12 gap-y-4">
                     <Spec label="Balcony" value={fmtBalcony(unit)} />
+                    <Spec label="Total Area" value={fmtTotalArea(unit)} />
                     <Spec
                       label="Expected Possession"
                       value={POSSESSION_SHORT}
@@ -338,6 +341,7 @@ const UnitPlanCompare = () => {
           title={zoom.title}
           bg={zoom.bg}
           onClose={() => setZoom(null)}
+          onHome={() => exitTo('/')}
         />
       )}
 
@@ -347,6 +351,7 @@ const UnitPlanCompare = () => {
           tower={courtyard.tower}
           position={courtyard.position}
           onClose={() => setCourtyard(null)}
+          onHome={() => exitTo('/')}
         />
       )}
     </>

@@ -43,26 +43,41 @@ const SHAPES = [
   },
 ]
 
-// Each shape is a clickable region that opens its unit's detail sheet.
-const StargazeOverlay = ({ onSelect }) => (
-  <svg
-    viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
-    className="h-full w-full overflow-visible"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    {SHAPES.map((s) => {
-      const Tag = s.type
-      const shapeProps = s.type === 'polygon' ? { points: s.d } : { d: s.d }
-      return (
-        <Tag
-          key={s.n}
-          {...shapeProps}
-          onClick={() => onSelect(s.n)}
-          className="cursor-pointer fill-[#a4687b] stroke-on-light-black stroke-[0.6] transition-[fill-opacity] [fill-opacity:0.3] hover:[fill-opacity:0.55]"
-        />
-      )
-    })}
-  </svg>
-)
+// Each shape is a clickable region that opens its unit's detail sheet. Pass
+// `highlightOnly` (a unit number) instead of `onSelect` to render just that
+// one shape as a static, solid-filled locator — used on the unit detail sheet
+// to show where the currently-viewed unit sits on the whole floor, with no
+// click/hover affordance since there's nothing to select there.
+const StargazeOverlay = ({ onSelect, highlightOnly = null }) => {
+  const shapes =
+    highlightOnly != null
+      ? SHAPES.filter((s) => s.n === highlightOnly)
+      : SHAPES
+
+  return (
+    <svg
+      viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
+      className="h-full w-full overflow-visible"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      {shapes.map((s) => {
+        const Tag = s.type
+        const shapeProps = s.type === 'polygon' ? { points: s.d } : { d: s.d }
+        return (
+          <Tag
+            key={s.n}
+            {...shapeProps}
+            onClick={onSelect ? () => onSelect(s.n) : undefined}
+            className={
+              onSelect
+                ? 'cursor-pointer fill-[#a4687b] stroke-on-light-black stroke-[0.6] transition-[fill-opacity] [fill-opacity:0.3] hover:[fill-opacity:0.55]'
+                : 'fill-[#a4687b] stroke-on-light-black stroke-[0.8] [fill-opacity:0.7]'
+            }
+          />
+        )
+      })}
+    </svg>
+  )
+}
 
 export default StargazeOverlay

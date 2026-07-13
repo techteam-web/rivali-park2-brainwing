@@ -40,18 +40,18 @@ const AboutUs = () => {
         'scale-[0.7] lg:scale-[0.67] xl:scale-[0.75] 2xl:scale-[0.75] 3xl:scale-[0.8] 4xl:scale-[0.8] 5xl:scale-[0.85]',
     },
     {
-      Component: Visionaries,
-      key: 'visionaries',
-      bg: 'bg-white',
-      scale:
-        'scale-[0.7] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65] 3xl:scale-[0.63] 4xl:scale-[0.65] 5xl:scale-[0.7]',
-    },
-    {
       Component: DesignedByMasters,
       key: 'designed',
       bg: 'bg-pastel-brown-bg',
       scale:
         'scale-[0.7] lg:scale-[0.7] xl:scale-[0.68] 2xl:scale-[0.68] 3xl:scale-[0.65] 4xl:scale-[0.7] 5xl:scale-[0.73]',
+    },
+    {
+      Component: Visionaries,
+      key: 'visionaries',
+      bg: 'bg-white',
+      scale:
+        'scale-[0.7] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65] 3xl:scale-[0.63] 4xl:scale-[0.65] 5xl:scale-[0.7]',
     },
   ]
   const totalSlides = sections.length
@@ -77,7 +77,7 @@ const AboutUs = () => {
       const drawSel =
         'svg path, svg line, svg polyline, svg polygon, svg circle, svg ellipse, svg rect'
       let cancelled = false
-      const isDbm = currentSlide === sections.length - 1
+      const isDbm = sections[currentSlide]?.key === 'designed'
 
       const apply = () => {
         const el = document.querySelector('[data-about-footer]')
@@ -127,10 +127,10 @@ const AboutUs = () => {
         ref={headerRef}
         className="absolute top-0 left-0 right-0 z-50"
       >
-        <Header onBack={() => exitTo('/')} />
+        <Header onBack={() => exitTo('/')} arrowOnly />
       </div>
       {sections.map(({ Component, key, scale, bg }, index) => {
-        const isLast = index === sections.length - 1
+        const hasFooter = key === 'designed'
         return (
           <div
             key={key}
@@ -144,7 +144,7 @@ const AboutUs = () => {
                 <Component ref={(el) => (sectionRefs.current[index] = el)} />
               </div>
             </div>
-            {isLast && (
+            {hasFooter && (
               <InlineSVG
                 src="/about/about-footer.svg"
                 aria-hidden="true"

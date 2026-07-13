@@ -9,8 +9,8 @@ const LABEL_FONT = {
   letterSpacing: '0.1em',
 }
 
-// White, bordered dropdown that lists every unit in `tower` as "{bhk} BHK -
-// {carpet} Sq Ft". Controlled by `value` (a unit number); `onChange(n)` fires
+// White, bordered dropdown that lists every unit in `tower` as "Unit {n} -
+// {bhk} BHK". Controlled by `value` (a unit number); `onChange(n)` fires
 // with the chosen unit — the caller decides whether to navigate or set state.
 const UnitSelect = ({ tower, value, onChange }) => {
   const [open, setOpen] = useState(false)

@@ -72,19 +72,40 @@ export const TOWER_UNITS = {
 // component and the selector page can use it without tripping fast-refresh.
 export const STARGAZE_OVERLAY_VB = { x: 108, y: 20, w: 600, h: 518 }
 
+// Towers whose units are clickable/highlightable footprint-shape overlays.
+export const OVERLAY_TOWER = 'stargaze'
+
+// Floor-plan box (artboard units). Keeps the exported sheet's aspect ratio so
+// any box using it renders the plan without letterboxing drift, and so the
+// hand-tuned STARGAZE_OVERLAY placement below lines up correctly wherever the
+// box is reused (the selector page, the unit detail sheet's locator plan).
+export const PLAN_W = 1320
+export const PLAN_H = 704
+
+// Placement of the Stargaze overlay over the plan (centre %, width % of the
+// PLAN_W x PLAN_H box), hand-tuned in the editor until it lines up.
+export const STARGAZE_OVERLAY = { left: 48.8, top: 47, width: 53.7 }
+
 export const fmtSqft = (n) => n.toLocaleString('en-US')
 
-// Label used in the unit dropdown and selectors, e.g. "3 BHK - 968 Sq Ft".
-export const unitLabel = (u) => `${u.bhk} BHK - ${fmtSqft(u.carpet)} Sq Ft`
+// Label used in the unit dropdown and selectors, e.g. "Unit 6 - 2 BHK".
+export const unitLabel = (u) => `Unit ${u.n} - ${u.bhk} BHK`
 
 // Balcony spec for the detail/compare panels; units with no balcony show "—".
 export const fmtBalcony = (u) => (u.balcony == null ? '—' : `${u.balcony} sq.ft`)
+
+// Total area spec: carpet + balcony (units with no balcony just show carpet).
+export const fmtTotalArea = (u) =>
+  `${fmtSqft(u.carpet + (u.balcony ?? 0))} sq.ft`
 
 export const towerLabel = (tower) =>
   TOWER_TABS.find((t) => t.id === tower)?.label ?? ''
 
 export const towerBg = (tower) =>
   TOWER_TABS.find((t) => t.id === tower)?.bg ?? '#9C6A7B'
+
+export const towerPlan = (tower) =>
+  TOWER_TABS.find((t) => t.id === tower)?.plan ?? null
 
 // Subtle card-panel tint for a tower (falls back to a neutral off-white).
 export const towerTint = (tower) =>
