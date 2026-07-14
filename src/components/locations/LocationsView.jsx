@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePageTransition } from '../../hooks/usePageTransition'
 import LocationsCanvas from '../../three/LocationsCanvas'
+import LocationsLoader from '../loaders/LocationsLoader'
 import LocationsNav from './LocationsNav'
 import LocationCard from './LocationCard'
 // [dev camera capture - commented out, restore together] Used only by the capture panel's dropdown.
@@ -25,6 +26,17 @@ const LocationsView = () => {
   // category changes (handleCategoryChange + the outside-click handler below).
   const [selectedLocationId, setSelectedLocationId] = useState(null)
 
+  // Flips once the loading overlay has finished fading out, which unmounts it.
+  const [overlayGone, setOverlayGone] = useState(false)
+
+  // Flips once the 3D scene has painted a real frame, i.e. past the synchronous
+  // shader-compile + first-render spike. The loader waits for this before fading,
+  // so GSAP never tries to tween across that blocked frame. Same signal the towers
+  // detail uses to hold its entrance (see src/three/FirstFrameSignal.jsx).
+  const [sceneRendered, setSceneRendered] = useState(false)
+  // Stable identity so the memo on LocationsCanvas actually holds.
+  const handleSceneReady = useCallback(() => setSceneRendered(true), [])
+
   /* [dev camera capture - commented out, restore together]
      DEV-only camera capture: captureMode suspends the category lock in CameraRig so you can orbit
      with a category open; selectedCaptureId tags the logged framing. Only the dev panel below flips
@@ -40,21 +52,6 @@ const LocationsView = () => {
     setActiveCategory(id)
     setSelectedLocationId(null)
   }
-
-  /* Road path tracer panel state + count listener COMMENTED OUT. Re-enable together with
-     the tracer panel JSX below and <RoadPathTracer /> in src/three/LocationsCanvas.jsx.
-     capture toggles click-to-drop in the canvas, count mirrors the live waypoint count
-     RoadPathTracer emits, and locId tags the copied array.
-
-  const [capture, setCapture] = useState(false)
-  const [count, setCount] = useState(0)
-  const [locId, setLocId] = useState('')
-  useEffect(() => {
-    const onChanged = (e) => setCount(e.detail?.count ?? 0)
-    window.addEventListener('road-path-changed', onChanged)
-    return () => window.removeEventListener('road-path-changed', onChanged)
-  }, [])
-  */
 
   // Close the open panel on any pointer-down outside the nav bar. navRef attaches to
   // the nav wrapper, which contains both the buttons and the flyout (rendered once as
@@ -89,182 +86,146 @@ const LocationsView = () => {
   */
 
   return (
-    <div
-      ref={pageRef}
-      className="relative min-h-screen w-full overflow-hidden bg-black text-white"
-    >
-      {/* Back to home — same pill/arrow pattern as TowersLanding. */}
-      <button
-        type="button"
-        aria-label="Back"
-        onClick={() => exitTo('/')}
-        className="absolute top-5 left-5 z-50 flex items-center justify-center rounded-full bg-white/20 text-white transition-[transform,background-color] duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+    <>
+      <div
+        ref={pageRef}
+        className="relative min-h-screen w-full overflow-hidden bg-black text-white"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
+        {/* Back to home — same pill/arrow pattern as TowersLanding. */}
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() => exitTo('/')}
+          className="absolute top-5 left-5 z-50 flex items-center justify-center rounded-full bg-white/20 text-white transition-[transform,background-color] duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         >
-          <line x1="19" y1="12" x2="5" y2="12" />
-          <polyline points="12 19 5 12 12 5" />
-        </svg>
-      </button>
-
-      {/* [dev camera capture - commented out, restore together]
-          DEV-only camera capture panel. Capture mode ON suspends the category lock (see captureMode
-          in src/three/CameraRig.jsx) so you can orbit with a category open, frame a route, pick its
-          id, and Log camera to print a paste-ready block tagged with that id (see CameraLogger).
-          Restore together with: the captureMode/selectedCaptureId state and the captureOptions/
-          captureId derived values above, the getCategoryLocations import, the captureMode prop on
-          LocationsCanvas below, the captureMode plumbing in LocationsCanvas + CameraRig, and the
-          CameraLogger render in LocationsCanvas (the only listener for the 'log-camera' event
-          dispatched here).
-
-      {import.meta.env.DEV && (
-        <div className="pointer-events-auto absolute bottom-5 right-5 z-20 flex w-56 flex-col gap-2 rounded-lg bg-black/70 p-3 font-mono text-xs text-white backdrop-blur-sm">
-          <div className="text-[11px] font-bold text-white/80">Camera capture</div>
-          <button
-            type="button"
-            onClick={() => setCaptureMode((v) => !v)}
-            className={`rounded px-2 py-1 transition-colors ${captureMode ? 'bg-amber-500/80 text-black hover:bg-amber-500' : 'bg-white/20 hover:bg-white/30'}`}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
           >
-            Capture mode: {captureMode ? 'ON' : 'OFF'}
-          </button>
-          <select
-            value={captureId}
-            onChange={(e) => setSelectedCaptureId(e.target.value)}
-            disabled={captureOptions.length === 0}
-            className="rounded bg-white/10 px-2 py-1 text-white outline-none focus:bg-white/15 disabled:opacity-40"
-          >
-            {captureOptions.length === 0 ? (
-              <option value="">open a category</option>
-            ) : (
-              captureOptions.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))
-            )}
-          </select>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('log-camera', { detail: { locationId: captureId } }))}
-            disabled={!captureId}
-            className="rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30 disabled:opacity-40"
-          >
-            Log camera
-          </button>
-          <div className="text-[10px] leading-tight text-white/50">
-            {captureMode ? 'Orbit unlocked. Frame a route, pick its id, Log camera.' : 'Turn ON, then open a category to orbit.'}
-          </div>
-        </div>
-      )}
-      */}
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
 
-      {/* Dev-only road path tracer COMMENTED OUT. Re-enable together with the tracer
-          state/effect above and <RoadPathTracer /> in src/three/LocationsCanvas.jsx.
-          Toggle Capture, then click along the roads to drop ordered waypoints (drag still
-          orbits); Copy path writes a paste-ready cameraPath array to the clipboard/console.
+        {/* [dev camera capture - commented out, restore together]
+            DEV-only camera capture panel. Capture mode ON suspends the category lock (see captureMode
+            in src/three/CameraRig.jsx) so you can orbit with a category open, frame a route, pick its
+            id, and Log camera to print a paste-ready block tagged with that id (see CameraLogger).
+            Restore together with: the captureMode/selectedCaptureId state and the captureOptions/
+            captureId derived values above, the getCategoryLocations import, the captureMode prop on
+            LocationsCanvas below, the captureMode plumbing in LocationsCanvas + CameraRig, and the
+            CameraLogger render in LocationsCanvas (the only listener for the 'log-camera' event
+            dispatched here).
 
-      {import.meta.env.DEV && (
-        <div className="pointer-events-auto absolute top-5 right-5 z-20 flex w-44 flex-col gap-2 rounded-lg bg-black/70 p-3 font-mono text-xs text-white backdrop-blur-sm">
-          <div className="text-[11px] font-bold text-white/80">Road path tracer</div>
-          <button
-            type="button"
-            onClick={() => {
-              const next = !capture
-              setCapture(next)
-              window.dispatchEvent(new CustomEvent('road-capture-toggle', { detail: { enabled: next } }))
-            }}
-            className={`rounded px-2 py-1 transition-colors ${capture ? 'bg-amber-500/80 text-black hover:bg-amber-500' : 'bg-white/20 hover:bg-white/30'}`}
-          >
-            Capture: {capture ? 'ON' : 'OFF'}
-          </button>
-          <div className="text-white/70">points: {count}</div>
-          <input
-            type="text"
-            value={locId}
-            onChange={(e) => setLocId(e.target.value)}
-            placeholder="location id"
-            className="rounded bg-white/10 px-2 py-1 text-white placeholder-white/40 outline-none focus:bg-white/15"
-          />
-          <div className="flex gap-2">
+        {import.meta.env.DEV && (
+          <div className="pointer-events-auto absolute bottom-5 right-5 z-20 flex w-56 flex-col gap-2 rounded-lg bg-black/70 p-3 font-mono text-xs text-white backdrop-blur-sm">
+            <div className="text-[11px] font-bold text-white/80">Camera capture</div>
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('road-path-undo'))}
-              className="flex-1 rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30"
+              onClick={() => setCaptureMode((v) => !v)}
+              className={`rounded px-2 py-1 transition-colors ${captureMode ? 'bg-amber-500/80 text-black hover:bg-amber-500' : 'bg-white/20 hover:bg-white/30'}`}
             >
-              Undo
+              Capture mode: {captureMode ? 'ON' : 'OFF'}
             </button>
+            <select
+              value={captureId}
+              onChange={(e) => setSelectedCaptureId(e.target.value)}
+              disabled={captureOptions.length === 0}
+              className="rounded bg-white/10 px-2 py-1 text-white outline-none focus:bg-white/15 disabled:opacity-40"
+            >
+              {captureOptions.length === 0 ? (
+                <option value="">open a category</option>
+              ) : (
+                captureOptions.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))
+              )}
+            </select>
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('road-path-clear'))}
-              className="flex-1 rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30"
+              onClick={() => window.dispatchEvent(new CustomEvent('log-camera', { detail: { locationId: captureId } }))}
+              disabled={!captureId}
+              className="rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30 disabled:opacity-40"
             >
-              Clear
+              Log camera
+            </button>
+            <div className="text-[10px] leading-tight text-white/50">
+              {captureMode ? 'Orbit unlocked. Frame a route, pick its id, Log camera.' : 'Turn ON, then open a category to orbit.'}
+            </div>
+          </div>
+        )}
+        */}
+
+        {/* Dev-only building placement trigger — COMMENTED OUT. Re-enable together
+            with the gizmo in src/three/MainBuildingRig.jsx to re-place the building
+            (drag/rotate/scale, then click to log a paste-ready transform).
+
+        {import.meta.env.DEV && (
+          <div className="absolute bottom-16 right-5 z-10 flex items-center gap-2">
+            <span className="font-mono text-[10px] text-white/50">
+              W move, E rotate, R scale, [ ] resize
+            </span>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event('log-building'))}
+              className="rounded-full bg-white/20 px-3 py-1.5 font-mono text-xs text-white transition-colors duration-200 hover:bg-white/30 focus:outline-none focus-visible:bg-white/30"
+            >
+              Log building transform
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('road-path-copy', { detail: { locationId: locId } }))}
-            className="rounded bg-white/20 px-2 py-1 transition-colors hover:bg-white/30"
-          >
-            Copy path
-          </button>
+        )}
+        */}
+
+        {/* Fullscreen 3D map fills the container; back button sits above at z-10.
+            [dev camera capture - commented out, restore together] also passed captureMode={captureMode} */}
+        <div className="absolute inset-0">
+          <LocationsCanvas
+          activeCategory={activeCategory}
+          selectedLocationId={selectedLocationId}
+          onReady={handleSceneReady}
+        />
         </div>
-      )}
-      */}
 
-      {/* Dev-only building placement trigger — COMMENTED OUT. Re-enable together
-          with the gizmo in src/three/MainBuildingRig.jsx to re-place the building
-          (drag/rotate/scale, then click to log a paste-ready transform).
+        {/* Location detail card, docked top-right. Shows when a location is selected and
+            self-hides (returns null) when selectedLocationId is null -- same lifecycle as
+            the route. Owns its own positioning/z/pointer-events. */}
+        <LocationCard locationId={selectedLocationId} />
 
-      {import.meta.env.DEV && (
-        <div className="absolute bottom-16 right-5 z-10 flex items-center gap-2">
-          <span className="font-mono text-[10px] text-white/50">
-            W move, E rotate, R scale, [ ] resize
-          </span>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event('log-building'))}
-            className="rounded-full bg-white/20 px-3 py-1.5 font-mono text-xs text-white transition-colors duration-200 hover:bg-white/30 focus:outline-none focus-visible:bg-white/30"
-          >
-            Log building transform
-          </button>
-        </div>
-      )}
-      */}
-
-      {/* Fullscreen 3D map fills the container; back button sits above at z-10.
-          [dev camera capture - commented out, restore together] also passed captureMode={captureMode} */}
-      <div className="absolute inset-0">
-        <LocationsCanvas activeCategory={activeCategory} selectedLocationId={selectedLocationId} />
+        {/* Bottom-center category bar. Clicking a category opens its panel above the
+            bar, anchored to the tapped button and measured so it clears the bar; it
+            stays open until an outside click. Rows toggle like the category buttons do:
+            re-tapping the selected row clears it, so the route and card go away and the
+            camera flies back to the category framing. */}
+        <LocationsNav
+          navRef={navRef}
+          activeCategory={activeCategory}
+          selectedLocationId={selectedLocationId}
+          onCategoryChange={handleCategoryChange}
+          onSelectLocation={(location) =>
+            setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
+          }
+        />
       </div>
 
-      {/* Location detail card, docked top-right. Shows when a location is selected and
-          self-hides (returns null) when selectedLocationId is null -- same lifecycle as
-          the route. Owns its own positioning/z/pointer-events. */}
-      <LocationCard locationId={selectedLocationId} />
-
-      {/* Bottom-center category bar. Clicking a category opens its panel above the
-          bar, anchored to the tapped button and measured so it clears the bar; it
-          stays open until an outside click. Rows toggle like the category buttons do:
-          re-tapping the selected row clears it, so the route and card go away and the
-          camera flies back to the category framing. */}
-      <LocationsNav
-        navRef={navRef}
-        activeCategory={activeCategory}
-        selectedLocationId={selectedLocationId}
-        onCategoryChange={handleCategoryChange}
-        onSelectLocation={(location) =>
-          setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
-        }
-      />
-    </div>
+      {/* Covers the canvas-init + asset-load stall until the 3D scene is ready.
+          Sibling of pageRef, not a child: usePageTransition hides its container on
+          mount and fades it in out of a blur, which would blur the loader too. The
+          page entrance plays underneath, so the map is fully faded in by the time
+          the overlay clears. */}
+      {!overlayGone && (
+        <LocationsLoader
+          sceneRendered={sceneRendered}
+          onExitComplete={() => setOverlayGone(true)}
+        />
+      )}
+    </>
   )
 }
 

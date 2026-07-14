@@ -1,6 +1,10 @@
 // Tunables for the /locations 3D map. Fog, camera, and the flat material colors
 // all live here so they can be dialed in from one place without touching the
 // component code. See src/three/RivaliMap.jsx and src/three/LocationsCanvas.jsx.
+
+// Hoisted so mainBuilding.position and the flock that circles it cannot drift apart.
+const MAIN_BUILDING_POSITION = [2173.201, 37.724, -2.884]
+
 export const locationsConfig = {
   fogMode: 'linear', // linear <fog>; far edge dissolves at the clip distance
   fogColor: '#ADDFFF', // haze the fog dissolves into (also the background)
@@ -59,18 +63,28 @@ export const locationsConfig = {
   },
   // Placement for MainBuilding.glb, dialed in with the dev gizmo on /locations.
   // rotation in radians (~6 deg yaw); re-log and paste here to adjust.
-  mainBuilding: { position: [2173.201, 37.724, -2.884], rotation: [0, 0.099, 0], scale: [1, 1, 1] },
-  // Flock of birds circling in the sky above MainBuilding (see src/three/BirdFlock.jsx).
-  // The GLB bakes flap + bob for a stationary formation; the orbit is added there.
-  birds: {
-    heightOffset: 400,   // world units above mainBuilding.position.y; tune to clear the towers
-    scale: 1,            // wingspan ~21u, ~14px from the default camera; drop to 0.6 for smaller
-    orbitRadius: 600,    // how far out from the building the flock circles
-    orbitSpeed: 0.08,    // radians/sec; slow wheel around the building
-    tangentYaw: Math.PI, // aligns the birds' baked +Z forward to the travel direction (derived,
-                         // see BirdFlock.jsx); becomes 0 if orbitSpeed is ever negated
-    color: '#ffffff',    // unlit white; sits AT bloom.threshold (1.0) so it does not smear
-  },
+  mainBuilding: { position: MAIN_BUILDING_POSITION, rotation: [0, 0.099, 0], scale: [1, 1, 1] },
+  // One entry per flock of birds circling in the sky (see src/three/BirdFlock.jsx). The GLB
+  // bakes flap + bob for a stationary formation; the orbit is added there. Vary scale, radius
+  // and speed between entries so the flocks do not read as copies of one another.
+  // Every `center` is WORLD-space, and RivaliMap recenters the map on the origin, so a point
+  // logged by the DEV flock-center picker pastes in here directly.
+  //   heightOffset: world units above center[1]; tune to clear the towers/terrain
+  //   scale:        wingspan ~21u, ~14px from the default camera; drop to 0.6 for smaller
+  //   orbitRadius:  how far out from center the flock circles
+  //   orbitSpeed:   radians/sec; positive sweeps one way, negative the other
+  //   tangentYaw:   aligns the birds' baked +Z forward to the travel direction (derived, see
+  //                 BirdFlock.jsx). PI for a positive orbitSpeed, 0 for a negative one.
+  //   color:        unlit white; sits AT bloom.threshold (1.0) so it does not smear
+  flocks: [
+    // Over MainBuilding. Values as originally tuned.
+    { center: [...MAIN_BUILDING_POSITION], heightOffset: 400, scale: 1, orbitRadius: 600, orbitSpeed: 0.08, tangentYaw: Math.PI, color: '#ffffff' },
+    // Over the mountain/forest, captured with the DEV flock-center picker.
+    { center: [4452.38, 99.61, -86.67], heightOffset: 500, scale: 1.2, orbitRadius: 800, orbitSpeed: 0.06, tangentYaw: Math.PI, color: '#ffffff' },
+    // Near, but not on, MainBuilding: captured with the DEV flock-center picker; higher and
+    // tighter than the first.
+    { center: [2198.83, 39.32, 2297.78], heightOffset: 650, scale: 0.8, orbitRadius: 450, orbitSpeed: 0.1, tangentYaw: Math.PI, color: '#ffffff' },
+  ],
   // Brighten MainBuilding's embedded (dull) base colors a touch. Applied ONCE as
   // material.color *= this factor when the pulse is attached (see MainBuilding.jsx).
   // 1 = unchanged; raise for brighter towers. Also brightens the pulse (uses diffuse).
@@ -108,5 +122,24 @@ export const locationsConfig = {
     pulseWidth: 0.16, // reserved: unused by the cosine gradient (fills the whole cycle)
     markerYOffset: 12, // world units the destination pin floats above the end point
     markerWidthPx: 42, // on-screen pin width, constant screen size
+  },
+  // Always-on comet pulses that run continuously along two roads on the map
+  // (see src/three/RoadPulses.jsx). Each road is one centerline; a bright HDR comet
+  // (sharp head, fading tail) loops along it in BOTH directions, so the two pulses
+  // pass through each other. HDR-bright (intensity > 1) so they cross the bloom
+  // threshold above and glow into the air. They DIM while a location is selected so
+  // the route line reads clearly. Centerline data lives in
+  // src/components/locations/roadPaths.js.
+  roadPulses: {
+    weh: { color: '#ffb454', intensity: 3.2 }, // warm amber (HDR > 1 so it blooms)
+    metro: { color: '#4fd0ff', intensity: 3.2 }, // cool cyan
+    tubeRadius: 7, // world units; tuned for the aerial camera
+    radialSegments: 8,
+    yOffset: 5, // lift above the road to avoid z-fight
+    tailLength: 0.12, // comet tail length as a fraction of the line (head bright -> fades over this)
+    speed: 0.06, // fraction of the line per second the comet travels
+    baseOpacity: 0.9,
+    dimOpacity: 0.18, // opacity multiplier while a route/location is selected
+    dimDuration: 0.5, // seconds to fade to/from dim
   },
 }

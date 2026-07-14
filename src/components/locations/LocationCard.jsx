@@ -3,7 +3,9 @@ import { useGSAP } from '@gsap/react'
 import { gsap } from '../../lib/gsap'
 import { getLocationById } from './locationsData'
 import { getLocationTimes } from './locationTimes'
-import cardPhoto from '../../assets/locations/images/Western-express-highway.webp?url'
+import { getLocationImage } from './locationImages'
+import { getLocationBlurb } from './locationBlurbs'
+import { getLocationDistance } from './locationDistances'
 import RaggedyEdge from '../../assets/locations/svgs/raggedy-edge.svg?react'
 import WalkIcon from '../../assets/locations/svgs/walk.svg?react'
 import BikeIcon from '../../assets/locations/svgs/bike.svg?react'
@@ -13,10 +15,6 @@ import TransitIcon from '../../assets/locations/svgs/transport.svg?react'
 // Placeholder blurb shown on every card for now; real per-location copy lands later.
 const PLACEHOLDER_BLURB =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.'
-
-// Template photo used for every location for now (per-location images come later).
-// Distance is a hardcoded placeholder for every location until real values are wired.
-const DISTANCE = '200 m'
 
 // walk / bike / car / transit, in order. transport.svg is the transit icon; the SVGs carry a
 // baked stroke="#7A4833" so they render brown natively (no recolor).
@@ -51,6 +49,15 @@ const LocationCard = ({ locationId }) => {
   // Real travel times keyed by id; null when a location has no entry yet (shows '--').
   const times = getLocationTimes(locationId)
 
+  // Per-location photo URL; null when there's no image on disk yet (shows placeholder block).
+  const photo = getLocationImage(locationId)
+
+  // Per-location card copy; null when a location has no blurb (falls back to PLACEHOLDER_BLURB).
+  const blurb = getLocationBlurb(locationId)
+
+  // Per-location road distance label; null when a location has no entry (falls back to '200 m').
+  const distance = getLocationDistance(locationId)
+
   return (
     <div
       ref={cardRef}
@@ -58,8 +65,8 @@ const LocationCard = ({ locationId }) => {
     >
       {/* Photo region */}
       <div className="relative w-full h-44 xl:h-48 2xl:h-48 3xl:h-52 4xl:h-60 5xl:h-80">
-        {cardPhoto ? (
-          <img src={cardPhoto} alt="" className="h-full w-full object-cover" />
+        {photo ? (
+          <img src={photo} alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full bg-[#ECE7E0]" />
         )}
@@ -74,7 +81,7 @@ const LocationCard = ({ locationId }) => {
         {/* Distance pill, floating at the photo's bottom-right, clearing the tear.
             Text uses brand-brown to match the travel icons' baked stroke. */}
         <div className="absolute right-2 xl:right-2.5 3xl:right-3 5xl:right-4 bottom-5 xl:bottom-6 2xl:bottom-6 3xl:bottom-7 4xl:bottom-8 5xl:bottom-10 z-10 rounded-full bg-white shadow px-2 py-0.5 font-medium text-brand-brown text-[9px] xl:text-[10px] 2xl:text-[10px] 3xl:text-[11px] 4xl:text-xs 5xl:text-sm">
-          {DISTANCE}
+          {distance ?? '200 m'}
         </div>
       </div>
 
@@ -84,7 +91,7 @@ const LocationCard = ({ locationId }) => {
           {location.name}
         </h3>
         <p className="mt-2 3xl:mt-2.5 leading-snug text-on-light-grey text-[10px] xl:text-[10px] 2xl:text-[11px] 3xl:text-xs 4xl:text-xs 5xl:text-sm">
-          {PLACEHOLDER_BLURB}
+          {blurb ?? PLACEHOLDER_BLURB}
         </p>
 
         {/* Travel row: walk / bike / car / transit, icon above its time */}

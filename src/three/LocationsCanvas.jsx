@@ -1,7 +1,8 @@
-import { Suspense } from 'react'
+import { memo, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
+import FirstFrameSignal from './FirstFrameSignal'
 import RivaliMap from './RivaliMap'
 // Must stay below RivaliMap: RivaliMap's module body sets the global Draco decoder path that
 // BirdFlock's module-scope preload relies on, and ES modules evaluate in import order.
@@ -12,7 +13,7 @@ import CameraRig from './CameraRig'
 // [dev camera capture - commented out, restore together] Re-enable with its render below and the
 // capture panel in src/components/locations/LocationsView.jsx.
 // import CameraLogger from './CameraLogger' // DEV-only camera logger; rendered below gated on import.meta.env.DEV
-// import RoadPathTracer from './RoadPathTracer' // DEV-only road path tracer; re-enable with its render + the panel in LocationsView
+import RoadPulses from './RoadPulses'
 import { locationsConfig } from './locationsConfig'
 
 const { fogColor, fogNear, fogFar, camera, controls, bloom } = locationsConfig
@@ -22,10 +23,12 @@ const { fogColor, fogNear, fogFar, camera, controls, bloom } = locationsConfig
 // lights — lighting is baked into the KTX2 textures. Linear fog with fogFar tied
 // to camera.far so the far terrain edge dissolves into the haze exactly at the
 // clip distance instead of showing a hard horizon.
+// onReady fires once the scene has painted a couple of real frames; LocationsView
+// holds the loading overlay's fade until then (see FirstFrameSignal below).
 // [dev camera capture - commented out, restore together] The captureMode prop below was threaded
 // from LocationsView down to CameraRig. Restore the signature as:
-// ({ activeCategory, selectedLocationId, captureMode })
-const LocationsCanvas = ({ activeCategory, selectedLocationId }) => (
+// ({ activeCategory, selectedLocationId, captureMode, onReady })
+const LocationsCanvas = ({ activeCategory, selectedLocationId, onReady }) => (
   <Canvas
     dpr={2}
     resize={{ offsetSize: true }}
@@ -58,10 +61,22 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId }) => (
 
     <Suspense fallback={null}>
       <RivaliMap />
+      {/* Always-on comet pulses along the WEH + metro centerlines. World-space sibling of
+          RivaliMap (its centerline points are absolute, so the recenter must not shift them);
+          loads no assets. Dims while a location is selected so the route line reads clearly. */}
+      <RoadPulses selectedLocationId={selectedLocationId} />
       <MainBuildingRig />
-      {/* World-space sibling, not a child of the rig, so the flock does not inherit the
-          building's placement transform. Reads its dials from locationsConfig.birds. */}
-      <BirdFlock />
+      {/* One flock per locationsConfig.flocks entry, each circling its own world-space center.
+          World-space siblings, not children of the rig, so they do not inherit the building's
+          placement transform. Each mount clones the shared bird GLB (see BirdFlock.jsx). */}
+      {locationsConfig.flocks.map((flock, i) => (
+        <BirdFlock key={i} config={flock} />
+      ))}
+
+      {/* Inside this boundary on purpose: it cannot tick until the map/building/bird
+          assets have resolved and the first frame — with its shader-compile stall —
+          is past. That is the moment the loader is safe to fade on. */}
+      <FirstFrameSignal onReady={onReady} />
     </Suspense>
 
     {/* Animated routes for the open category. Mounted at Canvas root (sibling of RivaliMap)
@@ -109,13 +124,12 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId }) => (
         above and the capture panel in src/components/locations/LocationsView.jsx, which is the only
         thing that dispatches 'log-camera'.
     {import.meta.env.DEV && <CameraLogger />} */}
-
-    {/* Dev-only road path tracer COMMENTED OUT. Re-enable together with the road-path
-        tracer panel in src/components/locations/LocationsView.jsx (and its import above).
-        Click along the roads to trace a per-location camera path (loads no assets, sits
-        outside Suspense; its pointer listeners coexist with OrbitControls).
-    {import.meta.env.DEV && <RoadPathTracer />} */}
   </Canvas>
 )
 
-export default LocationsCanvas
+// memo, not polish: the onReady setState re-renders LocationsView on exactly the
+// frame the loader's fade begins. Without this, that render would walk the whole
+// R3F tree (RivaliMap, MainBuildingRig, BirdFlock, EffectComposer) right when we
+// need the main thread clear. Props are unchanged on that render, so React skips
+// the subtree; category/location clicks do change props and still re-render.
+export default memo(LocationsCanvas)
