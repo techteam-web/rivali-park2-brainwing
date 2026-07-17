@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from '../../lib/gsap'
+import { useOverlayScale } from '../../hooks/useOverlayScale'
 import { getLocationById } from './locationsData'
 import { getLocationTimes } from './locationTimes'
 import { getLocationImage } from './locationImages'
@@ -25,11 +26,20 @@ const TRAVEL_MODES = [
   { key: 'transit', Icon: TransitIcon },
 ]
 
+// px inset from the top/right edges at scale 1 (the old 3xl:top-8 / 3xl:right-8).
+const INSET = 32
+
 // Detail card docked top-right over the /locations map. Shows when a location is selected and
 // self-hides (returns null) when locationId is null, so its lifecycle mirrors the route.
+//
+// Sizing: authored at its 1920 look and scaled proportionally by useOverlayScale -- no
+// breakpoint ramps. The scale lives on a WRAPPER, not on cardRef, because GSAP owns
+// cardRef's inline transform (below) and would overwrite a React one on every tick.
+// Same split as the about page's DesignedByMasters fit wrapper.
 const LocationCard = ({ locationId, exiting }) => {
   const cardRef = useRef(null)
   const location = locationId ? getLocationById(locationId) : null
+  const { scale } = useOverlayScale()
 
   // Slide/fade IN on each new selection; slide/fade OUT when the sequenced deselect begins. The card
   // stays mounted through its exit because selectedLocationId is preserved until Phase B, then
@@ -67,54 +77,60 @@ const LocationCard = ({ locationId, exiting }) => {
   const distance = getLocationDistance(locationId)
 
   return (
+    // Positioner + scale layer. Scaling from the top-right corner keeps the card pinned
+    // there; the insets are scaled inline (plain numbers, so they never interact with the
+    // transform) which keeps the corner gap proportional too.
+    //
+    // pointer-events stays on the CARD, not here: GSAP's autoAlpha hides the card with
+    // visibility: hidden, which also stops it receiving pointer events, so the top-right
+    // corner is orbit-draggable again the moment the card fades. A pointer-events-auto
+    // wrapper would keep swallowing those drags while the card is invisible.
     <div
-      ref={cardRef}
-      className="pointer-events-auto absolute top-5 right-5 z-60 overflow-hidden rounded-xs bg-white shadow-2xl w-60 xl:w-64 2xl:w-68 3xl:w-72 4xl:w-80 5xl:w-88 2xl:top-6 2xl:right-6 3xl:top-8 3xl:right-8 4xl:top-10 4xl:right-10 5xl:top-14 5xl:right-14"
+      className="pointer-events-none absolute z-60"
+      style={{
+        top: INSET * scale,
+        right: INSET * scale,
+        transform: `scale(${scale})`,
+        transformOrigin: 'top right',
+      }}
     >
-      {/* Photo region */}
-      <div className="relative w-full h-44 xl:h-48 2xl:h-48 3xl:h-52 4xl:h-60 5xl:h-80">
-        {photo ? (
-          <img src={photo} alt="" className="h-full w-full object-cover" />
-        ) : (
-          <div className="h-full w-full bg-[#ECE7E0]" />
-        )}
+      <div ref={cardRef} className="pointer-events-auto overflow-hidden rounded-xs bg-white shadow-2xl w-72">
+        {/* Photo region */}
+        <div className="relative w-full h-52">
+          {photo ? (
+            <img src={photo} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-[#ECE7E0]" />
+          )}
 
-        {/* Fine torn-paper edge: white body tears UP into the photo (solid bottom, raggedy top;
-            -bottom-px kills the seam). preserveAspectRatio="none" stretches it to the card width. */}
-        <RaggedyEdge
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -bottom-px block w-full h-4 xl:h-5 2xl:h-5 3xl:h-6 4xl:h-7 5xl:h-8"
-        />
+          {/* Fine torn-paper edge: white body tears UP into the photo (solid bottom, raggedy top;
+              -bottom-px kills the seam). preserveAspectRatio="none" stretches it to the card width. */}
+          <RaggedyEdge
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 -bottom-px block w-full h-6"
+          />
 
-        {/* Distance pill, floating at the photo's bottom-right, clearing the tear.
-            Text uses brand-brown to match the travel icons' baked stroke. */}
-        <div className="absolute right-2 xl:right-2.5 3xl:right-3 5xl:right-4 bottom-5 xl:bottom-6 2xl:bottom-6 3xl:bottom-7 4xl:bottom-8 5xl:bottom-10 z-10 rounded-full bg-white shadow px-2 py-0.5 font-medium text-brand-brown text-[9px] xl:text-[10px] 2xl:text-[10px] 3xl:text-[11px] 4xl:text-xs 5xl:text-sm">
-          {distance ?? '200 m'}
+          {/* Distance pill, floating at the photo's bottom-right, clearing the tear.
+              Text uses brand-brown to match the travel icons' baked stroke. */}
+          <div className="absolute right-3 bottom-7 z-10 rounded-full bg-white shadow px-2 py-0.5 font-medium text-brand-brown text-[11px]">
+            {distance ?? '200 m'}
+          </div>
         </div>
-      </div>
 
-      {/* Body (extra bottom padding so the card reads longer on the y axis) */}
-      <div className="px-3.5 pt-2.5 pb-6 xl:px-4 xl:pt-3 xl:pb-7 2xl:pb-7 3xl:px-5 3xl:pt-4 3xl:pb-9 4xl:pb-10 5xl:px-6 5xl:pt-5 5xl:pb-12">
-        <h3 className="font-semibold leading-tight text-on-light-black text-base xl:text-lg 2xl:text-lg 3xl:text-xl 4xl:text-2xl 5xl:text-3xl">
-          {location.name}
-        </h3>
-        <p className="mt-2 3xl:mt-2.5 leading-snug text-on-light-grey text-[10px] xl:text-[10px] 2xl:text-[11px] 3xl:text-xs 4xl:text-xs 5xl:text-sm">
-          {blurb ?? PLACEHOLDER_BLURB}
-        </p>
+        {/* Body (extra bottom padding so the card reads longer on the y axis) */}
+        <div className="px-5 pt-4 pb-9">
+          <h3 className="font-semibold leading-tight text-on-light-black text-xl">{location.name}</h3>
+          <p className="mt-2.5 leading-snug text-on-light-grey text-xs">{blurb ?? PLACEHOLDER_BLURB}</p>
 
-        {/* Travel row: walk / bike / car / transit, icon above its time */}
-        <div className="mt-3.5 grid grid-cols-4 gap-1.5 3xl:gap-2 pt-3 3xl:pt-4">
-          {TRAVEL_MODES.map(({ key, Icon }) => (
-            <div key={key} className="flex flex-col items-center gap-1">
-              <Icon
-                aria-hidden="true"
-                className="w-auto h-4 xl:h-5 2xl:h-5 3xl:h-6 4xl:h-7 5xl:h-8"
-              />
-              <span className="text-on-light-black text-[9px] xl:text-[10px] 2xl:text-[10px] 3xl:text-[11px] 4xl:text-xs 5xl:text-sm">
-                {times ? times[key] : '--'}
-              </span>
-            </div>
-          ))}
+          {/* Travel row: walk / bike / car / transit, icon above its time */}
+          <div className="mt-3.5 grid grid-cols-4 gap-2 pt-4">
+            {TRAVEL_MODES.map(({ key, Icon }) => (
+              <div key={key} className="flex flex-col items-center gap-1">
+                <Icon aria-hidden="true" className="w-auto h-6" />
+                <span className="text-on-light-black text-[11px]">{times ? times[key] : '--'}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

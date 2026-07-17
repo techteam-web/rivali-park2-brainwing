@@ -3,19 +3,23 @@ import { getCategoryLocations } from './locationsData'
 // > 7 location rows => two columns. access=10 qualifies; leisure=7 stays single.
 const TWO_COL_THRESHOLD = 7
 
+// Sizes here are authored at the 1920 look; LocationsNav's scale layer scales them
+// proportionally, so there are no breakpoint ramps.
+
 // Structure + padding only; the color/hover/active state is applied per row in renderRow.
 const ROW_BASE =
-  'flex w-full items-center rounded-[2px] text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-on-light-black/40 px-2 py-3 xl:px-2.5 xl:py-3 2xl:px-3 2xl:py-3.5 3xl:px-4 3xl:py-3 4xl:px-5 4xl:py-5 5xl:px-7 5xl:py-7 z-100'
-const ROW_TEXT_CLASS =
-  'whitespace-nowrap uppercase leading-none tracking-[0.12em] text-[8px] xl:text-[9px] 2xl:text-[11px] 3xl:text-xs 4xl:text-base 5xl:text-xl'
+  'flex w-full items-center rounded-[2px] text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-on-light-black/40 px-4 py-3 z-100'
+const ROW_TEXT_CLASS = 'whitespace-nowrap uppercase leading-none tracking-[0.12em] text-xs'
 // Vertical rhythm INSIDE a column, identical to the single column.
-const COLUMN_GAP = 'gap-0.5 xl:gap-0.5 2xl:gap-1 3xl:gap-1 4xl:gap-1.5 5xl:gap-2'
+const COLUMN_GAP = 'gap-1'
 // The card = scroll container. A uniform p-* inset gives a little space around each
 // full-width row and keeps the last row off the rounded corner. Combined with the
 // flyout now sitting fully ABOVE the bar (positioned by LocationsNav), nothing is
-// clipped. w-max grows for two columns; max-w rail caps it.
+// clipped. w-max grows for two columns; the max-w/max-h rails come in via `style`
+// from the nav -- they are viewport fractions converted to this layer's local units,
+// since a max-w-[80vw] class would be measured pre-transform and then scaled up.
 const CARD_CLASS =
-  'pointer-events-auto absolute z-50 w-max max-w-[80vw] overflow-y-auto overscroll-contain scrollbar-hidden rounded-[1px] bg-white shadow-2xl max-h-[70vh] p-0.5 xl:p-1 2xl:p-1.5 3xl:p-2 4xl:p-2.5 5xl:p-3'
+  'pointer-events-auto absolute z-50 w-max overflow-y-auto overscroll-contain scrollbar-hidden rounded-[1px] bg-white shadow-2xl p-2'
 
 // The ONLY place row markup lives. The selected row (and any hovered row) shows the
 // brown pill with white text; the icon-less rows just flip text color.
@@ -51,9 +55,9 @@ const buildColumns = (activeCategory, onSelect, selectedLocationId) => {
 
 // Presentational + stateless card listing the active category's flat location list.
 // Tall categories split into two balanced columns by row count. Position
-// (left/bottom/visibility) is passed in via `style` from LocationsNav's measurement;
-// containerRef lets the nav measure the card's width. The flat `locations` list stays
-// the source of truth for the marker/camera passes.
+// (left/bottom/visibility) and the max-width/height rails are passed in via `style`
+// from LocationsNav's measurement; containerRef lets the nav measure the card's width.
+// The flat `locations` list stays the source of truth for the marker/camera passes.
 const LocationsFlyout = ({ activeCategory, onSelectLocation, selectedLocationId, containerRef, style }) => {
   if (!activeCategory) return null
 
@@ -67,9 +71,7 @@ const LocationsFlyout = ({ activeCategory, onSelectLocation, selectedLocationId,
       ref={containerRef}
       style={style}
       className={
-        twoCol
-          ? `${CARD_CLASS} flex flex-row items-start gap-1.5 xl:gap-2 2xl:gap-2.5 3xl:gap-3 4xl:gap-4 5xl:gap-6`
-          : `${CARD_CLASS} flex flex-col ${COLUMN_GAP}`
+        twoCol ? `${CARD_CLASS} flex flex-row items-start gap-3` : `${CARD_CLASS} flex flex-col ${COLUMN_GAP}`
       }
     >
       {twoCol
