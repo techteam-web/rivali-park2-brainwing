@@ -10,6 +10,7 @@ import BirdFlock from './BirdFlock'
 import MainBuildingRig from './MainBuildingRig'
 import RouteLayer from './RouteLayer'
 import CameraRig from './CameraRig'
+import IdleOrbitController from './IdleOrbitController'
 // [dev camera capture - commented out, restore together] Re-enable with its render below and the
 // capture panel in src/components/locations/LocationsView.jsx.
 // import CameraLogger from './CameraLogger' // DEV-only camera logger; rendered below gated on import.meta.env.DEV
@@ -28,7 +29,11 @@ const { fogColor, fogNear, fogFar, camera, controls, bloom } = locationsConfig
 // [dev camera capture - commented out, restore together] The captureMode prop below was threaded
 // from LocationsView down to CameraRig. Restore the signature as:
 // ({ activeCategory, selectedLocationId, captureMode, onReady })
-const LocationsCanvas = ({ activeCategory, selectedLocationId, onReady }) => (
+const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExitComplete, onReady }) => {
+  // Idle = nothing selected. Drives the IdleOrbitController on/off; CameraRig owns the camera
+  // whenever this is false.
+  const isIdle = activeCategory == null && selectedLocationId == null
+  return (
   <Canvas
     dpr={2}
     resize={{ offsetSize: true }}
@@ -82,25 +87,44 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId, onReady }) => (
     {/* Animated routes for the open category. Mounted at Canvas root (sibling of RivaliMap)
         so the captured world-space points are not shifted again by RivaliMap's recenter;
         loads no assets so it sits outside Suspense. key={activeCategory} hard-clears the set
-        on a category switch / toggle-off (old routes unmount + dispose, fresh set draws in);
-        retract-out animations happen only within a category. Nothing renders when no category. */}
+        on a category SWITCH (old routes unmount + dispose, fresh set draws in). A toggle-off
+        (deselect to idle) is now a sequenced exit: isExiting drives the whole set to retract-out
+        in place, and onAllExited fires onExitComplete once they finish (see LocationsView Phase B),
+        so this stays mounted through the retract instead of hard-clearing. Nothing renders when no
+        category. */}
     {activeCategory && (
-      <RouteLayer key={activeCategory} category={activeCategory} selectedLocationId={selectedLocationId} />
+      <RouteLayer
+        key={activeCategory}
+        category={activeCategory}
+        selectedLocationId={selectedLocationId}
+        exiting={isExiting}
+        onAllExited={onExitComplete}
+      />
     )}
 
-    {/* Flies the camera to the selected route's saved framing, else the active category's, else the
-        default; orbit locks for as long as a category is open and unlocks on toggle-off. Fires off
-        the same props as the routes, so the flight and the draw-on run concurrently.
+    {/* Flies the camera to the selected route's saved framing, else the active category's, and locks
+        orbit for as long as a category is open. On deselect it does NOT fly - it hands the camera to
+        IdleOrbitController below. Fires off the same props as the routes, so the flight and the
+        draw-on run concurrently.
         [dev camera capture - commented out, restore together] also passed captureMode={captureMode} */}
     <CameraRig activeCategory={activeCategory} selectedLocationId={selectedLocationId} />
 
+    {/* Idle-state (nothing selected) constrained orbit rig around MainBuilding: fixed-ring auto-orbit
+        + horizontal drag-scrub + self-centering mouse parallax. Inert while a category/route is
+        selected (CameraRig owns the camera then). See src/three/IdleOrbitController.jsx. */}
+    <IdleOrbitController isIdle={isIdle} />
+
+    {/* KEPT but permanently disabled: makeDefault registers it into the R3F store so CameraRig can
+        drive its flights via get().controls (.target/.update()); IdleOrbitController drives the idle
+        camera directly. enabled=false means drei attaches no listeners and runs no per-frame update
+        (damping + autoRotate both off), so it never fights either rig. No user orbit/zoom/pan. */}
     <OrbitControls
       makeDefault
       target={controls.target}
-      enableDamping
-      minDistance={controls.minDistance}
-      maxDistance={controls.maxDistance}
-      maxPolarAngle={controls.maxPolarAngle}
+      enabled={false}
+      enablePan={false}
+      enableZoom={false}
+      enableDamping={false}
     />
 
     {/* Bloom so the HDR MainBuilding pulse glows into the air. Renders the scene to an
@@ -125,7 +149,8 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId, onReady }) => (
         thing that dispatches 'log-camera'.
     {import.meta.env.DEV && <CameraLogger />} */}
   </Canvas>
-)
+  )
+}
 
 // memo, not polish: the onReady setState re-renders LocationsView on exactly the
 // frame the loader's fade begins. Without this, that render would walk the whole

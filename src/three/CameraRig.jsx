@@ -8,15 +8,16 @@ import { gsap } from '../gsap/Gsapconfig'
 import { getLocationCamera } from '../components/locations/locationCameras'
 import { locationsConfig } from './locationsConfig'
 
-// Drives the /locations camera with GSAP off activeCategory + selectedLocationId. The framing is
-// resolved in priority order: the selected route's saved camera (locationCameras), else the open
-// category's framing (locationsConfig.cameraViews), else the default (locationsConfig.camera.position
-// + controls.target). Orbit stays LOCKED (controls.enabled = false) for as long as a category is
-// open, whether or not a route is selected; toggling the category off flies back to the default
-// framing and UNLOCKS. Selecting a route only reframes, it never changes the lock. Mounted at Canvas
-// root as a sibling of RivaliMap/RouteLayer, so the route draw-on and the flight fire together off
-// the same props. No fly on mount; an interruption redirects from the CURRENT framing (no snap).
-const { cameraViews, camera: defaultCamera, controls: defaultControls, cameraFlightDuration } = locationsConfig
+// Drives the /locations SELECT flights with GSAP off activeCategory + selectedLocationId. The
+// framing is resolved in priority order: the selected route's saved camera (locationCameras), else
+// the open category's framing (locationsConfig.cameraViews). Orbit stays LOCKED (controls.enabled =
+// false) for the whole session; selecting a route only reframes, it never changes the lock. When
+// nothing is selected (idle) CameraRig does NOT fly: it kills any in-flight tween and hands the
+// camera to IdleOrbitController, which eases it onto its ring from the current position (that owns
+// the "return to default" now). Mounted at Canvas root as a sibling of RivaliMap/RouteLayer, so the
+// route draw-on and the flight fire together off the same props. No fly on mount; an interruption
+// redirects from the CURRENT framing (no snap).
+const { cameraViews, cameraFlightDuration } = locationsConfig
 
 // The framing a given (category, route) pair resolves to. The flight effect fires only when this key
 // changes, so selecting a location with no saved camera keeps the category key and does not re-fly.
@@ -65,16 +66,25 @@ export default function CameraRig({ activeCategory, selectedLocationId }) {
     if (!controls) return
     prevRef.current = flyKey
 
-    // Framing hierarchy: the selected route's saved camera wins, else the open category's framing,
-    // else the default. A selected location with no saved camera falls back to the category framing
-    // rather than flying to nothing.
+    // Framing hierarchy: the selected route's saved camera wins, else the open category's framing.
+    // A selected location with no saved camera falls back to the category framing rather than
+    // flying to nothing.
     const routeView = selectedLocationId ? getLocationCamera(selectedLocationId) : null
     const categoryView = (activeCategory && cameraViews[activeCategory]) || null
-    const view = routeView || categoryView || {
-      position: defaultCamera.position,
-      target: defaultControls.target,
+
+    // Idle (nothing selected): hand the camera to IdleOrbitController, which eases it onto its ring
+    // from wherever the camera currently is. CameraRig owns only the SELECT flights now, so it must
+    // fully release the camera here: kill any in-flight tween so exactly one owner writes the camera
+    // on the handoff frame (single-owner guarantee). Do NOT re-frame and do NOT re-enable controls.
+    if (!routeView && !categoryView) {
+      tlRef.current?.kill()
+      gsap.killTweensOf(camera.position)
+      gsap.killTweensOf(camera.quaternion) // in case a pole-slerp flight was mid-air
+      gsap.killTweensOf(controls.target)
+      slerpingRef.current = false
+      return
     }
-    const returningToDefault = !routeView && !categoryView
+    const view = routeView || categoryView
 
     // Interrupt any running flight and start fresh FROM the current framing (no snap). Killing a
     // timeline leaves camera.position/controls.target where they are, so the new tweens snapshot
@@ -119,15 +129,11 @@ export default function CameraRig({ activeCategory, selectedLocationId }) {
         : () => controls.update(), // keep the camera looking at the moving target each frame
       onComplete: () => {
         slerpingRef.current = false // flight landed; the next flight re-evaluates fresh
-        // [dev camera capture - commented out, restore together] Capture mode also force-unlocked
-        // here, ahead of the returningToDefault branch. Restore as:
+        // Category or route view: leave controls.enabled = false (LOCKED). The idle return is no
+        // longer a CameraRig flight - deselect hands off to IdleOrbitController (see the idle bail
+        // above), so there is no unlock-on-return branch here anymore.
+        // [dev camera capture - commented out, restore together] Capture mode force-unlocked here:
         // if (captureModeRef.current) { controls.enabled = true; controls.update() }
-        // else if (returningToDefault) { ...the branch below... }
-        if (returningToDefault) {
-          controls.enabled = true // unlock only after a completed return to default
-          controls.update()
-        }
-        // category or route view: leave controls.enabled = false (LOCKED, option B)
       },
     })
     // Tween camera position and controls target together on one clock so the camera arcs to the

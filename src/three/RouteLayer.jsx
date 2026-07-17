@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import RouteCurve from './RouteCurve'
 import { getCategoryLocations } from '../components/locations/locationsData'
 import { getLocationPath } from '../components/locations/locationsPaths'
@@ -12,9 +12,11 @@ import { getLocationPath } from '../components/locations/locationsPaths'
 // Model:
 //  - selection null  -> the full set: every location in the category that has a path draws in.
 //  - selection an id -> that route holds ('in'); all others retract ('out') then unmount.
-// Category switch / toggle-off is a hard-clear handled by the key in LocationsCanvas (this whole
-// component unmounts), so there is no 'out' branch for the category changing.
-export default function RouteLayer({ category, selectedLocationId }) {
+// Category SWITCH is a hard-clear handled by the key in LocationsCanvas (this whole component
+// unmounts). Deselect to idle (toggle-off) is instead the `exiting` prop: every shown route retracts
+// in place and onAllExited fires once the set has drained, so the exit actually plays (Phase A of the
+// sequenced deselect; see LocationsView).
+export default function RouteLayer({ category, selectedLocationId, exiting, onAllExited }) {
   // Only locations with a captured path get a route (path-less ones drop out).
   const allIds = useMemo(
     () =>
@@ -53,11 +55,44 @@ export default function RouteLayer({ category, selectedLocationId }) {
     }
   }
 
+  // Deselect to idle drives the whole set out at once (this component stays mounted through the
+  // retract; see LocationsCanvas). Same derive-during-render pattern as the selection block above.
+  //   exiting true  -> flip every shown route to 'out' so it retracts (already-'out' ones keep
+  //                    identity, so their in-flight tween is not restarted).
+  //   exiting false -> a same-category REOPEN during the exit: re-seed the drawn set so it draws
+  //                    back in. Phase B unmounts this component via the activeCategory key, so this
+  //                    branch only runs on reopen, never on the normal exit completion.
+  const [prevExiting, setPrevExiting] = useState(exiting)
+  if (exiting !== prevExiting) {
+    setPrevExiting(exiting)
+    if (exiting) {
+      setRoutes((prev) => prev.map((rt) => (rt.phase === 'out' ? rt : { id: rt.id, phase: 'out' })))
+    } else {
+      setRoutes(
+        selectedLocationId != null
+          ? [{ id: selectedLocationId, phase: 'in' }]
+          : allIds.map((id) => ({ id, phase: 'in' })),
+      )
+    }
+  }
+
   // A route's out-tween finished: drop it so it unmounts and disposes. A route reversed back to
   // 'in' mid-retract has its out-tween killed before completing, so this never fires for it.
   const handleExited = useCallback((id) => {
     setRoutes((prev) => prev.filter((rt) => rt.id !== id))
   }, [])
+
+  // The retract-out is the gating exit for the sequenced deselect: once every route has finished its
+  // out-tween and dropped from the list, the set is empty and we signal Phase B exactly once. The
+  // card's shorter fade fits inside this window, so the routes are the gate. firedRef survives a
+  // StrictMode double-invoke and covers the empty-category (draws nothing) case.
+  const firedRef = useRef(false)
+  useEffect(() => {
+    if (exiting && routes.length === 0 && !firedRef.current) {
+      firedRef.current = true
+      onAllExited?.()
+    }
+  }, [exiting, routes.length, onAllExited])
 
   return (
     <>

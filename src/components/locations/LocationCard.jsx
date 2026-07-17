@@ -27,21 +27,29 @@ const TRAVEL_MODES = [
 
 // Detail card docked top-right over the /locations map. Shows when a location is selected and
 // self-hides (returns null) when locationId is null, so its lifecycle mirrors the route.
-const LocationCard = ({ locationId }) => {
+const LocationCard = ({ locationId, exiting }) => {
   const cardRef = useRef(null)
   const location = locationId ? getLocationById(locationId) : null
 
-  // Subtle slide/fade-in; re-plays on each new selection (dependency on locationId).
+  // Slide/fade IN on each new selection; slide/fade OUT when the sequenced deselect begins. The card
+  // stays mounted through its exit because selectedLocationId is preserved until Phase B, then
+  // unmounts with no flash (it is already faded, and useGSAP reverts on the detached node). The exit
+  // is kept shorter than the route retract-out (locationsConfig.route.drawDuration) so the routes,
+  // not the card, gate the deselect sequence.
   useGSAP(
     () => {
       if (!cardRef.current) return
-      gsap.fromTo(
-        cardRef.current,
-        { autoAlpha: 0, x: 20 },
-        { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' },
-      )
+      if (exiting) {
+        gsap.to(cardRef.current, { autoAlpha: 0, x: 20, duration: 0.3, ease: 'power2.in' })
+      } else {
+        gsap.fromTo(
+          cardRef.current,
+          { autoAlpha: 0, x: 20 },
+          { autoAlpha: 1, x: 0, duration: 0.35, ease: 'power2.out' },
+        )
+      }
     },
-    { dependencies: [locationId], scope: cardRef },
+    { dependencies: [locationId, exiting], scope: cardRef },
   )
 
   if (!location) return null

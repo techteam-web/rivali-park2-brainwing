@@ -21,6 +21,22 @@ export const locationsConfig = {
     maxDistance: 9000,
     maxPolarAngle: Math.PI / 2 - 0.05, // stay above the ground plane
   },
+  // Idle-state constrained orbit rig around MainBuilding (see src/three/IdleOrbitController.jsx).
+  // Supersedes the static default framing above WHILE IDLE (nothing selected): the camera sits on a
+  // fixed ring (fixed radius + polar) looking at the building, auto-orbits slowly, yields to a
+  // horizontal drag-scrub, and gets a small self-centering vertical parallax on mouse move. The
+  // ring is centered on mainBuilding.position below. All values are tunable from here.
+  idleOrbit: {
+    radius: 3000,            // fixed distance from the building (TUNE for world scale)
+    polarAngle: 1.15,        // fixed vertical angle in radians (~66deg); the ring's height (TUNE)
+    autoRotateSpeed: 0.05,   // radians/sec, slow calm orbit
+    dragSensitivity: 0.005,  // radians per pixel of horizontal drag
+    transitionDuration: 1.2, // seconds to ease onto the ring after a deselect / on load
+    parallaxAmountX: 60,     // max horizontal (sideways) camera offset (world units) from mouse X
+    parallaxAmountY: 60,     // max vertical camera offset (world units) from mouse Y
+    parallaxEase: 4,         // lerp factor for parallax follow + self-centering, both axes (higher = snappier)
+    settleSeconds: 0.35,     // no mouse-move for this long -> parallax self-centers to neutral
+  },
   // Per-category camera framings for the /locations flight (see src/three/CameraRig.jsx).
   // Tapping a category flies here and locks orbit; tapping off returns to the camera.position +
   // controls.target default above and unlocks. Captured with the dev CameraLogger.

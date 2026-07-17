@@ -26,6 +26,19 @@ const LocationsView = () => {
   // category changes (handleCategoryChange + the outside-click handler below).
   const [selectedLocationId, setSelectedLocationId] = useState(null)
 
+  // Phase flag for the sequenced deselect: selected -> exiting -> idle. While true, the routes
+  // retract-out and the card fades out, the camera HOLDS at the category framing, and the idle rig
+  // stays inert. activeCategory/selectedLocationId are kept ALIVE during this window (so the routes
+  // stay mounted to retract and CameraRig does not move); the actual null transition is DEFERRED to
+  // handleExitComplete (Phase B), fired once the routes finish retracting. See RouteLayer onAllExited.
+  const [isExiting, setIsExiting] = useState(false)
+  // Mirror so handleExitComplete can guard against a stale completion (mid-exit switch/reopen) while
+  // staying a stable useCallback.
+  const isExitingRef = useRef(false)
+  useEffect(() => {
+    isExitingRef.current = isExiting
+  }, [isExiting])
+
   // Flips once the loading overlay has finished fading out, which unmounts it.
   const [overlayGone, setOverlayGone] = useState(false)
 
@@ -46,12 +59,30 @@ const LocationsView = () => {
   const [selectedCaptureId, setSelectedCaptureId] = useState('')
   */
 
-  // Open, switch, or close a category. Resets the selection so the fresh category draws its
-  // full set in; a null id (toggle off) hard-clears the routes.
+  // Open, switch, or close a category. Opening/switching (non-null id) resets the selection so the
+  // fresh category draws its full set in, and cancels any in-flight exit. A null id (toggle off)
+  // starts the sequenced exit instead of hard-clearing: activeCategory/selectedLocationId stay put
+  // so the routes retract and the camera holds; the null transition happens in handleExitComplete.
   const handleCategoryChange = (id) => {
+    if (id == null) {
+      setIsExiting(true) // Phase A; the null transition is deferred to handleExitComplete (Phase B).
+      return
+    }
+    setIsExiting(false)
     setActiveCategory(id)
     setSelectedLocationId(null)
   }
+
+  // Phase B: the route retract-out has finished (RouteLayer onAllExited). NOW drop the selection so
+  // the routes/card unmount and isIdle flips true, releasing the camera to IdleOrbitController, which
+  // eases from the held position to the nearest ring. Guarded so a stale completion after a mid-exit
+  // switch/reopen is a no-op.
+  const handleExitComplete = useCallback(() => {
+    if (!isExitingRef.current) return
+    setActiveCategory(null)
+    setSelectedLocationId(null)
+    setIsExiting(false)
+  }, [])
 
   // Close the open panel on any pointer-down outside the nav bar. navRef attaches to
   // the nav wrapper, which contains both the buttons and the flyout (rendered once as
@@ -66,8 +97,7 @@ const LocationsView = () => {
     if (!activeCategory) return
     const onPointerDown = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
-        setActiveCategory(null)
-        setSelectedLocationId(null)
+        setIsExiting(true) // Phase A; the null transition is deferred to handleExitComplete.
       }
     }
     document.addEventListener('pointerdown', onPointerDown)
@@ -189,6 +219,8 @@ const LocationsView = () => {
           <LocationsCanvas
           activeCategory={activeCategory}
           selectedLocationId={selectedLocationId}
+          isExiting={isExiting}
+          onExitComplete={handleExitComplete}
           onReady={handleSceneReady}
         />
         </div>
@@ -196,7 +228,7 @@ const LocationsView = () => {
         {/* Location detail card, docked top-right. Shows when a location is selected and
             self-hides (returns null) when selectedLocationId is null -- same lifecycle as
             the route. Owns its own positioning/z/pointer-events. */}
-        <LocationCard locationId={selectedLocationId} />
+        <LocationCard locationId={selectedLocationId} exiting={isExiting} />
 
         {/* Bottom-center category bar. Clicking a category opens its panel above the
             bar, anchored to the tapped button and measured so it clears the bar; it
@@ -205,7 +237,7 @@ const LocationsView = () => {
             camera flies back to the category framing. */}
         <LocationsNav
           navRef={navRef}
-          activeCategory={activeCategory}
+          activeCategory={isExiting ? null : activeCategory}
           selectedLocationId={selectedLocationId}
           onCategoryChange={handleCategoryChange}
           onSelectLocation={(location) =>
