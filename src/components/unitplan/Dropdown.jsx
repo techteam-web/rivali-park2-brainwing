@@ -9,9 +9,12 @@ const LABEL_FONT = {
 }
 
 // Generic white, bordered dropdown used by the compare cards (tower + unit
-// selectors). `options` is [{ value, label, disabled? }]; `onChange(value)`
-// fires on selection. Disabled options render greyed and are not selectable.
-const Dropdown = ({ value, options, onChange, className = '' }) => {
+// selectors, and the embedded courtyard-view floor picker). `options` is
+// [{ value, label, disabled? }]; `onChange(value)` fires on selection.
+// Disabled options render greyed and are not selectable. `dropUp` opens the
+// list above the button instead of below — for triggers pinned near the
+// bottom of their container, so the list has room to open into.
+const Dropdown = ({ value, options, onChange, className = '', dropUp = false }) => {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const selected = options.find((o) => o.value === value)
@@ -43,14 +46,16 @@ const Dropdown = ({ value, options, onChange, className = '' }) => {
         <img
           src="/unit/svgs/keyboard_arrow_down.svg"
           alt=""
-          className={`w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 shrink-0 transition-transform ${open !== dropUp ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+12px)] z-20 max-h-64 overflow-auto rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] pb-1.5 shadow-[0_0_20px_rgba(0,0,0,0.08)]"
+          className={`absolute left-0 right-0 z-20 max-h-64 overflow-auto rounded-sm border-[0.5px] border-[rgba(122,72,51,0.2)] bg-[#FAF9F6] pb-1.5 shadow-[0_0_20px_rgba(0,0,0,0.08)] ${
+            dropUp ? 'bottom-[calc(100%+12px)]' : 'top-[calc(100%+12px)]'
+          }`}
         >
           {options.map((o) => {
             const isSelected = o.value === value

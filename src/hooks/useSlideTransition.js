@@ -61,9 +61,7 @@ export function useSlideTransition({
       slide.setAttribute('aria-hidden', isFirst ? 'false' : 'true')
     })
     if (headerRef?.current) {
-      gsap.set(headerRef.current, {
-        autoAlpha: initialIndex === 0 ? 1 : 0,
-      })
+      gsap.set(headerRef.current, { autoAlpha: 1 })
     }
     sectionRefs.current?.[initialIndex]?.playIn()
     initDoneRef.current = true
@@ -89,7 +87,6 @@ export function useSlideTransition({
       const fadeEls = collectFadeEls(fromWrapper)
       const undrawPaths = collectUndrawPaths(fromWrapper)
       const clipReverseEls = collectClipReverseEls(fromWrapper)
-      const headerEl = headerRef?.current || null
 
       const cleanup = () => {
         fromWrapper.setAttribute('aria-hidden', 'true')
@@ -137,7 +134,6 @@ export function useSlideTransition({
         stageIncoming()
         gsap.set(fromWrapper, { opacity: 0, zIndex: 0, pointerEvents: 'none' })
         gsap.set(toWrapper, { opacity: 1, zIndex: 1, pointerEvents: 'auto' })
-        if (headerEl) gsap.set(headerEl, { autoAlpha: toIdx === 0 ? 1 : 0 })
         onSwap?.(toIdx)
         toSection?.playIn()
         cleanup()
@@ -185,18 +181,6 @@ export function useSlideTransition({
           0,
         )
       }
-      if (fromIdx === 0 && headerEl) {
-        tl.to(
-          headerEl,
-          {
-            autoAlpha: 0,
-            duration: 0.8,
-            ease: 'power2.out',
-          },
-          0,
-        )
-      }
-
       // CROSSFADE — overlaps exit tail, starts at t=0.45, ends at t=1.35
       tl.addLabel('crossfade', 0.45)
       tl.call(stageIncoming, [], 'crossfade')
@@ -211,13 +195,6 @@ export function useSlideTransition({
         { opacity: 1, duration: 0.9, ease: 'power2.inOut' },
         'crossfade',
       )
-      if (toIdx === 0 && headerEl) {
-        tl.to(
-          headerEl,
-          { autoAlpha: 1, duration: 0.6, ease: 'power2.out' },
-          'crossfade+=0.3',
-        )
-      }
 
       // INTRO — absolute t=1.50 (0.15s breathing pause after crossfade ends)
       tl.addLabel('intro', 1.5)
@@ -230,7 +207,7 @@ export function useSlideTransition({
         'intro',
       )
     },
-    [slideRefs, sectionRefs, headerRef, onSwap],
+    [slideRefs, sectionRefs, onSwap],
   )
 
   const goTo = useCallback(
