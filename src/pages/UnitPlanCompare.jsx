@@ -4,6 +4,8 @@ import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import Dropdown from '../components/unitplan/Dropdown'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
+import Panorama from '../components/unitplan/Panorama'
+import { PanoramaSyncProvider } from '../components/unitplan/PanoramaSyncProvider'
 import CourtyardView from '../components/unitplan/CourtyardView'
 import {
   TOWER_TABS,
@@ -18,6 +20,11 @@ import {
   towerTint,
   unitLabel,
 } from '../data/unitPlans'
+import {
+  floorsForTowerPosition,
+  viewImageForTowerPosition,
+  ordinal,
+} from '../data/courtyardViews'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 
@@ -97,7 +104,18 @@ const UnitPlanCompare = () => {
     makeColumn(fromTower, from === 1 ? 2 : 1),
   ])
   const [zoom, setZoom] = useState(null)
-  const [courtyard, setCourtyard] = useState(null)
+  // Courtyard view is shared across every card: toggling it on any one card
+  // switches ALL cards to their panorama at once, so units can be compared
+  // side by side — the cards sit under one PanoramaSyncProvider (below) so
+  // moving the cursor in any of them pans every visible panorama together.
+  const [viewMode, setViewMode] = useState(false)
+  // Per-card floor override for the panorama (columnId -> floor number); a
+  // card with no override falls back to its unit's first available floor.
+  const [floorOverrides, setFloorOverrides] = useState({})
+  // Expanding a card's panorama opens the same fullscreen courtyard viewer
+  // used on the unit detail page, seeded with that card's current tower/
+  // unit/floor — a standalone view, not part of the synced group above.
+  const [expandedView, setExpandedView] = useState(null)
 
   // Per-card DOM nodes + the set of cards already animated in, so only freshly
   // added cards play the entrance (the initial pair rides the page transition).
@@ -196,9 +214,18 @@ const UnitPlanCompare = () => {
           </h1>
         </UnitHeader>
 
+        <PanoramaSyncProvider>
         <div className="absolute inset-x-8 top-22.5 bottom-0 flex items-center gap-8">
           {columns.map((col, idx) => {
             const unit = findUnit(col.tower, col.unit)
+            const floors = floorsForTowerPosition(col.tower, unit.n)
+            const floor = floors.includes(floorOverrides[col.id])
+              ? floorOverrides[col.id]
+              : (floors[0] ?? null)
+            const viewSrc =
+              floor != null
+                ? viewImageForTowerPosition(col.tower, floor, unit.n)
+                : null
             return (
               <div
                 key={col.id}
@@ -238,44 +265,104 @@ const UnitPlanCompare = () => {
                   </div>
                 </div>
 
-                {/* Full plan — natural height so the whole sheet is visible */}
-                <div className="relative">
-                  <img
-                    src={unit.image}
-                    alt={`${towerLabel(col.tower)} unit ${unit.n} floor plan`}
-                    className="block h-auto w-full"
-                  />
-                  <button
-                    type="button"
-                    aria-label="View plan fullscreen"
-                    onClick={() =>
-                      setZoom({
-                        src: unit.image,
-                        title: `${towerLabel(col.tower)} Unit Plan`,
-                        bg: towerBg(col.tower),
-                      })
-                    }
-                    className="absolute right-4 top-4 transition-[opacity,transform] hover:opacity-80 active:scale-95"
-                  >
-                    <img
-                      src="/unit/svgs/expand icon.svg"
-                      alt=""
-                      className="h-15 w-15"
-                    />
-                  </button>
+                {/* Full plan / courtyard view. Every unit-plan sheet shares the
+                    same 842:595 aspect ratio, so this box's footprint never
+                    jumps when a card switches between the two. */}
+                <div
+                  className="relative w-full"
+                  style={{ aspectRatio: '842 / 595' }}
+                >
+                  {viewMode ? (
+                    <>
+                      {viewSrc ? (
+                        <>
+                          <Panorama src={viewSrc} />
+                          <button
+                            type="button"
+                            aria-label="View courtyard view fullscreen"
+                            onClick={() =>
+                              setExpandedView({
+                                title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
+                                tower: col.tower,
+                                position: unit.n,
+                                floor,
+                              })
+                            }
+                            className="absolute right-4 top-4 z-10 transition-[opacity,transform] hover:opacity-80 active:scale-95"
+                          >
+                            <img
+                              src="/unit/svgs/expand icon.svg"
+                              alt=""
+                              className="h-15 w-15"
+                            />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 grid place-items-center bg-[#23211E] px-6 text-center">
+                          <p
+                            className="uppercase"
+                            style={{
+                              fontFamily: 'Poppins, sans-serif',
+                              fontWeight: 500,
+                              fontSize: 13,
+                              letterSpacing: '0.1em',
+                              color: 'rgba(255,255,255,0.55)',
+                            }}
+                          >
+                            Panoramic view coming soon
+                          </p>
+                        </div>
+                      )}
+                      {floor != null && (
+                        <div className="absolute bottom-3 right-3 z-10 w-56">
+                          <Dropdown
+                            value={floor}
+                            options={floors.map((f) => ({
+                              value: f,
+                              label: `${ordinal(f)} Floor`,
+                            }))}
+                            onChange={(f) =>
+                              setFloorOverrides((m) => ({ ...m, [col.id]: f }))
+                            }
+                            dropUp
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={unit.image}
+                        alt={`${towerLabel(col.tower)} unit ${unit.n} floor plan`}
+                        className="absolute inset-0 h-full w-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        aria-label="View plan fullscreen"
+                        onClick={() =>
+                          setZoom({
+                            src: unit.image,
+                            title: `${towerLabel(col.tower)} Unit Plan`,
+                            bg: towerBg(col.tower),
+                          })
+                        }
+                        className="absolute right-4 top-4 transition-[opacity,transform] hover:opacity-80 active:scale-95"
+                      >
+                        <img
+                          src="/unit/svgs/expand icon.svg"
+                          alt=""
+                          className="h-15 w-15"
+                        />
+                      </button>
+                    </>
+                  )}
                 </div>
 
-                {/* Courtyard view — opens the fullscreen view for this card's
-                    selected unit. */}
+                {/* Courtyard view — shared toggle: switches every card between
+                    its floor plan and its panorama at once (see viewMode). */}
                 <button
                   type="button"
-                  onClick={() =>
-                    setCourtyard({
-                      title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
-                      tower: col.tower,
-                      position: unit.n,
-                    })
-                  }
+                  onClick={() => setViewMode((v) => !v)}
                   className="flex items-center gap-2 px-6 py-5 transition-[opacity,transform] hover:opacity-80 active:scale-[0.98]"
                   style={{
                     fontFamily: 'Poppins, sans-serif',
@@ -285,11 +372,11 @@ const UnitPlanCompare = () => {
                   }}
                 >
                   <img src="/unit/svgs/view.svg" alt="" className="h-5 w-5" />
-                  Courtyard View
+                  {viewMode ? 'Floor Plan' : 'Courtyard View'}
                   <img
                     src="/unit/svgs/arrow_forward.svg"
                     alt=""
-                    className="h-3.5 w-3.5"
+                    className={`h-3.5 w-3.5 transition-transform ${viewMode ? 'rotate-180' : ''}`}
                   />
                 </button>
                 </div>
@@ -332,6 +419,7 @@ const UnitPlanCompare = () => {
             </button>
           )}
         </div>
+        </PanoramaSyncProvider>
       </UnitArtboard>
       </div>
 
@@ -345,12 +433,13 @@ const UnitPlanCompare = () => {
         />
       )}
 
-      {courtyard && (
+      {expandedView && (
         <CourtyardView
-          title={courtyard.title}
-          tower={courtyard.tower}
-          position={courtyard.position}
-          onClose={() => setCourtyard(null)}
+          title={expandedView.title}
+          tower={expandedView.tower}
+          position={expandedView.position}
+          initialFloor={expandedView.floor}
+          onClose={() => setExpandedView(null)}
           onHome={() => exitTo('/')}
         />
       )}

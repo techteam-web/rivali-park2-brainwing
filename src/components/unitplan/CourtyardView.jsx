@@ -1,27 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from '../../lib/gsap'
-import * as stargazeViews from '../../data/stargazeViews'
-import * as moonriseViews from '../../data/moonriseViews'
-
-// Per-tower panorama manifests (each exposes floorsForPosition + viewImage over
-// its own /unit/views assets). Towers without panoramas are simply absent, so
-// the viewer falls back to "coming soon".
-const VIEW_SOURCES = {
-  stargaze: stargazeViews,
-  moonrise: moonriseViews,
-}
+import Panorama from './Panorama'
+import { PanoramaSyncProvider } from './PanoramaSyncProvider'
+import { VIEW_SOURCES, ordinal } from '../../data/courtyardViews'
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-// "1ST FLOOR", "2ND FLOOR", "23RD FLOOR", "25TH FLOOR" — handles the 11/12/13
-// exceptions correctly.
-const ordinal = (n) => {
-  const s = ['TH', 'ST', 'ND', 'RD']
-  const v = n % 100
-  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`
-}
 
 // Bottom-right floor selector. Opens UPWARD (a "drop-up") so the list never
 // runs off the bottom of the screen; the keyboard_arrow_up glyph flips to point
@@ -105,189 +90,6 @@ const FloorSelect = ({ value, floors, onChange }) => {
   )
 }
 
-// Latest cursor X, tracked app-wide from module load so a freshly opened (or
-// floor-switched) panorama can lay out at the cursor's current position instead
-// of starting at the left edge and sweeping over. Passive + window-level, so it
-// costs nothing and is already current before the image lays out.
-let lastPointerX = null
-if (typeof window !== 'undefined') {
-  window.addEventListener(
-    'pointermove',
-    (e) => {
-      lastPointerX = e.clientX
-    },
-    { passive: true },
-  )
-}
-
-// One stacked panorama image. Starts invisible and reports its element up once
-// the bitmap is ready (covering the cached case, where onLoad may not re-fire),
-// so the parent can settle it to the cursor and crossfade it in.
-const Slide = ({ src, onReady }) => {
-  const ref = useRef(null)
-  const firedRef = useRef(false)
-
-  const fire = () => {
-    const img = ref.current
-    if (firedRef.current || !img) return
-    firedRef.current = true
-    onReady(img)
-  }
-
-  useEffect(() => {
-    const img = ref.current
-    if (img && img.complete && img.naturalWidth) fire()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return (
-    <img
-      ref={ref}
-      src={src}
-      alt=""
-      draggable={false}
-      onLoad={fire}
-      style={{ opacity: 0 }}
-      className="absolute inset-0 h-full w-auto max-w-none select-none will-change-transform"
-    />
-  )
-}
-
-// The wide stitched panorama, sized to the full screen height so it overflows
-// horizontally. Moving the cursor left/right pans across it (cursor at the left
-// edge shows the left of the image, right edge shows the right); a GSAP quickTo
-// eases the pan so it glides instead of snapping.
-//
-// Switching floors layers the new image over the old and crossfades it in (a
-// soft blur + gentle settle), then prunes the spent layers — so changing floors
-// reads as one continuous, premium dissolve rather than a hard cut.
-const Panorama = ({ src }) => {
-  const wrapRef = useRef(null)
-  const xToRef = useRef(null)
-  const overflowRef = useRef(0)
-  const activeImgRef = useRef(null)
-  const latestIdRef = useRef(0)
-
-  const [layers, setLayers] = useState(() => [{ id: 0, src, fade: false }])
-
-  // Append a new layer whenever the source changes (this effect also runs on
-  // mount, where src already matches the seed layer — so it no-ops). The new id
-  // is derived purely from the current layers (last id + 1). It must NOT come
-  // from a mutating counter inside this updater: React StrictMode double-invokes
-  // state updaters to surface impure side effects, and mutating a ref there
-  // desynced the committed layer's id from latestIdRef by one — which then made
-  // handleReady skip setActive on the 2nd+ floor switch, freezing the pan. A
-  // pure updater is immune to the double-invoke.
-  useEffect(() => {
-    // Appending a crossfade layer when the source changes is exactly what this
-    // effect is for (the panorama stacks the new floor over the old and
-    // dissolves), so the set-state-in-effect rule doesn't apply here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLayers((ls) => {
-      if (ls[ls.length - 1].src === src) return ls
-      const id = ls[ls.length - 1].id + 1
-      return [...ls, { id, src, fade: true }]
-    })
-  }, [src])
-
-  // The newest layer's id — the only layer allowed to become the live pan
-  // target. Synced from committed state in a layout effect (runs before a
-  // freshly-mounted Slide reports its image ready), so handleReady always sees
-  // the correct latest id.
-  useLayoutEffect(() => {
-    latestIdRef.current = layers[layers.length - 1].id
-  }, [layers])
-
-  // Fraction (0-1) of the pan range for a given viewport X.
-  const fracForX = useCallback((clientX) => {
-    const wrap = wrapRef.current
-    if (!wrap) return 0
-    const r = wrap.getBoundingClientRect()
-    return Math.min(1, Math.max(0, (clientX - r.left) / r.width))
-  }, [])
-
-  // Make `img` the live pan target: measure its overrun, wire a fresh quickTo,
-  // and snap it to wherever the cursor already is (so it never opens on the left
-  // and races across).
-  const setActive = useCallback(
-    (img) => {
-      const wrap = wrapRef.current
-      if (!wrap || !img) return
-      activeImgRef.current = img
-      overflowRef.current = Math.max(0, img.offsetWidth - wrap.clientWidth)
-      xToRef.current = prefersReducedMotion()
-        ? (v) => gsap.set(img, { x: v })
-        : gsap.quickTo(img, 'x', { duration: 0.6, ease: 'power3.out' })
-      const x =
-        lastPointerX == null ? 0 : -fracForX(lastPointerX) * overflowRef.current
-      gsap.set(img, { x })
-    },
-    [fracForX],
-  )
-
-  const handleReady = useCallback(
-    (id, fade, img) => {
-      if (!img) return
-      if (id === latestIdRef.current) setActive(img)
-      if (!fade || prefersReducedMotion()) {
-        gsap.set(img, { autoAlpha: 1 })
-        return
-      }
-      // Premium dissolve: ease out of a soft blur + a hair of scale, then drop
-      // the layers underneath it.
-      gsap.fromTo(
-        img,
-        { autoAlpha: 0, filter: 'blur(14px)', scale: 1.035 },
-        {
-          autoAlpha: 1,
-          filter: 'blur(0px)',
-          scale: 1,
-          duration: 1.1,
-          ease: 'power2.out',
-          onComplete: () => setLayers((ls) => ls.filter((l) => l.id >= id)),
-        },
-      )
-    },
-    [setActive],
-  )
-
-  // Keep the active image pinned to the cursor across viewport resizes.
-  useEffect(() => {
-    const onResize = () => {
-      const img = activeImgRef.current
-      const wrap = wrapRef.current
-      if (!img || !wrap) return
-      overflowRef.current = Math.max(0, img.offsetWidth - wrap.clientWidth)
-      const x =
-        lastPointerX == null ? 0 : -fracForX(lastPointerX) * overflowRef.current
-      gsap.set(img, { x })
-    }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [fracForX])
-
-  const handleMove = (e) => {
-    if (!xToRef.current || overflowRef.current <= 0) return
-    xToRef.current(-fracForX(e.clientX) * overflowRef.current)
-  }
-
-  return (
-    <div
-      ref={wrapRef}
-      onMouseMove={handleMove}
-      className="absolute inset-0 cursor-ew-resize overflow-hidden bg-[#23211E]"
-    >
-      {layers.map((layer) => (
-        <Slide
-          key={layer.id}
-          src={layer.src}
-          onReady={(img) => handleReady(layer.id, layer.fade, img)}
-        />
-      ))}
-    </div>
-  )
-}
-
 // Fullscreen courtyard-view viewer, opened from the "Courtyard View" link on a
 // unit. `position` is the floor-plan unit number (1-6); the apartment shown is
 // floor*100 + position, drawn from `tower`'s panorama manifest. The floor
@@ -298,12 +100,14 @@ const Panorama = ({ src }) => {
 // Rendered outside the scaled <UnitArtboard> so it covers the real viewport. It
 // rises forward out of a soft blur on open and eases back on close (matching the
 // gallery / plan-lightbox transition feel).
-const CourtyardView = ({ title, tower, position, onClose, onHome }) => {
+const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }) => {
   const rootRef = useRef(null)
   const closingRef = useRef(false)
   const views = VIEW_SOURCES[tower] ?? null
   const floors = views && position ? views.floorsForPosition(position) : []
-  const [floor, setFloor] = useState(() => floors[0] ?? null)
+  const [floor, setFloor] = useState(() =>
+    floors.includes(initialFloor) ? initialFloor : (floors[0] ?? null),
+  )
   const src = views && floor != null ? views.viewImage(floor, position) : null
 
   // Warm the browser cache for every floor's panorama the moment the viewer
@@ -375,9 +179,12 @@ const CourtyardView = ({ title, tower, position, onClose, onHome }) => {
   return (
     <div ref={rootRef} className="fixed inset-0 z-50 overflow-hidden bg-[#23211E]">
       {/* Panorama stage — stays mounted across floor changes so it can crossfade
-          internally. Falls back to a flat dark fill when no view exists. */}
+          internally. Falls back to a flat dark fill when no view exists. Its
+          own sync group of one — the compare page groups several together. */}
       {src ? (
-        <Panorama src={src} />
+        <PanoramaSyncProvider>
+          <Panorama src={src} />
+        </PanoramaSyncProvider>
       ) : (
         <div className="absolute inset-0 grid place-items-center bg-[#23211E] px-12 text-center">
           <p
