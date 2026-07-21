@@ -88,6 +88,37 @@ const MasterCard = ({ name, role, image, className = '', onOpen }) => (
   </article>
 )
 
+// Three gentle "torn paper" silhouettes for the detail modal (Catmull-Rom
+// splines walked around a rounded rect, sampled in objectBoundingBox units
+// so each scales cleanly with the modal's fitScale). Kept shallow — the
+// portrait, quote panel, and close button all sit close to the modal's
+// content edges, so the bite must stay well inside the mat margin below.
+const MODAL_RAGGED_PATHS = [
+  'M 0.1000,0.0292 C 0.1313,0.0188 0.1771,0.0294 0.2157,0.0291 C 0.2543,0.0288 0.2928,0.0281 0.3314,0.0273 C 0.3700,0.0265 0.4086,0.0254 0.4471,0.0243 C 0.4857,0.0233 0.5243,0.0221 0.5628,0.0211 C 0.6014,0.0201 0.6400,0.0191 0.6785,0.0184 C 0.7171,0.0177 0.7556,0.0170 0.7942,0.0168 C 0.8329,0.0165 0.8788,0.0029 0.9104,0.0168 C 0.9420,0.0306 0.9717,0.0668 0.9840,0.1000 C 0.9962,0.1332 0.9839,0.1771 0.9840,0.2157 C 0.9840,0.2543 0.9841,0.2928 0.9841,0.3314 C 0.9842,0.3700 0.9843,0.4086 0.9844,0.4471 C 0.9845,0.4857 0.9846,0.5243 0.9845,0.5628 C 0.9845,0.6014 0.9844,0.6400 0.9843,0.6785 C 0.9842,0.7171 0.9840,0.7556 0.9837,0.7942 C 0.9833,0.8329 0.9962,0.8789 0.9823,0.9103 C 0.9683,0.9416 0.9330,0.9703 0.9000,0.9823 C 0.8670,0.9943 0.8229,0.9821 0.7843,0.9821 C 0.7457,0.9821 0.7072,0.9822 0.6686,0.9822 C 0.6300,0.9823 0.5914,0.9824 0.5529,0.9824 C 0.5143,0.9823 0.4757,0.9823 0.4372,0.9821 C 0.3986,0.9819 0.3600,0.9817 0.3215,0.9813 C 0.2829,0.9810 0.2443,0.9807 0.2058,0.9802 C 0.1672,0.9797 0.1209,0.9918 0.0902,0.9785 C 0.0595,0.9651 0.0330,0.9324 0.0215,0.9000 C 0.0101,0.8676 0.0215,0.8229 0.0214,0.7843 C 0.0214,0.7457 0.0211,0.7072 0.0210,0.6686 C 0.0208,0.6300 0.0206,0.5914 0.0206,0.5529 C 0.0207,0.5143 0.0208,0.4757 0.0212,0.4372 C 0.0215,0.3986 0.0221,0.3600 0.0228,0.3215 C 0.0234,0.2829 0.0243,0.2442 0.0252,0.2058 C 0.0261,0.1673 0.0157,0.1204 0.0282,0.0910 C 0.0407,0.0616 0.0687,0.0395 0.1000,0.0292 Z',
+  'M 0.0950,0.0189 C 0.1283,0.0052 0.1775,0.0188 0.2187,0.0190 C 0.2599,0.0192 0.3012,0.0196 0.3424,0.0201 C 0.3837,0.0207 0.4249,0.0215 0.4661,0.0223 C 0.5074,0.0231 0.5486,0.0242 0.5898,0.0251 C 0.6311,0.0260 0.6723,0.0270 0.7135,0.0277 C 0.7548,0.0283 0.7978,0.0258 0.8372,0.0289 C 0.8767,0.0320 0.9275,0.0248 0.9502,0.0461 C 0.9730,0.0674 0.9693,0.1178 0.9737,0.1569 C 0.9781,0.1959 0.9756,0.2393 0.9765,0.2806 C 0.9773,0.3218 0.9783,0.3630 0.9789,0.4043 C 0.9795,0.4455 0.9800,0.4867 0.9803,0.5280 C 0.9806,0.5692 0.9807,0.6104 0.9808,0.6517 C 0.9808,0.6929 0.9807,0.7342 0.9808,0.7754 C 0.9808,0.8166 0.9937,0.8647 0.9811,0.8991 C 0.9685,0.9336 0.9383,0.9680 0.9050,0.9821 C 0.8717,0.9962 0.8225,0.9831 0.7813,0.9836 C 0.7401,0.9841 0.6988,0.9847 0.6576,0.9851 C 0.6163,0.9854 0.5751,0.9857 0.5339,0.9858 C 0.4926,0.9858 0.4514,0.9857 0.4102,0.9855 C 0.3689,0.9852 0.3277,0.9848 0.2865,0.9844 C 0.2452,0.9839 0.2034,0.9868 0.1628,0.9830 C 0.1221,0.9792 0.0668,0.9848 0.0428,0.9615 C 0.0188,0.9382 0.0226,0.8835 0.0186,0.8431 C 0.0146,0.8028 0.0187,0.7607 0.0188,0.7194 C 0.0188,0.6782 0.0188,0.6370 0.0188,0.5957 C 0.0189,0.5545 0.0189,0.5133 0.0190,0.4720 C 0.0191,0.4308 0.0192,0.3896 0.0192,0.3483 C 0.0193,0.3071 0.0193,0.2658 0.0193,0.2246 C 0.0193,0.1834 0.0065,0.1352 0.0191,0.1009 C 0.0317,0.0666 0.0617,0.0325 0.0950,0.0189 Z',
+  'M 0.1050,0.0217 C 0.1406,0.0077 0.1930,0.0201 0.2369,0.0191 C 0.2809,0.0181 0.3249,0.0169 0.3689,0.0159 C 0.4128,0.0148 0.4568,0.0136 0.5008,0.0127 C 0.5448,0.0117 0.5887,0.0109 0.6327,0.0103 C 0.6767,0.0098 0.7206,0.0095 0.7647,0.0095 C 0.8087,0.0096 0.8597,-0.0055 0.8968,0.0104 C 0.9339,0.0263 0.9727,0.0673 0.9873,0.1050 C 1.0019,0.1427 0.9854,0.1930 0.9844,0.2369 C 0.9834,0.2809 0.9824,0.3249 0.9816,0.3689 C 0.9807,0.4128 0.9800,0.4568 0.9794,0.5008 C 0.9789,0.5448 0.9785,0.5887 0.9783,0.6327 C 0.9780,0.6767 0.9780,0.7207 0.9780,0.7647 C 0.9779,0.8086 0.9919,0.8610 0.9781,0.8966 C 0.9642,0.9321 0.9308,0.9646 0.8950,0.9781 C 0.8592,0.9917 0.8070,0.9780 0.7631,0.9778 C 0.7191,0.9776 0.6751,0.9774 0.6311,0.9771 C 0.5872,0.9768 0.5432,0.9765 0.4992,0.9762 C 0.4552,0.9759 0.4113,0.9756 0.3673,0.9755 C 0.3233,0.9753 0.2793,0.9753 0.2353,0.9753 C 0.1914,0.9753 0.1388,0.9890 0.1035,0.9756 C 0.0682,0.9622 0.0371,0.9304 0.0237,0.8950 C 0.0103,0.8596 0.0232,0.8070 0.0231,0.7631 C 0.0229,0.7191 0.0228,0.6751 0.0228,0.6311 C 0.0228,0.5872 0.0229,0.5432 0.0230,0.4992 C 0.0231,0.4552 0.0233,0.4113 0.0234,0.3673 C 0.0236,0.3233 0.0237,0.2793 0.0237,0.2353 C 0.0237,0.1914 0.0097,0.1391 0.0233,0.1035 C 0.0368,0.0679 0.0694,0.0358 0.1050,0.0217 Z',
+]
+
+const ModalRaggedDefs = () => (
+  <svg aria-hidden="true" focusable="false" className="absolute h-0 w-0 overflow-hidden">
+    <defs>
+      {MODAL_RAGGED_PATHS.map((d, i) => (
+        <clipPath key={i} id={`dbm-modal-ragged-${i}`} clipPathUnits="objectBoundingBox">
+          <path d={d} />
+        </clipPath>
+      ))}
+    </defs>
+  </svg>
+)
+
+// Resting rotation (deg) for the modal's mid/outer backing layers — varied
+// per master index so the three masters' popups don't fan out identically.
+const MODAL_LAYER_ROTATE = [
+  { mid: -2.4, outer: 3.4 },
+  { mid: 2.8, outer: -3.6 },
+  { mid: -2.0, outer: 2.8 },
+]
+
 // Detail modal shown when a master card is clicked. Portaled to document.body
 // so its `fixed` positioning is relative to the viewport — the about page
 // slides live inside transformed containers, which would otherwise become the
@@ -101,6 +132,16 @@ const MODAL_W = 900
 const MODAL_H = 573
 const FONT = 'Poppins, sans-serif'
 
+// Mat border (px, in the 900×573 authored space) between the ragged edge and
+// the actual content — the portrait/quote panel sit flush with the content
+// box, so this margin is what keeps the bite off them. See MODAL_RAGGED_PATHS.
+const MODAL_MAT = 48
+const OUTER_W = MODAL_W + MODAL_MAT * 2
+const OUTER_H = MODAL_H + MODAL_MAT * 2
+// Backing-layer bleed (px, authored space) — same ragged silhouette family,
+// scaled up around the mat card so it peeks out like a mounted paper cut-out.
+const MODAL_LAYER_BLEED = { mid: 16, outer: 34 }
+
 // ── Tweak the card size here ─────────────────────────────────────────────
 // Fraction of the viewport WIDTH the card should occupy (Figma design ≈ 0.625).
 // Lower = smaller card. Stepped down on very large screens (3xl+) so the card
@@ -113,11 +154,20 @@ const cardWidthFraction = (vw) => {
 const CARD_MAX_HEIGHT_FRACTION = 0.9
 // ─────────────────────────────────────────────────────────────────────────
 
-const MasterModal = ({ master, onClose }) => {
+const MasterModal = ({ master, index, onClose }) => {
   const overlayRef = useRef(null)
   const dialogRef = useRef(null)
+  const cardRef = useRef(null)
+  const outerLayerRef = useRef(null)
+  const midLayerRef = useRef(null)
   const closingRef = useRef(false)
   const [fitScale, setFitScale] = useState(1)
+
+  const i = ((index % 3) + 3) % 3
+  const frontShape = i
+  const midShape = (i + 1) % 3
+  const outerShape = (i + 2) % 3
+  const rest = MODAL_LAYER_ROTATE[i]
 
   // Width-driven scale so the card stays a consistent fraction of the viewport
   // width (see cardWidthFraction) at every breakpoint. Clamped by height so it
@@ -126,8 +176,8 @@ const MasterModal = ({ master, onClose }) => {
     const update = () => {
       setFitScale(
         Math.min(
-          (window.innerWidth * cardWidthFraction(window.innerWidth)) / MODAL_W,
-          (window.innerHeight * CARD_MAX_HEIGHT_FRACTION) / MODAL_H,
+          (window.innerWidth * cardWidthFraction(window.innerWidth)) / OUTER_W,
+          (window.innerHeight * CARD_MAX_HEIGHT_FRACTION) / OUTER_H,
         ),
       )
     }
@@ -149,14 +199,23 @@ const MasterModal = ({ master, onClose }) => {
 
   // Enter animation — scoped to opacity/scale only (no `transition-all`, which
   // fights GSAP autoAlpha on this project). Also locks body scroll and wires
-  // Escape-to-close while open.
+  // Escape-to-close while open. The backing layers start stacked flush behind
+  // the front card and fan out into their resting rotation as it settles in.
   useGSAP(() => {
     gsap.set(overlayRef.current, { autoAlpha: 0 })
     gsap.set(dialogRef.current, { autoAlpha: 0, scale: 0.96, y: 12 })
+    gsap.set(outerLayerRef.current, { rotate: 0, scale: 0.94 })
+    gsap.set(midLayerRef.current, { rotate: 0, scale: 0.97 })
     gsap
       .timeline()
       .to(overlayRef.current, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 0)
       .to(dialogRef.current, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 0.05)
+      .to(
+        outerLayerRef.current,
+        { rotate: rest.outer, scale: 1, duration: 0.55, ease: 'power2.out' },
+        0.2,
+      )
+      .to(midLayerRef.current, { rotate: rest.mid, scale: 1, duration: 0.5, ease: 'power2.out' }, 0.16)
   }, [])
 
   useEffect(() => {
@@ -179,135 +238,170 @@ const MasterModal = ({ master, onClose }) => {
       onClick={close}
       className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
     >
+      <ModalRaggedDefs />
       {/* Fit wrapper scales the fixed-size card; GSAP animates the card itself. */}
       <div style={{ transform: `scale(${fitScale})` }}>
-        <div
-          ref={dialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label={master.name}
-          onClick={(e) => e.stopPropagation()}
-          className="relative overflow-hidden bg-white shadow-2xl"
-          style={{ width: MODAL_W, height: MODAL_H, fontFamily: FONT }}
-        >
-          {/* Portrait — fixed 360px column, full height */}
-          <div className="absolute left-0 top-0 h-143.25 w-90 overflow-hidden">
-            <img
-              src={master.image}
-              alt={master.name}
-              className={`h-full w-full object-cover ${master.modalClassName ?? ''}`}
-            />
-          </div>
-
-          {/* Close — 32px hit area at (852,16); 16px glyph, 1.8px stroke */}
-          <button
-            type="button"
-            onClick={close}
-            aria-label="Close"
-            className="absolute right-4 top-4 z-10 flex h-8 w-8 cursor-pointer items-center justify-center"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M1 1L15 15M15 1L1 15"
-                stroke="#313131"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-
-          {/* Title (24/120%/500) */}
-          <h3
-            className="absolute capitalize"
-            style={{
-              left: 384,
-              top: 52,
-              width: 360,
-              fontWeight: 500,
-              fontSize: 24,
-              lineHeight: '120%',
-              color: '#313131',
-            }}
-          >
-            {master.name}
-          </h3>
-
-          {/* Role (18/200%/400) */}
-          <p
-            className="absolute"
-            style={{
-              left: 384,
-              top: 88,
-              width: 360,
-              fontWeight: 400,
-              fontSize: 18,
-              lineHeight: '200%',
-              color: '#666666',
-            }}
-          >
-            {master.role}
-          </p>
-
-          {/* Bio (16/150%/400, 492px → governs line breaks) */}
-          <p
-            className="absolute"
-            style={{
-              left: 384,
-              top: 156,
-              width: 492,
-              fontWeight: 400,
-              fontSize: 16,
-              lineHeight: '150%',
-              color: '#666666',
-            }}
-          >
-            {master.bio}
-          </p>
-
-          {/* Accent quote panel — 540×210 pinned bottom-right */}
+        <div ref={dialogRef} className="relative" style={{ width: OUTER_W, height: OUTER_H }}>
+          {/* Backing layers — same ragged silhouette family, scaled up via
+              bleed and tinted with the master's accent colour, so they peek
+              out around the mat card like a mounted paper cut-out. */}
           <div
-            className="absolute"
+            ref={outerLayerRef}
+            aria-hidden="true"
             style={{
-              left: 360,
-              top: 363,
-              width: 540,
-              height: 210,
+              position: 'absolute',
+              inset: -MODAL_LAYER_BLEED.outer,
+              clipPath: `url(#dbm-modal-ragged-${outerShape})`,
+              backgroundColor: master.accentColor ?? '#B08D66',
+              opacity: 0.4,
+            }}
+          />
+          <div
+            ref={midLayerRef}
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: -MODAL_LAYER_BLEED.mid,
+              clipPath: `url(#dbm-modal-ragged-${midShape})`,
               backgroundColor: master.accentColor ?? '#B08D66',
             }}
           />
 
-          {/* Quote mark (16×16 at 398,398) */}
-          <svg
-            className="absolute"
-            style={{ left: 398, top: 398 }}
-            width="16"
-            height="16"
-            viewBox="0 0 16 13"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+          {/* Front mat card — the ragged bite only ever eats into this white
+              margin; the actual content sits inset by MODAL_MAT, untouched. */}
+          <div
+            ref={cardRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={master.name}
+            onClick={(e) => e.stopPropagation()}
+            className="absolute inset-0 overflow-hidden bg-white shadow-2xl"
+            style={{ clipPath: `url(#dbm-modal-ragged-${frontShape})`, fontFamily: FONT }}
           >
-            <path
-              d="M7 5.5V12.5H0V5.4C0 0.6 4.5 0 4.5 0L5.1 1.4C5.1 1.4 3.1 1.7 2.7 3.3C2.3 4.5 3.1 5.5 3.1 5.5H7ZM16 5.5V12.5H9V5.4C9 0.6 13.5 0 13.5 0L14.1 1.4C14.1 1.4 12.1 1.7 11.7 3.3C11.3 4.5 12.1 5.5 12.1 5.5H16Z"
-              fill="white"
-            />
-          </svg>
+            <div
+              className="absolute"
+              style={{ left: MODAL_MAT, top: MODAL_MAT, width: MODAL_W, height: MODAL_H }}
+            >
+              {/* Portrait — fixed 360px column, full height */}
+              <div className="absolute left-0 top-0 h-143.25 w-90 overflow-hidden">
+                <img
+                  src={master.image}
+                  alt={master.name}
+                  className={`h-full w-full object-cover ${master.modalClassName ?? ''}`}
+                />
+              </div>
 
-          {/* Quote text (16/150%/400, 423px → governs line breaks) */}
-          <p
-            className="absolute"
-            style={{
-              left: 418,
-              top: 413,
-              width: 423,
-              fontWeight: 400,
-              fontSize: 16,
-              lineHeight: '150%',
-              color: '#FFFFFF',
-            }}
-          >
-            {master.quote}
-          </p>
+              {/* Close — 32px hit area at (852,16); 16px glyph, 1.8px stroke */}
+              <button
+                type="button"
+                onClick={close}
+                aria-label="Close"
+                className="absolute right-4 top-4 z-10 flex h-8 w-8 cursor-pointer items-center justify-center"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 1L15 15M15 1L1 15"
+                    stroke="#313131"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {/* Title (24/120%/500) */}
+              <h3
+                className="absolute capitalize"
+                style={{
+                  left: 384,
+                  top: 52,
+                  width: 360,
+                  fontWeight: 500,
+                  fontSize: 24,
+                  lineHeight: '120%',
+                  color: '#313131',
+                }}
+              >
+                {master.name}
+              </h3>
+
+              {/* Role (18/200%/400) */}
+              <p
+                className="absolute"
+                style={{
+                  left: 384,
+                  top: 88,
+                  width: 360,
+                  fontWeight: 400,
+                  fontSize: 18,
+                  lineHeight: '200%',
+                  color: '#666666',
+                }}
+              >
+                {master.role}
+              </p>
+
+              {/* Bio (16/150%/400, 492px → governs line breaks) */}
+              <p
+                className="absolute"
+                style={{
+                  left: 384,
+                  top: 156,
+                  width: 492,
+                  fontWeight: 400,
+                  fontSize: 16,
+                  lineHeight: '150%',
+                  color: '#666666',
+                }}
+              >
+                {master.bio}
+              </p>
+
+              {/* Accent quote panel — 540×210 pinned bottom-right */}
+              <div
+                className="absolute"
+                style={{
+                  left: 360,
+                  top: 363,
+                  width: 540,
+                  height: 210,
+                  backgroundColor: master.accentColor ?? '#B08D66',
+                }}
+              />
+
+              {/* Quote mark (16×16 at 398,398) */}
+              <svg
+                className="absolute"
+                style={{ left: 398, top: 398 }}
+                width="16"
+                height="16"
+                viewBox="0 0 16 13"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7 5.5V12.5H0V5.4C0 0.6 4.5 0 4.5 0L5.1 1.4C5.1 1.4 3.1 1.7 2.7 3.3C2.3 4.5 3.1 5.5 3.1 5.5H7ZM16 5.5V12.5H9V5.4C9 0.6 13.5 0 13.5 0L14.1 1.4C14.1 1.4 12.1 1.7 11.7 3.3C11.3 4.5 12.1 5.5 12.1 5.5H16Z"
+                  fill="white"
+                />
+              </svg>
+
+              {/* Quote text (16/150%/400, 423px → governs line breaks) */}
+              <p
+                className="absolute"
+                style={{
+                  left: 418,
+                  top: 413,
+                  width: 423,
+                  fontWeight: 400,
+                  fontSize: 16,
+                  lineHeight: '150%',
+                  color: '#FFFFFF',
+                }}
+              >
+                {master.quote}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>,
@@ -600,7 +694,11 @@ const DesignedByMasters = forwardRef((_props, ref) => {
       </div>
 
       {activeMaster && (
-        <MasterModal master={activeMaster} onClose={() => setActiveMaster(null)} />
+        <MasterModal
+          master={activeMaster}
+          index={masters.indexOf(activeMaster)}
+          onClose={() => setActiveMaster(null)}
+        />
       )}
     </section>
   )
