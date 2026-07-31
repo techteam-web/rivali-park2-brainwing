@@ -105,10 +105,20 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
   const closingRef = useRef(false)
   const views = VIEW_SOURCES[tower] ?? null
   const floors = views && position ? views.floorsForPosition(position) : []
-  const [floor, setFloor] = useState(() =>
-    floors.includes(initialFloor) ? initialFloor : (floors[0] ?? null),
+  // A floor picked back on the tower elevation wins even when THIS apartment
+  // has no panorama on it — the point of choosing a floor is to see that
+  // floor, so we honour it and show the empty state rather than silently
+  // dropping the user somewhere else in the building.
+  const [floor, setFloor] = useState(
+    () => initialFloor ?? floors[0] ?? null,
   )
   const src = views && floor != null ? views.viewImage(floor, position) : null
+  // Keep the current floor visible in the drop-up even if it isn't one of the
+  // floors with a view, so the list never contradicts the button's label.
+  const floorOptions =
+    floor != null && !floors.includes(floor)
+      ? [...floors, floor].sort((a, b) => a - b)
+      : floors
 
   // Warm the browser cache for every floor's panorama the moment the viewer
   // opens, so switching floors is instant instead of waiting on a ~2MB download
@@ -197,7 +207,9 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
               color: 'rgba(255,255,255,0.55)',
             }}
           >
-            Panoramic view coming soon
+            {floor != null && !floors.includes(floor)
+              ? `No view available for the ${ordinal(floor)} floor of this apartment`
+              : 'Panoramic view coming soon'}
           </p>
         </div>
       )}
@@ -245,7 +257,7 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
       </header>
 
       {floor != null && (
-        <FloorSelect value={floor} floors={floors} onChange={setFloor} />
+        <FloorSelect value={floor} floors={floorOptions} onChange={setFloor} />
       )}
     </div>
   )

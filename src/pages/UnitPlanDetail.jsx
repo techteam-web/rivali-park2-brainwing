@@ -51,6 +51,21 @@ const UnitPlanDetail = () => {
   // entry point (e.g. 'towers') intact through the flow.
   const origin = searchParams.get('origin')
   const originSuffix = origin ? `&origin=${origin}` : ''
+  // Floor chosen back on the tower's elevation drawing. Drives which panorama
+  // "View from apartment" opens on, and rides along to compare so both sides
+  // of a comparison show the same floor.
+  const floorParam = Number(searchParams.get('floor'))
+  const selectedFloor = Number.isFinite(floorParam) && floorParam > 0 ? floorParam : null
+  const floorSuffix = selectedFloor ? `&floor=${selectedFloor}` : ''
+
+  // Query carried onto sibling routes (back to the selector, unit switching).
+  const carry = [
+    origin ? `origin=${origin}` : null,
+    selectedFloor ? `floor=${selectedFloor}` : null,
+  ]
+    .filter(Boolean)
+    .join('&')
+  const carrySuffix = carry ? `?${carry}` : ''
   const pageRef = useRef(null)
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   // Card is gently crossfaded when switching unit within the same tower (a
@@ -82,7 +97,7 @@ const UnitPlanDetail = () => {
 
   // Bad/stale tower or unit number → bounce back to the floor-plan selector.
   if (!unit) {
-    navigate(`/unit-plans?tower=${tower}${originSuffix}`, { replace: true })
+    navigate(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`, { replace: true })
     return null
   }
 
@@ -91,7 +106,7 @@ const UnitPlanDetail = () => {
       <div ref={pageRef} className="h-full w-full">
       <UnitArtboard>
         <UnitHeader
-          onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}`)}
+          onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`)}
           onHome={() => exitTo('/')}
         >
           <h1
@@ -148,7 +163,7 @@ const UnitPlanDetail = () => {
               value={unit.n}
               onChange={(next) =>
                 navigate(
-                  `/unit-plans/${tower}/${next}${origin ? `?origin=${origin}` : ''}`,
+                  `/unit-plans/${tower}/${next}${carrySuffix}`,
                 )
               }
             />
@@ -229,7 +244,9 @@ const UnitPlanDetail = () => {
             <button
               type="button"
               onClick={() =>
-                exitTo(`/unit-plans/compare?tower=${tower}&from=${unit.n}${originSuffix}`)
+                exitTo(
+                  `/unit-plans/compare?tower=${tower}&from=${unit.n}${originSuffix}${floorSuffix}`,
+                )
               }
               className="mt-auto w-full cursor-pointer border border-on-light-black py-4 uppercase transition-[background-color,color,transform] hover:bg-on-light-black hover:text-white active:scale-[0.98]"
               style={{
@@ -262,6 +279,7 @@ const UnitPlanDetail = () => {
           title={`View From ${label} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`}
           tower={tower}
           position={unit.n}
+          initialFloor={selectedFloor}
           onClose={() => setCourtyardOpen(false)}
           onHome={() => exitTo('/')}
         />

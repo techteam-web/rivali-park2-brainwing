@@ -43,6 +43,18 @@ const UnitPlans = () => {
   // through detail/compare so the back button returns to the right place
   // instead of falling through to the homepage.
   const entryOrigin = searchParams.get('origin')
+  // Floor picked on the tower's elevation drawing, carried the whole way to the
+  // apartment view so it opens on that floor rather than the first available.
+  const entryFloor = searchParams.get('floor')
+
+  // Query string shared by every onward link out of this page.
+  const carry = [
+    entryOrigin ? `origin=${entryOrigin}` : null,
+    entryFloor ? `floor=${entryFloor}` : null,
+  ]
+    .filter(Boolean)
+    .join('&')
+  const carrySuffix = carry ? `?${carry}` : ''
   const [zoom, setZoom] = useState(1)
   const [origin, setOrigin] = useState({ x: 50, y: 50 })
   const planRef = useRef(null)
@@ -111,7 +123,11 @@ const UnitPlans = () => {
       <UnitHeader
         onBack={() =>
           exitTo(
-            entryOrigin === 'towers' ? `/towers?tower=${activeTower}` : '/',
+            entryOrigin === 'towers'
+              ? // Came in through the elevation floor picker? Go back to it,
+                // not past it to the tower detail.
+                `/towers?tower=${activeTower}${entryFloor ? '&view=floors' : ''}`
+              : '/',
           )
         }
         onHome={() => exitTo('/')}
@@ -169,9 +185,7 @@ const UnitPlans = () => {
               >
                 <StargazeOverlay
                   onSelect={(n) =>
-                    exitTo(
-                      `/unit-plans/${current.id}/${n}${entryOrigin ? `?origin=${entryOrigin}` : ''}`,
-                    )
+                    exitTo(`/unit-plans/${current.id}/${n}${carrySuffix}`)
                   }
                 />
               </div>

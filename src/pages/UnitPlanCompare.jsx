@@ -98,6 +98,12 @@ const UnitPlanCompare = () => {
   // Preserve the flow's original entry point (e.g. 'towers') so leaving compare
   // → unit detail → unit-plans still knows where to send the user back.
   const origin = params.get('origin')
+  // Floor picked on the tower elevation. Every card starts on this floor — so
+  // comparing two units compares them on the SAME floor — until that card's
+  // own floor drop-down is used.
+  const floorParam = Number(params.get('floor'))
+  const entryFloor =
+    Number.isFinite(floorParam) && floorParam > 0 ? floorParam : null
 
   const [columns, setColumns] = useState(() => [
     makeColumn(fromTower, from),
@@ -146,8 +152,15 @@ const UnitPlanCompare = () => {
 
   // Return to the unit the comparison was launched from (the ?tower=&from=
   // params), not whatever the first card was later changed to.
-  const goBack = () =>
-    exitTo(`/unit-plans/${fromTower}/${from}${origin ? `?origin=${origin}` : ''}`)
+  const goBack = () => {
+    const carry = [
+      origin ? `origin=${origin}` : null,
+      entryFloor ? `floor=${entryFloor}` : null,
+    ]
+      .filter(Boolean)
+      .join('&')
+    exitTo(`/unit-plans/${fromTower}/${from}${carry ? `?${carry}` : ''}`)
+  }
 
   const setUnit = (id, unit) =>
     setColumns((cols) => cols.map((c) => (c.id === id ? { ...c, unit } : c)))
@@ -219,13 +232,21 @@ const UnitPlanCompare = () => {
           {columns.map((col, idx) => {
             const unit = findUnit(col.tower, col.unit)
             const floors = floorsForTowerPosition(col.tower, unit.n)
-            const floor = floors.includes(floorOverrides[col.id])
-              ? floorOverrides[col.id]
-              : (floors[0] ?? null)
+            // Card's own choice first, then the floor carried in from the
+            // tower elevation, then this unit's lowest floor with a view. The
+            // carried floor is used even when this particular apartment has no
+            // panorama there — the card then shows the empty state, which is
+            // the honest answer to "show me this unit on that floor".
+            const floor =
+              floorOverrides[col.id] ?? entryFloor ?? floors[0] ?? null
             const viewSrc =
               floor != null
                 ? viewImageForTowerPosition(col.tower, floor, unit.n)
                 : null
+            const floorOptions =
+              floor != null && !floors.includes(floor)
+                ? [...floors, floor].sort((a, b) => a - b)
+                : floors
             return (
               <div
                 key={col.id}
@@ -279,7 +300,7 @@ const UnitPlanCompare = () => {
                           <Panorama src={viewSrc} />
                           <button
                             type="button"
-                            aria-label="View courtyard view fullscreen"
+                            aria-label="View from apartment fullscreen"
                             onClick={() =>
                               setExpandedView({
                                 title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
@@ -309,7 +330,9 @@ const UnitPlanCompare = () => {
                               color: 'rgba(255,255,255,0.55)',
                             }}
                           >
-                            Panoramic view coming soon
+                            {floor != null && !floors.includes(floor)
+                              ? `No view available on the ${ordinal(floor)} floor`
+                              : 'Panoramic view coming soon'}
                           </p>
                         </div>
                       )}
@@ -317,7 +340,7 @@ const UnitPlanCompare = () => {
                         <div className="absolute bottom-3 right-3 z-10 w-56">
                           <Dropdown
                             value={floor}
-                            options={floors.map((f) => ({
+                            options={floorOptions.map((f) => ({
                               value: f,
                               label: `${ordinal(f)} Floor`,
                             }))}
@@ -372,7 +395,9 @@ const UnitPlanCompare = () => {
                   }}
                 >
                   <img src="/unit/svgs/view.svg" alt="" className="h-5 w-5" />
-                  {viewMode ? 'Floor Plan' : 'Courtyard View'}
+                  {/* Named to match the unit detail sheet's button — same
+                      action, so it reads the same in both places. */}
+                  {viewMode ? 'Floor Plan' : 'View from apartment'}
                   <img
                     src="/unit/svgs/arrow_forward.svg"
                     alt=""

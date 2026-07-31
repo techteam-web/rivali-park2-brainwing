@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { towers } from '../data/towers'
 import TowersLanding from './TowersLanding'
 import TowerDetail from '../components/towers/TowerDetail'
+import TowerElevation from '../components/towers/TowerElevation'
 import TowersLoadingScreen from '../components/towers/TowersLoadingScreen'
 import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
+import { hasFloorPicker } from '../data/towerElevations'
 
 // /towers is a single route with an aerial landing (four tower pills) and a
 // single-tower detail view. Which view shows is driven entirely by the URL: the
@@ -14,6 +16,7 @@ import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
 // switching happens by going back to the landing, never by scrolling.
 const Towers = () => {
   const ready = useTowersAssetsReady()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Arriving with a ?tower= param means we're deep-linking to (or returning to)
@@ -26,8 +29,36 @@ const Towers = () => {
   const selectedTower =
     towers.find((t) => t.id === searchParams.get('tower')) ?? null
 
+  // ...and for which of the tower's two screens is showing. `view=floors` is
+  // the elevation drawing (the floor picker); anything else is the detail
+  // panel. Keeping it in the URL makes the floor picker deep-linkable and
+  // gives the browser back button the right behaviour for free.
+  //
+  // Only towers whose floor overlay has landed can show the picker — the others
+  // keep the original behaviour (straight to the floor plans), so a missing
+  // overlay degrades to the old flow rather than to an empty screen.
+  const canPickFloors = selectedTower ? hasFloorPicker(selectedTower.id) : false
+  const showingFloors = canPickFloors && searchParams.get('view') === 'floors'
+
   // Push a history entry so the browser back button returns to the landing too.
   const selectTower = (tower) => setSearchParams({ tower: tower.id })
+
+  const openFloors = () => {
+    if (canPickFloors) {
+      setSearchParams({ tower: selectedTower.id, view: 'floors' })
+    } else {
+      navigate(`/unit-plans?tower=${selectedTower.id}&origin=towers`)
+    }
+  }
+
+  const backToDetail = () => setSearchParams({ tower: selectedTower.id })
+
+  // A picked floor rides into the unit-plan flow so the courtyard/apartment
+  // views can open on the floor the user actually chose.
+  const openPlansForFloor = (floor) =>
+    navigate(
+      `/unit-plans?tower=${selectedTower.id}&origin=towers&floor=${floor}`,
+    )
 
   useEffect(() => {
     const body = document.body
@@ -51,16 +82,29 @@ const Towers = () => {
     if (searchParams.has('tower')) setSearchParams({}, { replace: true })
   }
 
+  const detailOrFloors = () =>
+    showingFloors ? (
+      <TowerElevation
+        key={`${selectedTower.id}-floors`}
+        tower={selectedTower}
+        onBack={backToDetail}
+        onPick={openPlansForFloor}
+      />
+    ) : (
+      <TowerDetail
+        key={selectedTower.id}
+        tower={selectedTower}
+        onBack={backToLanding}
+        onPlans={openFloors}
+        play={overlayGone}
+      />
+    )
+
   return (
     <>
       {(ready || skipLoader) &&
         (selectedTower ? (
-          <TowerDetail
-            key={selectedTower.id}
-            tower={selectedTower}
-            onBack={backToLanding}
-            play={overlayGone}
-          />
+          detailOrFloors()
         ) : (
           <TowersLanding onSelect={selectTower} />
         ))}

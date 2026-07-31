@@ -31,7 +31,7 @@ const prefersReducedMotion = () =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-const TowerDetail = ({ tower, onBack, play = true }) => {
+const TowerDetail = ({ tower, onBack, onPlans, play = true }) => {
   const pageRef = useRef(null)
 
   const index = towers.findIndex((t) => t.id === tower.id)
@@ -144,11 +144,15 @@ const TowerDetail = ({ tower, onBack, play = true }) => {
 
   return (
     <div ref={pageRef} className="relative h-screen w-full overflow-hidden bg-white">
+      {/* "Plans" now opens the tower's elevation drawing first, where a floor
+          is picked; that choice is carried on into the unit-plan flow. It's an
+          in-page view swap (same route, ?view= param), so exitWith — not
+          exitTo — plays the handoff. */}
       <TowerPanel
         tower={tower}
         index={0}
         isActive
-        onCta={() => exitTo(`/unit-plans?tower=${tower.id}&origin=towers`)}
+        onCta={() => exitWith(onPlans)}
       />
 
       <div className="hidden md:block absolute top-0 right-0 h-full w-[58.3333%] z-0">
