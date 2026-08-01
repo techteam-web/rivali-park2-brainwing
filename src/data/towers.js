@@ -49,7 +49,7 @@ export const towers = [
     possession: '2027',
     carpetArea: '772 - 1,263 Sq. Ft.',
     features: [
-      { icon: 'floors',    text: '49 FLOORS INCL. 5 PODIA' },
+      { icon: 'floors',    text: '49 FLOORS INCL. 5 PODIUM' },
       { icon: 'views',     text: 'STUNNING VIEWS OF PAGODA & SGNP' },
       { icon: 'premium',   text: 'PREMIUM SPECIFICATIONS' },
       { icon: 'vastu',     text: 'VASTU COMPLIANT' },
@@ -73,7 +73,7 @@ export const towers = [
     possession: '2026',
     carpetArea: '772 - 1,114 Sq. Ft.',
     features: [
-      { icon: 'floors',    text: '39 FLOORS INCL. 5 PODIA' },
+      { icon: 'floors',    text: '39 FLOORS INCL. 5 PODIUM' },
       { icon: 'views',     text: 'STUNNING VIEWS OF PAGODA & SGNP' },
       { icon: 'premium',   text: 'PREMIUM SPECIFICATIONS' },
       { icon: 'vastu',     text: 'VASTU COMPLIANT' },
@@ -98,7 +98,7 @@ export const towers = [
     possession: '2027',
     carpetArea: '633 - 988 Sq. Ft.',
     features: [
-      { icon: 'floors',    text: '39 FLOORS INCL. 5 PODIA' },
+      { icon: 'floors',    text: '39 FLOORS INCL. 5 PODIUM' },
       { icon: 'views',     text: 'STUNNING VIEWS OF PAGODA & SGNP' },
       { icon: 'premium',   text: 'PREMIUM SPECIFICATIONS' },
       { icon: 'vastu',     text: 'VASTU COMPLIANT' },
