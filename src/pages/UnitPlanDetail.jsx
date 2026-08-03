@@ -6,6 +6,7 @@ import UnitSelect from '../components/unitplan/UnitSelect'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
 import CourtyardView from '../components/unitplan/CourtyardView'
 import StargazeOverlay from '../components/unitplan/StargazeOverlay'
+import UnitFootprints from '../components/unitplan/UnitFootprints'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
 import {
@@ -22,6 +23,8 @@ import {
   PLAN_H,
   STARGAZE_OVERLAY,
   STARGAZE_OVERLAY_VB,
+  UNIT_SHEET_VB,
+  towerFootprints,
 } from '../data/unitPlans'
 
 const labelStyle = {
@@ -215,7 +218,7 @@ const UnitPlanDetail = () => {
                 sits on the floor. Reuses the same plan image + hand-tuned
                 overlay placement as the floor-plan selector (UnitPlans),
                 just shown non-interactively and filtered to one shape. */}
-            {tower === OVERLAY_TOWER && (
+            {(tower === OVERLAY_TOWER || towerFootprints(tower)) && (
               <div className="mt-6 flex min-h-0 flex-1 items-center justify-center">
                 <div
                   className="relative w-full"
@@ -226,17 +229,28 @@ const UnitPlanDetail = () => {
                     alt={`${label} floor plan`}
                     className="h-full w-full object-contain"
                   />
-                  <div
-                    className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                      left: `${STARGAZE_OVERLAY.left}%`,
-                      top: `${STARGAZE_OVERLAY.top}%`,
-                      width: `${STARGAZE_OVERLAY.width}%`,
-                      aspectRatio: `${STARGAZE_OVERLAY_VB.w} / ${STARGAZE_OVERLAY_VB.h}`,
-                    }}
-                  >
-                    <StargazeOverlay highlightOnly={unit.n} />
-                  </div>
+                  {tower === OVERLAY_TOWER ? (
+                    <div
+                      className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2"
+                      style={{
+                        left: `${STARGAZE_OVERLAY.left}%`,
+                        top: `${STARGAZE_OVERLAY.top}%`,
+                        width: `${STARGAZE_OVERLAY.width}%`,
+                        aspectRatio: `${STARGAZE_OVERLAY_VB.w} / ${STARGAZE_OVERLAY_VB.h}`,
+                      }}
+                    >
+                      <StargazeOverlay highlightOnly={unit.n} />
+                    </div>
+                  ) : (
+                    <div
+                      className="pointer-events-none absolute left-1/2 top-1/2 h-full -translate-x-1/2 -translate-y-1/2"
+                      style={{
+                        aspectRatio: `${UNIT_SHEET_VB.w} / ${UNIT_SHEET_VB.h}`,
+                      }}
+                    >
+                      <UnitFootprints tower={tower} highlightOnly={unit.n} />
+                    </div>
+                  )}
                 </div>
               </div>
             )}

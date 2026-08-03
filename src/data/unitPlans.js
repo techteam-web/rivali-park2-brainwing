@@ -8,12 +8,21 @@
 // `tint` is the subtle card background (selectors/specs panel) for each tower —
 // a very light wash of the tower's brand colour. Stargaze is final (#FCF8F7);
 // the others are placeholder tints derived from `bg` until exact values land.
+// `footprints` is the architects' unit-footprint overlay, drawn in the same
+// coordinate space as the plan sheet itself (see UNIT_SHEET_VB), so it needs no
+// placement tuning — it just sizes to the plan image. Towers without one fall
+// back to a plain, non-interactive plan. Stargaze predates this format and
+// still uses the hand-placed StargazeOverlay below.
 export const TOWER_TABS = [
-  { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', bg: '#557E92', tint: '#F6F9FA' },
-  { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', bg: '#839033', tint: '#F8FAF1' },
-  { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', bg: '#9C6A7B', tint: '#FCF8F7' },
-  { id: 'sunburst', label: 'Sunburst', plan: null, bg: '#9C6A7B', tint: '#FCF8F7' },
+  { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', footprints: '/unit/skyleap/units.svg', bg: '#557E92', tint: '#F6F9FA' },
+  { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', footprints: '/unit/moonrise/units.svg', bg: '#839033', tint: '#F8FAF1' },
+  { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', footprints: null, bg: '#9C6A7B', tint: '#FCF8F7' },
+  { id: 'sunburst', label: 'Sunburst', plan: null, footprints: null, bg: '#9C6A7B', tint: '#FCF8F7' },
 ]
+
+// The floor-plan sheets are all 3509x2480 (ratio 1.4149); the footprint
+// overlays share that exact space, so the two line up with no offset.
+export const UNIT_SHEET_VB = { w: 842.16, h: 595.2 }
 
 // Same expected possession across every unit for now (per product). The short
 // form is used where space is tight (e.g. the compare cards).
@@ -106,6 +115,10 @@ export const towerBg = (tower) =>
 
 export const towerPlan = (tower) =>
   TOWER_TABS.find((t) => t.id === tower)?.plan ?? null
+
+// Unit-footprint overlay for a tower, or null if it doesn't have one yet.
+export const towerFootprints = (tower) =>
+  TOWER_TABS.find((t) => t.id === tower)?.footprints ?? null
 
 // Subtle card-panel tint for a tower (falls back to a neutral off-white).
 export const towerTint = (tower) =>

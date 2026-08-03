@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
 import StargazeOverlay from '../components/unitplan/StargazeOverlay'
+import UnitFootprints from '../components/unitplan/UnitFootprints'
 import {
   STARGAZE_OVERLAY_VB,
   STARGAZE_OVERLAY,
@@ -10,6 +11,8 @@ import {
   PLAN_W,
   PLAN_H,
   TOWER_TABS,
+  UNIT_SHEET_VB,
+  towerFootprints,
 } from '../data/unitPlans'
 import { gsap } from '../lib/gsap'
 import { usePageTransition } from '../hooks/usePageTransition'
@@ -72,6 +75,7 @@ const UnitPlans = () => {
 
   const hasPlan = Boolean(current.plan)
   const hasOverlay = current.id === OVERLAY_TOWER
+  const footprints = towerFootprints(current.id)
 
   // Wheel-to-zoom via a native non-passive listener so we can stop the page
   // scrolling. Clamped so zoom-out never shrinks the plan below its base size.
@@ -184,6 +188,26 @@ const UnitPlans = () => {
                 }}
               >
                 <StargazeOverlay
+                  onSelect={(n) =>
+                    exitTo(`/unit-plans/${current.id}/${n}${carrySuffix}`)
+                  }
+                />
+              </div>
+            )}
+
+            {/* Full-sheet footprint overlay. The plan image is object-contain
+                inside a wider box, so it renders at full height with the
+                sheet's own aspect ratio — which is exactly the contained
+                image's box. No offsets to keep in sync. */}
+            {footprints && (
+              <div
+                className="absolute left-1/2 top-1/2 h-full -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  aspectRatio: `${UNIT_SHEET_VB.w} / ${UNIT_SHEET_VB.h}`,
+                }}
+              >
+                <UnitFootprints
+                  tower={current.id}
                   onSelect={(n) =>
                     exitTo(`/unit-plans/${current.id}/${n}${carrySuffix}`)
                   }
