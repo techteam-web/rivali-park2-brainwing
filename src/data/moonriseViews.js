@@ -2,7 +2,7 @@
 // Moonrise apartments (floor*100 + unit-position) that have a courtyard
 // panorama. Apartments without a panorama are absent, so they're hidden
 // from the floor dropdown in the courtyard view.
-export const MOONRISE_VIEW_APTS = [2505, 2605, 2705, 2805, 3005, 3105, 3205, 3305, 3505]
+export const MOONRISE_VIEW_APTS = [405, 505, 605, 705, 708, 804, 808, 905, 908, 1005, 1008, 1105, 1108, 1205, 1208, 1305, 1308, 1405, 1605, 1704, 1805, 1905, 2005, 2105, 2204, 2305, 2405, 2505, 2605, 2705, 2805, 2904, 3005, 3104, 3105, 3204, 3205, 3304, 3305, 3504, 3505, 3704, 3804, 3805, 3904, 4004, 4005, 4105, 4205, 4901]
 
 const VIEW_SET = new Set(MOONRISE_VIEW_APTS)
 

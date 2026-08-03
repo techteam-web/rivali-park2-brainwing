@@ -1,5 +1,6 @@
 import * as stargazeViews from './stargazeViews'
 import * as moonriseViews from './moonriseViews'
+import * as sunburstViews from './sunburstViews'
 
 // Per-tower panorama manifests (each exposes floorsForPosition + viewImage over
 // its own /unit/views assets). Towers without panoramas are simply absent, so
@@ -7,6 +8,7 @@ import * as moonriseViews from './moonriseViews'
 export const VIEW_SOURCES = {
   stargaze: stargazeViews,
   moonrise: moonriseViews,
+  sunburst: sunburstViews,
 }
 
 // Floors (ascending) where `tower`'s given svg position has a panorama.
