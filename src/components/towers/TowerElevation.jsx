@@ -133,7 +133,7 @@ const FloorShapes = ({ floor, band, outline }) =>
     )
   })
 
-const TowerElevation = ({ tower, onBack, onPick }) => {
+const TowerElevation = ({ tower, onBack, onPick, onSkip }) => {
   const pageRef = useRef(null)
   const svgHostRef = useRef(null)
   const overlayRef = useRef(null)
@@ -358,6 +358,10 @@ const TowerElevation = ({ tower, onBack, onPick }) => {
 
   const hoveredFloor =
     floorGroups.find((f) => f.name === hovered)?.floor ?? null
+  // A tower whose floor overlay hasn't been supplied yet still shows its
+  // drawing; it just has nothing to hover, so the readout becomes a plain
+  // route onward to the plans.
+  const hasFloors = Boolean(elevation?.floorsSrc)
 
   // Each new floor number rises into its mask as the old one clears — the same
   // masked-line language the tower detail panel uses for its headings.
@@ -486,12 +490,33 @@ const TowerElevation = ({ tower, onBack, onPick }) => {
           }}
         >
           <span className="text-[10px] md:text-[11px] 2xl:text-[13px] 3xl:text-[15px] 4xl:text-[19px] 5xl:text-[28px]">
-            Select a floor
+            {hasFloors ? 'Select a floor' : 'Floor plans'}
           </span>
         </p>
 
+        {/* No floor overlay yet: offer the plans directly instead of a number
+            that could never change. */}
+        {!hasFloors && (
+          <button
+            type="button"
+            onClick={() => exitWith(onSkip)}
+            className="pointer-events-auto mt-2 cursor-pointer border px-5 py-2.5 uppercase transition-[background-color,color] md:mt-3 md:px-6 md:py-3 2xl:px-7 2xl:py-3.5 3xl:px-9 3xl:py-4 4xl:px-12 4xl:py-5 5xl:px-16 5xl:py-7"
+            style={{
+              fontFamily: 'Poppins, sans-serif',
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              borderColor: accent,
+              color: accent,
+            }}
+          >
+            <span className="text-[10px] md:text-[12px] 2xl:text-[14px] 3xl:text-[16px] 4xl:text-[20px] 5xl:text-[30px]">
+              View floor plans
+            </span>
+          </button>
+        )}
+
         {/* Masked so the number rises into view rather than just fading. */}
-        <div className="overflow-hidden">
+        <div className={`overflow-hidden ${hasFloors ? '' : 'hidden'}`}>
           <p
             key={hoveredFloor ?? 'none'}
             ref={numberRef}

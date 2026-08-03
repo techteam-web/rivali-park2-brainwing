@@ -6,7 +6,7 @@ import TowerDetail from '../components/towers/TowerDetail'
 import TowerElevation from '../components/towers/TowerElevation'
 import TowersLoadingScreen from '../components/towers/TowersLoadingScreen'
 import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
-import { hasFloorPicker } from '../data/towerElevations'
+import { elevationFor } from '../data/towerElevations'
 
 // /towers is a single route with an aerial landing (four tower pills) and a
 // single-tower detail view. Which view shows is driven entirely by the URL: the
@@ -34,17 +34,19 @@ const Towers = () => {
   // panel. Keeping it in the URL makes the floor picker deep-linkable and
   // gives the browser back button the right behaviour for free.
   //
-  // Only towers whose floor overlay has landed can show the picker — the others
-  // keep the original behaviour (straight to the floor plans), so a missing
-  // overlay degrades to the old flow rather than to an empty screen.
-  const canPickFloors = selectedTower ? hasFloorPicker(selectedTower.id) : false
-  const showingFloors = canPickFloors && searchParams.get('view') === 'floors'
+  // Every tower with an elevation drawing gets the screen — it draws itself in
+  // either way. Towers whose floor overlay hasn't landed simply show the
+  // building without selectable storeys (TowerElevation offers a button
+  // straight to the plans in that case), rather than skipping the drawing
+  // entirely.
+  const hasElevation = selectedTower ? Boolean(elevationFor(selectedTower.id)) : false
+  const showingFloors = hasElevation && searchParams.get('view') === 'floors'
 
   // Push a history entry so the browser back button returns to the landing too.
   const selectTower = (tower) => setSearchParams({ tower: tower.id })
 
   const openFloors = () => {
-    if (canPickFloors) {
+    if (hasElevation) {
       setSearchParams({ tower: selectedTower.id, view: 'floors' })
     } else {
       navigate(`/unit-plans?tower=${selectedTower.id}&origin=towers`)
@@ -89,6 +91,9 @@ const Towers = () => {
         tower={selectedTower}
         onBack={backToDetail}
         onPick={openPlansForFloor}
+        onSkip={() =>
+          navigate(`/unit-plans?tower=${selectedTower.id}&origin=towers`)
+        }
       />
     ) : (
       <TowerDetail
