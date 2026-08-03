@@ -17,7 +17,7 @@ export const TOWER_TABS = [
   { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', footprints: '/unit/skyleap/units.svg', bg: '#557E92', tint: '#F6F9FA' },
   { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', footprints: '/unit/moonrise/units.svg', bg: '#839033', tint: '#F8FAF1' },
   { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', footprints: null, bg: '#9C6A7B', tint: '#FCF8F7' },
-  { id: 'sunburst', label: 'Sunburst', plan: '/unit/sunburst/floorplan.png', footprints: null, bg: '#AF8D66', tint: '#FBF8F3' },
+  { id: 'sunburst', label: 'Sunburst', plan: '/unit/sunburst/floorplan.png', footprints: '/unit/sunburst/units.svg', bg: '#AF8D66', tint: '#FBF8F3' },
 ]
 
 // The floor-plan sheets are all 3509x2480 (ratio 1.4149); the footprint
