@@ -109,14 +109,102 @@ const parseFloorGroups = (svgText) => {
       .filter(Boolean)
     if (!shapes.length) continue
 
+    // Vertical extent, used below to tell a genuine multi-part storey from a
+    // mislabelled group that happens to share a name.
+    const ys = shapeYRange(g)
+
     if (!byName.has(name)) {
-      byName.set(name, { name, floor, shapes: [] })
+      byName.set(name, { name, floor, parts: [] })
       order.push(name)
     }
-    byName.get(name).shapes.push(...shapes)
+    byName.get(name).parts.push({ shapes, ys })
   }
 
-  return order.map((n) => byName.get(n))
+  // Same-named groups belong to ONE storey only when they sit at the same
+  // height — that's Skyleap's left/centre/right wings. A same-named group at a
+  // completely different height is a labelling slip in the artwork (Sunburst's
+  // export carries a crown band mislabelled as "30th", 600 units above the real
+  // 30th floor). Merging those would light one floor in two places, so each
+  // distinct height becomes its own candidate and the odd one out is dropped by
+  // the ordering check below.
+  const candidates = []
+  for (const n of order) {
+    const { name, floor, parts } = byName.get(n)
+    const clusters = []
+    for (const part of parts) {
+      const hit = clusters.find(
+        (c) => part.ys.lo <= c.ys.hi && part.ys.hi >= c.ys.lo,
+      )
+      if (hit) {
+        hit.shapes.push(...part.shapes)
+        hit.ys = { lo: Math.min(hit.ys.lo, part.ys.lo), hi: Math.max(hit.ys.hi, part.ys.hi) }
+      } else {
+        clusters.push({ shapes: [...part.shapes], ys: { ...part.ys } })
+      }
+    }
+    clusters.forEach((c) => candidates.push({ name, floor, shapes: c.shapes, ys: c.ys }))
+  }
+
+  // Floors must climb as you go up the building. Anything breaking that is
+  // mislabelled, so keep the largest self-consistent set (longest strictly
+  // decreasing run of floor numbers, read top-down) and discard the rest.
+  candidates.sort((a, b) => a.ys.lo - b.ys.lo)
+  const best = longestDescending(candidates.map((c) => c.floor))
+  return best.map((i) => {
+    const { name, floor, shapes } = candidates[i]
+    return { name, floor, shapes }
+  })
+}
+
+// Vertical span of a group's shapes, from raw attributes (no layout needed).
+const shapeYRange = (g) => {
+  let lo = Infinity
+  let hi = -Infinity
+  for (const el of Array.from(g.children)) {
+    const tag = el.tagName.toLowerCase()
+    let ys = []
+    if (tag === 'rect') {
+      const y = parseFloat(el.getAttribute('y'))
+      const h = parseFloat(el.getAttribute('height'))
+      if (Number.isFinite(y)) ys = [y, y + (Number.isFinite(h) ? h : 0)]
+    } else if (tag === 'polygon' || tag === 'polyline') {
+      const nums = (el.getAttribute('points') || '').match(/-?\d*\.?\d+/g) || []
+      ys = nums.filter((_, i) => i % 2 === 1).map(Number)
+    } else if (tag === 'path') {
+      // First coordinate pair of the leading moveto is enough to place it.
+      const m = /^[Mm]\s*(-?\d*\.?\d+)[ ,]+(-?\d*\.?\d+)/.exec(
+        (el.getAttribute('d') || '').trim(),
+      )
+      if (m) ys = [Number(m[2])]
+    }
+    for (const y of ys) {
+      if (!Number.isFinite(y)) continue
+      lo = Math.min(lo, y)
+      hi = Math.max(hi, y)
+    }
+  }
+  return Number.isFinite(lo) ? { lo, hi } : { lo: 0, hi: 0 }
+}
+
+// Indices of the longest strictly-decreasing run in `a` (O(n^2) is ample for
+// the few dozen floors an overlay holds).
+const longestDescending = (a) => {
+  if (!a.length) return []
+  const len = a.map(() => 1)
+  const prev = a.map(() => -1)
+  let bestEnd = 0
+  for (let i = 1; i < a.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (a[j] > a[i] && len[j] + 1 > len[i]) {
+        len[i] = len[j] + 1
+        prev[i] = j
+      }
+    }
+    if (len[i] > len[bestEnd]) bestEnd = i
+  }
+  const out = []
+  for (let i = bestEnd; i !== -1; i = prev[i]) out.push(i)
+  return out.reverse()
 }
 
 // One floor's shapes, at the opacity of whichever layer is asking.

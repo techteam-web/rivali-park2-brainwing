@@ -55,7 +55,7 @@ export const TOWER_ELEVATIONS = {
   },
   sunburst: {
     src: '/towers/sunburst/Sunburst-Illustration.svg',
-    // floorsSrc: pending — overlay not supplied yet.
+    floorsSrc: '/towers/sunburst/Sunburst-Floors.svg',
     accent: '#B08D66',
     content: { x: 394, y: 67, w: 3124, h: 2582 },
     focus: { x: 970, y: 0, w: 1897, h: 2712 },
