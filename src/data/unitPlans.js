@@ -17,7 +17,7 @@ export const TOWER_TABS = [
   { id: 'skyleap', label: 'Skyleap', plan: '/unit/skyleap/floorplan.png', footprints: '/unit/skyleap/units.svg', bg: '#557E92', tint: '#F6F9FA' },
   { id: 'moonrise', label: 'Moonrise', plan: '/unit/moonrise/floorplan.png', footprints: '/unit/moonrise/units.svg', bg: '#839033', tint: '#F8FAF1' },
   { id: 'stargaze', label: 'Stargaze', plan: '/unit/stargaze/floorplan.png', footprints: null, bg: '#9C6A7B', tint: '#FCF8F7' },
-  { id: 'sunburst', label: 'Sunburst', plan: null, footprints: null, bg: '#9C6A7B', tint: '#FCF8F7' },
+  { id: 'sunburst', label: 'Sunburst', plan: '/unit/sunburst/floorplan.png', footprints: null, bg: '#AF8D66', tint: '#FBF8F3' },
 ]
 
 // The floor-plan sheets are all 3509x2480 (ratio 1.4149); the footprint
@@ -69,11 +69,28 @@ export const MOONRISE_UNITS = [
   { n: 8, bhk: 3, carpet: 1110, balcony: 45, image: '/unit/moonrise/unit-8.png', left: 76, top: 67 },
 ]
 
+// Sunburst: two 3 BHK corner units (1 and 8) with six 2 BHK between them.
+// carpet/balcony are read straight off the supplied plan sheets; every unit
+// has the same 38 sq.ft balcony. No footprint overlay has been supplied yet,
+// so its floor plan renders without clickable units — `left`/`top` are omitted
+// rather than guessed.
+export const SUNBURST_UNITS = [
+  { n: 1, bhk: 3, carpet: 889, balcony: 38, image: '/unit/sunburst/unit-1.png' },
+  { n: 2, bhk: 2, carpet: 641, balcony: 38, image: '/unit/sunburst/unit-2.png' },
+  { n: 3, bhk: 2, carpet: 641, balcony: 38, image: '/unit/sunburst/unit-3.png' },
+  { n: 4, bhk: 2, carpet: 641, balcony: 38, image: '/unit/sunburst/unit-4.png' },
+  { n: 5, bhk: 2, carpet: 716, balcony: 38, image: '/unit/sunburst/unit-5.png' },
+  { n: 6, bhk: 2, carpet: 722, balcony: 38, image: '/unit/sunburst/unit-6.png' },
+  { n: 7, bhk: 2, carpet: 722, balcony: 38, image: '/unit/sunburst/unit-7.png' },
+  { n: 8, bhk: 3, carpet: 905, balcony: 38, image: '/unit/sunburst/unit-8.png' },
+]
+
 // Tower id → its unit list. Towers without assets are simply absent.
 export const TOWER_UNITS = {
   skyleap: SKYLEAP_UNITS,
   moonrise: MOONRISE_UNITS,
   stargaze: STARGAZE_UNITS,
+  sunburst: SUNBURST_UNITS,
 }
 
 // Combined viewBox bounding all six Stargaze footprint shapes (shared
