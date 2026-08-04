@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { towers } from '../data/towers'
+import { MOTION_SCALE } from '../lib/gsap'
 
-const MIN_DISPLAY_MS = 1600
+// Wall-clock floor paced against a GSAP intro — see the note in useLoaderReady.
+const MIN_DISPLAY_MS = Math.round(1600 / MOTION_SCALE)
 
 export default function useTowersAssetsReady() {
   const [ready, setReady] = useState(false)

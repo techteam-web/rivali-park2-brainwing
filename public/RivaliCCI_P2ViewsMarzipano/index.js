@@ -109,7 +109,7 @@
 
   // Set up autorotate, if enabled.
   var autorotate = Marzipano.autorotate({
-    yawSpeed: 0.03,
+    yawSpeed: 0.09,   // radians/sec — ~70s per full revolution (was 0.03 = ~209s)
     targetPitch: 0,
     targetFov: Math.PI/2
   });

@@ -7,13 +7,13 @@ import InlineSVG from '../about/InlineSVG'
 // live in /home/svgs and inherit the tab's text colour via the
 // [data-home-navbar] currentColor rules in index.css.
 const items = [
-  { id: 'about',        label: 'About Us',     icon: '/home/svgs/about.svg',        to: '/about' },
-  { id: 'location',     label: 'Location',     icon: '/home/svgs/map.svg',           to: '/locations' },
-  { id: 'video',        label: 'AV',           icon: '/home/svgs/video.svg',         to: '/video' },
-  { id: 'amenities',    label: 'Amenities',    icon: '/home/svgs/aminities.svg',     to: '/gallery' },
-  { id: 'towers',       label: 'Towers',       icon: '/home/svgs/towers.svg',        to: '/towers' },
-  { id: 'construction', label: 'Construction', icon: '/home/svgs/construction.svg',  to: '/construction' },
-  { id: 'views',        label: 'Views',        icon: '/home/svgs/360.svg',           to: '/360' },
+  { id: 'about',        label: 'About Us',            icon: '/home/svgs/about.svg',         to: '/about' },
+  { id: 'location',     label: 'Location',            icon: '/home/svgs/map.svg',           to: '/locations' },
+  { id: 'video',        label: 'AV',                  icon: '/home/svgs/video.svg',         to: '/video' },
+  { id: 'amenities',    label: 'Amenities',           icon: '/home/svgs/aminities.svg',     to: '/gallery' },
+  { id: 'towers',       label: 'Towers',              icon: '/home/svgs/towers.svg',        to: '/towers' },
+  { id: 'construction', label: 'Construction Update', icon: '/home/svgs/construction.svg',  to: '/construction' },
+  { id: 'views',        label: '360 Degree',          icon: '/home/svgs/360.svg',           to: '/360' },
 ]
 
 // Icon box (24px at 2xl) — the SVG fills it and preserveAspectRatio centres it.

@@ -19,7 +19,7 @@ const masters = [
   },
   {
     name: 'Landscape Architects 49',
-    role: 'Landscaping',
+    role: 'Landscape',
     image: '/about/master-predapond.webp',
     className: "object-[50%_0%] origin-top -translate-y-[5%] scale-135",
     // Full-body source — zoom in from the top so the modal column frames the
@@ -32,7 +32,7 @@ const masters = [
   },
   {
     name: 'August Design Consultant',
-    role: 'Amenities',
+    role: 'Amenities & Common Areas',
     image: '/about/master-augustdesign.webp',
     className: "object-[10%_0%] origin-top -translate-y-[3%] scale-135",
     // Landscape source with the subject left of centre (a painting fills the

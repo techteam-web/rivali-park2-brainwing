@@ -7,6 +7,7 @@ import PlanLightbox from '../components/unitplan/PlanLightbox'
 import Panorama from '../components/unitplan/Panorama'
 import { PanoramaSyncProvider } from '../components/unitplan/PanoramaSyncProvider'
 import CourtyardView from '../components/unitplan/CourtyardView'
+import UnitKeyPlan from '../components/unitplan/UnitKeyPlan'
 import {
   TOWER_TABS,
   POSSESSION_SHORT,
@@ -30,6 +31,21 @@ import { usePageTransition } from '../hooks/usePageTransition'
 
 const MAX_COLUMNS = 3
 const DEFAULT_TOWER = 'skyleap'
+
+// Key-plan inset, as percentages of the plan-sheet box (so it scales with the
+// card — 2 vs 3 columns, and every artboard scale — with no breakpoint ramps).
+//
+// Placement is measured, not eyeballed: every unit sheet of every tower (30 in
+// all) was scanned for pixels differing from the sheet's flat background colour,
+// and the per-tower results unioned, so this box is clear on ALL of them, not
+// just the one on screen. What that scan found in the bottom-left corner:
+//   - the drawings reach their lowest-left extent at ~85% of the sheet height
+//   - the printed compass occupies ~3.5-10% width, ~87.8-97% height
+// The largest artwork-aspect box that clears both, sitting on the compass with a
+// 2.5% gap, is 14.9% wide; 14% is used to keep ~1% of slack for the anti-aliased
+// edges the scan's colour tolerance can miss. `bottom` is what puts it directly
+// above the compass rather than beside it.
+const KEY_PLAN = { left: 1.5, bottom: 14.7, width: 14 }
 
 const reduceMotion = () =>
   typeof window !== 'undefined' &&
@@ -359,6 +375,19 @@ const UnitPlanCompare = () => {
                         alt={`${towerLabel(col.tower)} unit ${unit.n} floor plan`}
                         className="absolute inset-0 h-full w-full object-contain"
                       />
+                      {/* Key plan: where this unit sits on the floor plate,
+                          tucked into the sheet's empty bottom-left corner just
+                          above its printed compass (see KEY_PLAN). */}
+                      <div
+                        className="pointer-events-none absolute"
+                        style={{
+                          left: `${KEY_PLAN.left}%`,
+                          bottom: `${KEY_PLAN.bottom}%`,
+                          width: `${KEY_PLAN.width}%`,
+                        }}
+                      >
+                        <UnitKeyPlan tower={col.tower} unitN={unit.n} />
+                      </div>
                       <button
                         type="button"
                         aria-label="View plan fullscreen"

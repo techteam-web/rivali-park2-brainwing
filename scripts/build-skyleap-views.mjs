@@ -37,6 +37,8 @@ const WEBP_QUALITY = 85 // high quality, re-encoded from the original source
 
 // "<n> Floor-<v>" or "<n> Floor_<v>" — the export uses both separators.
 const NAME_RE = /_(\d+)\s*Floor[-_](\d)\.(?:png|jpe?g)$/i
+// Same, but with the view suffix missing entirely.
+const UNNUMBERED_RE = /_(\d+)\s*Floor\.(?:png|jpe?g)$/i
 
 const main = async () => {
   const src = process.argv[2] || DEFAULT_SRC
@@ -49,13 +51,24 @@ const main = async () => {
   mkdirSync(OUT_DIR, { recursive: true })
 
   const byFloor = new Map()
+  const orphans = new Map()
   const skipped = []
 
   for (const file of readdirSync(src).sort()) {
     if (!/\.(png|jpe?g)$/i.test(file)) continue
     const m = NAME_RE.exec(file)
     if (!m) {
-      skipped.push([file, 'not "<floor> Floor-<view>"'])
+      // Some exports drop the view suffix ("DJI_0284_47 Floor.png"). Hold it
+      // aside — if its floor turns out to be missing exactly one view, it can
+      // only be that one (see the reconciliation pass below).
+      const f = UNNUMBERED_RE.exec(file)
+      if (f) {
+        const floor = Number(f[1])
+        if (!orphans.has(floor)) orphans.set(floor, [])
+        orphans.get(floor).push(file)
+      } else {
+        skipped.push([file, 'not "<floor> Floor-<view>"'])
+      }
       continue
     }
     const floor = Number(m[1])
@@ -76,6 +89,35 @@ const main = async () => {
     if (!byFloor.has(floor)) byFloor.set(floor, new Set())
     byFloor.get(floor).add(view)
     console.log(`  ${floor}-${view}  <-  ${file}`)
+  }
+
+  // Reconcile the suffix-less files. A floor is only ever shot four ways, so if
+  // exactly one view is absent and exactly one unnumbered file sits on that
+  // floor, there is only one slot it can fill. Anything more ambiguous than
+  // that is left for a human. (The one real case — floor 47's missing view 2 —
+  // was also confirmed by image comparison: it matched its neighbours' view 2
+  // roughly five times more closely than any other view.)
+  for (const [floor, files] of orphans) {
+    const have = byFloor.get(floor) ?? new Set()
+    const missing = [1, 2, 3, 4].filter((v) => !have.has(v))
+    if (files.length === 1 && missing.length === 1) {
+      const view = missing[0]
+      await sharp(join(src, files[0]))
+        .flatten({ background: '#000000' })
+        .resize({ height: TARGET_H, withoutEnlargement: true, kernel: 'lanczos3' })
+        .webp({ quality: WEBP_QUALITY })
+        .toFile(join(OUT_DIR, `${floor}-${view}.webp`))
+      if (!byFloor.has(floor)) byFloor.set(floor, new Set())
+      byFloor.get(floor).add(view)
+      console.log(`  ${floor}-${view}  <-  ${files[0]}  (no view suffix; it is the only one missing)`)
+    } else {
+      files.forEach((f) =>
+        skipped.push([
+          f,
+          `no view suffix, and floor ${floor} is missing ${missing.length} views — can't place it`,
+        ]),
+      )
+    }
   }
 
   const floors = [...byFloor.keys()].sort((a, b) => a - b)

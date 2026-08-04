@@ -16,6 +16,19 @@ CustomEase.create(
 
 gsap.defaults({ ease: 'power3.out' })
 
+// Global motion pacing. 0.7 = every GSAP tween/timeline in the app plays at 70%
+// speed (30% slower, so durations run ~1.43x longer) — one knob instead of
+// re-timing every page, and it keeps each choreography's internal offsets and
+// staggers in proportion. `gsap` is a module singleton, so setting it here also
+// covers the towers/loaders code that imports from src/gsap/Gsapconfig.js.
+//
+// Anything paced by a real-time timer rather than by GSAP has to be divided by
+// this to stay in step — see MIN_DISPLAY_MS in useLoaderReady/useTowersAssetsReady,
+// which would otherwise lift the loaders mid-draw.
+export const MOTION_SCALE = 0.7
+
+gsap.globalTimeline.timeScale(MOTION_SCALE)
+
 export { gsap, ScrollTrigger, SplitText, DrawSVGPlugin, CustomEase }
 
 export const fontsReady = () => {
