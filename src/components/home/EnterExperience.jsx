@@ -129,7 +129,7 @@ const EnterExperience = ({ isVideoReady, visitorName, onEnter, onExit }) => {
       >
         <img
           ref={logoRef}
-          src="/about/cci-logo.webp"
+          src="/about/cci-logo-black.webp"
           alt="CCI Projects"
           className={`${logoScale} h-auto select-none mb-8 lg:mb-10 xl:mb-11 2xl:mb-12 3xl:mb-16 4xl:mb-20 5xl:mb-28 [@media(max-height:560px)]:mb-5`}
           draggable={false}
