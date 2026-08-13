@@ -56,6 +56,9 @@ const AboutUs = () => {
   ]
   const totalSlides = sections.length
 
+  // The deck runs Hero → Journey → Designed By Masters → Visionaries and then
+  // ENDS: scrolling on past the Visionaries returns to the homepage rather than
+  // wrapping around to the Hero again (client feedback, 08 Aug).
   const { attachTriggers } = useSlideTransition({
     totalSlides,
     slideRefs,
@@ -63,7 +66,8 @@ const AboutUs = () => {
     headerRef,
     onSwap: setCurrentSlide,
     initialIndex: 0,
-    wrap: true,
+    wrap: false,
+    onPastEnd: () => exitTo('/'),
   })
 
   useEffect(() => attachTriggers(containerRef), [attachTriggers])

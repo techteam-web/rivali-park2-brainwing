@@ -33,6 +33,9 @@ export const locationBlurbs = {
   'healthcare-apex': 'Trusted medical care, reassuringly close when it matters most.',
   'healthcare-surbhi': 'Dependable healthcare on hand, right around the corner.',
   'healthcare-seven-star': 'Quality care within easy reach, for peace of mind any hour.',
+  // Ready for the Damania row (see locationsData.js) once its map position,
+  // camera framing and photo land.
+  'healthcare-damania': 'A new multi-speciality hospital on the way, minutes from your door.',
 
   // Schools
   'schools-singapore-international': 'A globally minded international school shaping curious young leaders.',

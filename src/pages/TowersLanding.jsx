@@ -17,7 +17,11 @@ const BG_H = 995
 // skyleap/moonrise centre horizontally on their point via -translate-x-1/2
 // (which composes with the hover scale). Keyed by id.
 const PILL_POS = {
-  skyleap: 'top-[6%] left-[41.5%] -translate-x-1/2',
+  // Skyleap moved right off its old 41.5% per the client's markup (08 Aug), so
+  // the pill sits centred on the tower's own roof rather than at its left edge.
+  // This value is the pill's CENTRE as a % of the viewport width — nudge it
+  // here if it needs to travel further either way.
+  skyleap: 'top-[6%] left-[65%] -translate-x-1/2',
   sunburst: 'top-[33%] right-[6%]',
   moonrise: 'bottom-[7%] left-[60.5%] -translate-x-1/2',
   stargaze: 'bottom-[7%] right-[6%]',

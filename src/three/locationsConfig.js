@@ -27,7 +27,14 @@ export const locationsConfig = {
   // horizontal drag-scrub, and gets a small self-centering vertical parallax on mouse move. The
   // ring is centered on mainBuilding.position below. All values are tunable from here.
   idleOrbit: {
-    radius: 3000,            // fixed distance from the building (TUNE for world scale)
+    radius: 2550,            // fixed distance from the building (TUNE for world scale)
+    // Where the orbit STARTS on first load, in degrees around the building
+    // (0 = camera due +X of it, 90 = due +Z, counter-clockwise looking down).
+    // null = derive it from `camera.position` above, which is the old
+    // behaviour and works out to ~181deg (camera due west, looking east).
+    // This is the one number to change to re-frame the opening shot; it only
+    // affects the first load, never a return to idle after a deselect.
+    startAzimuthDeg: null,
     polarAngle: 1.15,        // fixed vertical angle in radians (~66deg); the ring's height (TUNE)
     autoRotateSpeed: 0.05,   // radians/sec, slow calm orbit
     dragSensitivity: 0.005,  // radians per pixel of horizontal drag
@@ -139,16 +146,20 @@ export const locationsConfig = {
     markerYOffset: 12, // world units the destination pin floats above the end point
     markerWidthPx: 42, // on-screen pin width, constant screen size
   },
-  // Always-on comet pulses that run continuously along two roads on the map
-  // (see src/three/RoadPulses.jsx). Each road is one centerline; a bright HDR comet
-  // (sharp head, fading tail) loops along it in BOTH directions, so the two pulses
-  // pass through each other. HDR-bright (intensity > 1) so they cross the bloom
-  // threshold above and glow into the air. They DIM while a location is selected so
-  // the route line reads clearly. Centerline data lives in
+  // Highlight for the two traced roads on the map — the Western Express Highway
+  // and the metro line (see src/three/RoadPulses.jsx). Each road is one
+  // centerline lit in its own colour, HDR-bright (intensity > 1) so it crosses
+  // the bloom threshold above and glows into the air. They DIM while a location
+  // is selected so the route line reads clearly. Centerline data lives in
   // src/components/locations/roadPaths.js.
   roadPulses: {
-    weh: { color: '#ffb454', intensity: 3.2 }, // warm amber (HDR > 1 so it blooms)
-    metro: { color: '#4fd0ff', intensity: 3.2 }, // cool cyan
+    // STATIC highlight (client feedback, 08 Aug): the whole road/rail lights
+    // evenly and holds. Set false to go back to the travelling comet pulses
+    // (bright head + fading tail looping in both directions) — `tailLength`
+    // and `speed` below only apply in that mode.
+    static: true,
+    weh: { color: '#ffb454', intensity: 2.0 }, // warm amber (HDR > 1 so it blooms)
+    metro: { color: '#4fd0ff', intensity: 2.0 }, // cool cyan
     tubeRadius: 7, // world units; tuned for the aerial camera
     radialSegments: 8,
     yOffset: 5, // lift above the road to avoid z-fight

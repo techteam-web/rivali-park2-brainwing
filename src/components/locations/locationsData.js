@@ -31,9 +31,15 @@ export const locationsData = {
   leisure: {
     markerStyle: { shape: 'dot', color: '#ec4899' },
     locations: [
-      { id: 'leisure-oberoi-sky-city', name: 'Oberoi Sky City', position: null },
+      // Same destination as before, renamed per client feedback (08 Aug):
+      // the mall is listed as "Sky City Mall", not by its developer's name.
+      // The id is left alone so its route, camera framing, distance and times
+      // all keep resolving.
+      { id: 'leisure-oberoi-sky-city', name: 'Sky City Mall', position: null },
       { id: 'leisure-raghuleela-mall', name: 'Raghuleela Mall', position: null },
-      { id: 'leisure-growels-mall', name: "Growel's Mall", position: null },
+      // Growel's Mall removed (08 Aug) — it no longer exists. Its route,
+      // camera and card data are left in place in the sibling files so it can
+      // be restored by putting this row back if that turns out to be wrong.
       { id: 'leisure-thakur-mall', name: 'Thakur Mall', position: null },
       { id: 'leisure-carnival-cinema', name: 'Carnival Cinema', position: null },
       {
@@ -50,7 +56,7 @@ export const locationsData = {
     ],
     // Display-only sub-groups; every leisure location is in exactly one group.
     groups: [
-      { label: 'Malls', ids: ['leisure-oberoi-sky-city', 'leisure-raghuleela-mall', 'leisure-growels-mall', 'leisure-thakur-mall'] },
+      { label: 'Malls', ids: ['leisure-oberoi-sky-city', 'leisure-raghuleela-mall', 'leisure-thakur-mall'] },
       { label: 'Entertainment & Cinemas', ids: ['leisure-carnival-cinema', 'leisure-pvr', 'leisure-evershine-dream-park'] },
     ],
   },
@@ -60,6 +66,16 @@ export const locationsData = {
       { id: 'healthcare-apex', name: 'Apex Hospital', position: null },
       { id: 'healthcare-surbhi', name: 'Surbhi Hospital', position: null },
       { id: 'healthcare-seven-star', name: 'Seven Star Hospital', position: null },
+      // TODO(client feedback 08 Aug): add "Upcoming Damania Hospital". Kept
+      // commented until the three pieces a healthcare row needs are supplied,
+      // because a row with none of them selects to a blank card and no route:
+      //   1. its route path      -> locationsPaths.js (traced on the map with
+      //      the dev capture panel in LocationsView, same as every other row)
+      //   2. its camera framing  -> locationCameras.js (dev CameraLogger)
+      //   3. card content        -> photo in src/assets/locations/images/
+      //      ("Damania Hospital.webp") + distance + walk/bike/car/transit times
+      // Everything else (blurb) is already written below in locationBlurbs.js.
+      // { id: 'healthcare-damania', name: 'Upcoming Damania Hospital', position: null },
     ],
   },
   schools: {

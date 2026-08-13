@@ -6,12 +6,18 @@ import { useWellnessClubHovers } from '../hooks/useWellnessClubHovers'
 const BG_W = 896
 const BG_H = 892
 
+// Re-labelled against the client's marked-up render (13 Aug):
+//   the upper Salon icon was struck out and is gone
+//   Wellness bar -> Salon   (the salon sits on this level, not the one above)
+//   Dinning      -> Spa and Wellness Cafe
+//   Spa          -> nudged left, per "move it towards left" on the mark-up
+// Outdoor amphitheatre and Gymnasium & Fitness Studio were both ticked as
+// correct and are untouched.
 const cards = [
-  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.262, left: 0.675, slug: 'salon' },
   { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.302, left: 0.437 },
-  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.382, left: 0.306, slug: 'spa' },
-  { name: 'Wellness bar',                src: '/gallery/svgs/wellness club/sports bar.svg',                  top: 0.370, left: 0.683, slug: 'wellness-bar' },
-  { name: 'Dinning',                     src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47},
+  { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.382, left: 0.26, slug: 'spa' },
+  { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.370, left: 0.683, slug: 'salon' },
+  { name: 'Spa and Wellness Cafe',       src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47},
   { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.588, left: 0.669, slug: 'gymnasium' },
 ]
 

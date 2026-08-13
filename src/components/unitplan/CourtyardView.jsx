@@ -207,8 +207,11 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
               color: 'rgba(255,255,255,0.55)',
             }}
           >
+            {/* Sales-team wording (client feedback, 08 Aug): the honest read
+                of "this unit doesn't exist on that floor" is that the
+                apartment isn't available there, not that a view is missing. */}
             {floor != null && !floors.includes(floor)
-              ? `No view available for the ${ordinal(floor)} floor of this apartment`
+              ? 'Apartment not available'
               : 'Panoramic view coming soon'}
           </p>
         </div>

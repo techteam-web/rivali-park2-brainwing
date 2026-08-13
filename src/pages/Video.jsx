@@ -9,8 +9,12 @@ import LoaderSubheading from '../assets/construction/loader-subheading.svg?react
 // "Construction" tabs both render this with their own `videoId`). The video is
 // rendered full-width at 16:9 and vertically centred on a black stage, so any
 // extra page height reads as clean black bars. Click-to-play: the iframe only
-// mounts on click and starts muted (autoplay+mute), so the page opens silent
-// and the user can unmute via the native YouTube controls.
+// mounts on the play click, which IS the user gesture browsers require before
+// audio — so it starts UNMUTED (mute=0) and the AV plays with sound by default.
+//
+// `vq=hd1080` asks YouTube to start at 1080p. YouTube still adapts to the
+// viewer's bandwidth and can only ever serve a rendition the upload actually
+// has, so this is a request, not a guarantee.
 //
 // `showLoader` enables the hand-sketch loading overlay (used by /construction).
 const Video = ({ videoId = 'fYk0s5Ja9iM', showLoader = false }) => {
@@ -20,7 +24,7 @@ const Video = ({ videoId = 'fYk0s5Ja9iM', showLoader = false }) => {
   const ready = useLoaderReady()
   const [overlayGone, setOverlayGone] = useState(!showLoader)
 
-  const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`
+  const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`
 
   return (
     <div ref={pageRef} className="h-full w-full relative overflow-hidden bg-black">

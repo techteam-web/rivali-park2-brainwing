@@ -9,15 +9,30 @@ const BG_H = 745
 // `slug` (when present) wires the card to its detail slider page at
 // /gallery/social-club/:slug. Cards without a slug are non-navigable
 // until their detail page assets land.
+//
+// Re-labelled against the client's marked-up render (13 Aug). Their mark-up
+// names each room by POSITION, so several cards kept their coordinates and
+// changed identity rather than moving:
+//   Cafeteria           -> Card room
+//   Screening room      -> Billiards room  (and takes the billiards artwork)
+//   Social media studio -> Teens Lounge
+//   Teen lounge         -> Kids Club
+// Three icons on the right of the render were struck out and are gone:
+// the old Kids Club (0.57), Card room (0.69) and Billiard room (0.66).
+// Library & business centre was ticked as correct and is untouched.
+//
+// Screening room moves to the far left, where their mark-up places it. That
+// position is read off the mark-up and is the one value here worth a second
+// look on screen. Four more rooms they named — Recording Studio, Vista
+// Balcony and Social Lounge — have no icon artwork yet, so they are not
+// listed; see the pending list shared with the client.
 const cards = [
-  { name: 'Cafeteria',                 src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.360, left: 0.24 },
-  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.40, left: 0.36, slug: 'screening-room' },
-  { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.42, left: 0.57 },
-  { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.39, left: 0.69 },
-  { name: 'Social media studio',       src: '/gallery/svgs/social club/social media studio.svg',       top: 0.33, left: 0.824, slug: 'social-media-studio' },
+  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.346, left: 0.10, slug: 'screening-room' },
+  { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.360, left: 0.24 },
+  { name: 'Billiards room',            src: '/gallery/svgs/social club/billiard room.svg',             top: 0.40, left: 0.36, slug: 'billiards-room' },
   { name: 'Library & business centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22 },
-  { name: 'Billiard room',             src: '/gallery/svgs/social club/billiard room.svg',             top: 0.54, left: 0.66, slug: 'billiards-room' },
-  { name: 'Teen lounge',               src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.54, left: 0.85 },
+  { name: 'Teens Lounge',              src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.33, left: 0.824 },
+  { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.54, left: 0.85 },
 ]
 
 const decoratives = [

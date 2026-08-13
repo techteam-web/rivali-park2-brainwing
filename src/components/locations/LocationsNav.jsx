@@ -25,7 +25,20 @@ const MAX_H_FRACTION = 0.7
 //   - horizontal: centered on the tapped button, clamped into the viewport
 // navRef is attached to the SCALE LAYER so it contains BOTH the pill and the flyout,
 // keeping the parent's outside-click boundary correct.
-const LocationsNav = ({ activeCategory, onCategoryChange, onSelectLocation, selectedLocationId, navRef }) => {
+// `activeCategory` is which category is LIT (its routes are on the map);
+// `isFlyoutOpen` is whether that category's location list is currently shown.
+// They come apart after a location is picked: the category stays lit, the list
+// goes away. Tapping the lit button then re-opens the list rather than closing
+// the category.
+const LocationsNav = ({
+  activeCategory,
+  isFlyoutOpen,
+  onCategoryChange,
+  onReopenFlyout,
+  onSelectLocation,
+  selectedLocationId,
+  navRef,
+}) => {
   const barRef = useRef(null) // the pill; measured for height + resize
   const buttonRefs = useRef({}) // id -> button el, for horizontal anchoring
   const flyoutRef = useRef(null) // the flyout card; measured for width
@@ -35,7 +48,7 @@ const LocationsNav = ({ activeCategory, onCategoryChange, onSelectLocation, sele
   useLayoutEffect(() => {
     // No panel open -> nothing to position (the flyout is unmounted). pos keeps its
     // last value; on reopen the effect recomputes pre-paint before anything shows.
-    if (!activeCategory) return
+    if (!activeCategory || !isFlyoutOpen) return
     const bar = barRef.current
     const btn = buttonRefs.current[activeCategory]
     const flyout = flyoutRef.current
@@ -84,7 +97,7 @@ const LocationsNav = ({ activeCategory, onCategoryChange, onSelectLocation, sele
       ro.disconnect()
       window.removeEventListener('resize', compute)
     }
-  }, [activeCategory, navRef, scale])
+  }, [activeCategory, isFlyoutOpen, navRef, scale])
 
   return (
     <div
@@ -113,7 +126,12 @@ const LocationsNav = ({ activeCategory, onCategoryChange, onSelectLocation, sele
                   buttonRefs.current[id] = el
                 }}
                 aria-pressed={isActive}
-                onClick={() => onCategoryChange(isActive ? null : id)}
+                onClick={() => {
+                  // Lit but its list is hidden (a location is selected) -> just
+                  // bring the list back. Otherwise toggle the category itself.
+                  if (isActive && !isFlyoutOpen) onReopenFlyout?.()
+                  else onCategoryChange(isActive ? null : id)
+                }}
                 className={`group flex items-center rounded-[2px] transition-colors gap-3 px-4 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-on-light-black/40 ${
                   isActive ? 'bg-[#7A4833] text-white' : 'text-on-light-grey hover:bg-[#7A4833] hover:text-white'
                 }`}
@@ -135,7 +153,7 @@ const LocationsNav = ({ activeCategory, onCategoryChange, onSelectLocation, sele
             key={activeCategory} remounts on switch so scroll resets and it re-measures.
             The max caps are viewport fractions expressed in LOCAL units (divided by
             scale), since the layer's transform would otherwise multiply them. */}
-        {activeCategory && (
+        {activeCategory && isFlyoutOpen && (
           <LocationsFlyout
             key={activeCategory}
             activeCategory={activeCategory}

@@ -50,7 +50,11 @@ export default function IdleOrbitController({ isIdle }) {
   const get = useThree((s) => s.get)
   const gl = useThree((s) => s.gl)
 
-  const { radius, polarAngle, autoRotateSpeed, dragSensitivity, transitionDuration, parallaxAmountX, parallaxAmountY, parallaxEase, settleSeconds } = idleOrbit
+  const { radius, polarAngle, autoRotateSpeed, dragSensitivity, transitionDuration, parallaxAmountX, parallaxAmountY, parallaxEase, settleSeconds, startAzimuthDeg } = idleOrbit
+  // First-load-only override for the opening orientation (see locationsConfig).
+  // After that every activation reads the azimuth off the live camera, so a
+  // deselect still slides back onto the ring where you left it.
+  const firstActivationRef = useRef(true)
   // Building center = orbit pivot. mainBuilding.position is authored in the recentered world space.
   const center = useMemo(() => new THREE.Vector3(...mainBuilding.position), [])
 
@@ -172,6 +176,16 @@ export default function IdleOrbitController({ isIdle }) {
       const dy = camera.position.y - center.y
       const dz = camera.position.z - center.z
       azimuthRef.current = Math.atan2(dz, dx)
+      // Opening shot only: swing to the authored start angle instead of the one
+      // implied by the default camera position. The ease-onto-ring below then
+      // runs at THAT azimuth, so the map settles straight into the framing the
+      // page is meant to open on.
+      if (firstActivationRef.current) {
+        firstActivationRef.current = false
+        if (typeof startAzimuthDeg === 'number') {
+          azimuthRef.current = (startAzimuthDeg * Math.PI) / 180
+        }
+      }
       startRadiusRef.current = Math.hypot(dx, dy, dz) || 1
       startPolarRef.current = Math.acos(THREE.MathUtils.clamp(dy / startRadiusRef.current, -1, 1))
       startTargetRef.current.copy(controls ? controls.target : center)

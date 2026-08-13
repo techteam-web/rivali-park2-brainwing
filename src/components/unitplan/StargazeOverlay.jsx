@@ -8,7 +8,50 @@
 // STARGAZE_OVERLAY_VB (in data/unitPlans) bounds the combined extent of every
 // shape (x≈113.5–701.8, y≈25.3–532.1) with a little padding; the parent uses it
 // to give the placement wrapper the right aspect ratio.
+import { useEffect, useRef } from 'react'
+import { gsap } from '../../lib/gsap'
 import { STARGAZE_OVERLAY_VB as VB } from '../../data/unitPlans'
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// Matches UnitFootprints so every tower's floor plan breathes identically.
+const PULSE_TO = 0.5
+const PULSE_SECONDS = 2.8
+const PULSE_OFFSET = 0.22
+
+// Start (or restart) one shape's breath. Kept as a plain function so the hover
+// handlers can rebuild a shape's tween without reaching back through refs.
+const startPulse = (el, delay = 0) =>
+  gsap.to(el, {
+    opacity: PULSE_TO,
+    duration: PULSE_SECONDS,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+    delay,
+  })
+
+// Hover steadies the shape under the cursor: its own tween is paused and it
+// comes up to full, so the one being pointed at holds still.
+//
+// The tween is found via gsap.getTweensOf(el) rather than an index into a refs
+// array. An earlier version looked it up positionally and silently paused
+// nothing, so the hovered unit kept drifting — asking the element which tweens
+// belong to it can't fall out of sync.
+const holdShape = (el) => {
+  gsap.getTweensOf(el).forEach((t) => t.pause())
+  gsap.to(el, { opacity: 1, duration: 0.25, ease: 'power2.out' })
+}
+
+const releaseShape = (el, delay = 0) => {
+  gsap.getTweensOf(el).forEach((t) => t.kill())
+  gsap.set(el, { opacity: 1 })
+  startPulse(el, delay)
+}
+
 
 const SHAPES = [
   {
@@ -54,20 +97,54 @@ const StargazeOverlay = ({ onSelect, highlightOnly = null }) => {
       ? SHAPES.filter((s) => s.n === highlightOnly)
       : SHAPES
 
+  const shapeEls = useRef([])
+  const pulses = useRef([])
+
+  // GSAP drives element opacity; the CSS classes below own fill-opacity and its
+  // hover step, so the two never contend. One tween per shape so hovering can
+  // steady a single unit without stopping the rest.
+  // Depends on `interactive`, not `onSelect` — see the note in UnitFootprints:
+  // the parent hands over a new arrow on every mousemove, which would rebuild
+  // every tween mid-hover.
+  const interactive = Boolean(onSelect)
+  useEffect(() => {
+    pulses.current.forEach((t) => t?.kill())
+    pulses.current = []
+    if (!interactive || prefersReducedMotion()) return
+    shapeEls.current.forEach((el, i) => {
+      if (el) pulses.current[i] = startPulse(el, i * PULSE_OFFSET)
+    })
+    return () => {
+      pulses.current.forEach((t) => t?.kill())
+      pulses.current = []
+    }
+  }, [interactive, shapes.length])
+
   return (
     <svg
       viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
       className="h-full w-full overflow-visible"
       preserveAspectRatio="xMidYMid meet"
     >
-      {shapes.map((s) => {
+      {shapes.map((s, i) => {
         const Tag = s.type
         const shapeProps = s.type === 'polygon' ? { points: s.d } : { d: s.d }
         return (
           <Tag
             key={s.n}
+            ref={(el) => {
+              shapeEls.current[i] = el
+            }}
             {...shapeProps}
             onClick={onSelect ? () => onSelect(s.n) : undefined}
+            role={onSelect ? 'button' : undefined}
+            aria-label={onSelect ? `Unit ${s.n}` : undefined}
+            onMouseEnter={
+              onSelect ? (e) => holdShape(e.currentTarget) : undefined
+            }
+            onMouseLeave={
+              onSelect ? (e) => releaseShape(e.currentTarget) : undefined
+            }
             className={
               onSelect
                 ? 'cursor-pointer fill-[#a4687b] stroke-on-light-black stroke-[0.6] transition-[fill-opacity] [fill-opacity:0.3] hover:[fill-opacity:0.55]'

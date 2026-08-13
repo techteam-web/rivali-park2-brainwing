@@ -38,6 +38,9 @@ export function useSlideTransition({
   onSwap,
   initialIndex = 0,
   wrap = true,
+  // Scrolling past the LAST slide with wrap off. About Us uses this to leave
+  // the page entirely (back to Home) instead of dead-ending on the final slide.
+  onPastEnd,
 }) {
   const currentIndexRef = useRef(initialIndex)
   const isTransitioningRef = useRef(false)
@@ -218,13 +221,21 @@ export function useSlideTransition({
         if (toIdx < 0) toIdx = totalSlides - 1
         if (toIdx >= totalSlides) toIdx = 0
       } else {
+        // Past the end with a handler attached: hand off (e.g. exit to Home)
+        // and lock further input so a second scroll can't fire it twice while
+        // the page transition plays.
+        if (toIdx >= totalSlides && onPastEnd) {
+          isTransitioningRef.current = true
+          onPastEnd()
+          return
+        }
         if (toIdx < 0 || toIdx >= totalSlides) return
       }
       const fromIdx = currentIndexRef.current
       if (toIdx === fromIdx) return
       runTransition(fromIdx, toIdx)
     },
-    [runTransition, totalSlides, wrap],
+    [runTransition, totalSlides, wrap, onPastEnd],
   )
 
   const goToNext = useCallback(() => goTo(currentIndexRef.current + 1), [goTo])

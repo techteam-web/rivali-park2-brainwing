@@ -427,15 +427,23 @@ const setupTeenLounge = (svgEl) => {
   return bind(svgEl, crosshair, { enter, leave })
 }
 
+// Keyed by the card's lowercased name. Each setup is written against a
+// specific icon's path structure, so a card that changes name but keeps its
+// artwork keeps the matching setup — e.g. the room now labelled "Billiards
+// room" carries the billiards icon, so it maps to setupBilliard.
+// Entries for rooms no longer on the render are kept: they cost nothing and
+// save re-deriving the animation if the room comes back.
 const setups = {
   cafeteria: setupCafeteria,
   'library & business centre': setupLibrary,
   'screening room': setupScreeningRoom,
   'kids club': setupKidsClub,
   'billiard room': setupBilliard,
+  'billiards room': setupBilliard,
   'card room': setupCardRoom,
   'social media studio': setupSocialMediaStudio,
   'teen lounge': setupTeenLounge,
+  'teens lounge': setupTeenLounge,
 }
 
 export function useSocialClubHovers(scopeRef) {

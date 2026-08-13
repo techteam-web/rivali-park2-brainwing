@@ -346,8 +346,10 @@ const UnitPlanCompare = () => {
                               color: 'rgba(255,255,255,0.55)',
                             }}
                           >
+                            {/* Same wording as the fullscreen view — see
+                                CourtyardView.jsx (client feedback, 08 Aug). */}
                             {floor != null && !floors.includes(floor)
-                              ? `No view available on the ${ordinal(floor)} floor`
+                              ? 'Apartment not available'
                               : 'Panoramic view coming soon'}
                           </p>
                         </div>

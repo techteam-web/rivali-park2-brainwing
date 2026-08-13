@@ -50,11 +50,26 @@ const Home = () => {
 
   const handleEnter = () => {
     sessionStorage.setItem(SESSION_KEY, '1')
-    // Synchronous play() inside the click preserves the user gesture
-    // required for audio playback — do not defer with setTimeout.
-    videoRef.current
-      ?.play()
-      .catch((err) => console.warn('video play rejected', err))
+    const video = videoRef.current
+    if (!video) return
+    // The intro plays WITH SOUND by default. Synchronous play() inside the
+    // click preserves the user gesture browsers require for audio — do not
+    // defer with setTimeout.
+    video.muted = false
+    video.volume = 1
+    video.play().catch(() => {
+      // Some kiosk/embedded browsers still refuse unmuted playback on a first
+      // gesture. Rather than opening silent-and-stuck, fall back to muted
+      // playback and unmute on the very next interaction.
+      video.muted = true
+      video.play().catch((err) => console.warn('video play rejected', err))
+      const unmute = () => {
+        video.muted = false
+        video.volume = 1
+      }
+      window.addEventListener('pointerdown', unmute, { once: true })
+      window.addEventListener('keydown', unmute, { once: true })
+    })
   }
 
   const handleVideoEnded = () => {

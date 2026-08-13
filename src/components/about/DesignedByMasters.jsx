@@ -146,12 +146,16 @@ const MODAL_LAYER_BLEED = { mid: 16, outer: 34 }
 // Fraction of the viewport WIDTH the card should occupy (Figma design ≈ 0.625).
 // Lower = smaller card. Stepped down on very large screens (3xl+) so the card
 // doesn't feel oversized there.
+//
+// Sized up on client feedback (08 Aug): the consultant pop-up should read as
+// the whole screen's subject and cover the "Designed By Masters" page behind
+// it, not float as a small card on top of it.
 const cardWidthFraction = (vw) => {
-  if (vw >= 1920) return 0.4 // 3xl and up
-  return 0.46
+  if (vw >= 1920) return 0.6 // 3xl and up
+  return 0.68
 }
 // Max fraction of the viewport HEIGHT, as a safety clamp on short screens.
-const CARD_MAX_HEIGHT_FRACTION = 0.9
+const CARD_MAX_HEIGHT_FRACTION = 0.94
 // ─────────────────────────────────────────────────────────────────────────
 
 const MasterModal = ({ master, index, onClose }) => {

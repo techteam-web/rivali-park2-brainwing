@@ -42,6 +42,7 @@ const idToFile = {
   'healthcare-apex': 'Apex Hospital.webp',
   'healthcare-surbhi': 'Surbhi Hospital.webp',
   'healthcare-seven-star': 'Seven Star Hospital.webp', // no file yet; resolves when added
+  'healthcare-damania': 'Damania Hospital.webp', // no file yet; resolves when added
   'schools-singapore-international': 'Singapore International School.webp',
   'schools-jbcn-international': 'JBCN International School.webp',
   'schools-chatrabhuj-narsee': 'Chatrabhuj Narsee School.webp',

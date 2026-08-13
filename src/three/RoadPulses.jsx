@@ -5,17 +5,22 @@ import { gsap } from '../gsap/Gsapconfig'
 import { roadPaths } from '../components/locations/roadPaths'
 import { locationsConfig } from './locationsConfig'
 
-// Always-on comet pulses for two roads on the /locations map (WEH amber, metro cyan).
+// Always-on highlight for two roads on the /locations map (WEH amber, metro cyan).
 // Each road is one centripetal Catmull-Rom curve through its traced centerline
 // (roadPaths.js), baked into a TubeGeometry that sits just above the road. A small
-// unlit ShaderMaterial lights a bright HDR comet (sharp head, fading tail) that loops
-// along the tube in BOTH directions at once (uHeadA forward, uHeadB reverse), so the
-// two pulses pass through each other. The HDR color (intensity > 1) crosses the bloom
-// threshold in LocationsCanvas and glows into the air. When a location is selected the
-// comets DIM (uDim) so the route line reads clearly. Mounted at Canvas root (sibling of
-// RivaliMap) so the world-space centerline points are not shifted by RivaliMap's
-// recenter. Mirrors RouteCurve.jsx's curve/tube/material lifecycle conventions.
+// unlit ShaderMaterial lights it, in one of two modes (locationsConfig.roadPulses.static):
+//   STATIC (current, per client feedback) — the whole tube is lit evenly and holds
+//     still, so the highlight reads as a map key rather than as traffic.
+//   COMET  — a bright HDR comet (sharp head, fading tail) loops along the tube in BOTH
+//     directions at once (uHeadA forward, uHeadB reverse), so the two pulses pass
+//     through each other.
+// The HDR color (intensity > 1) crosses the bloom threshold in LocationsCanvas and glows
+// into the air. When a location is selected the roads DIM (uDim) so the route line reads
+// clearly. Mounted at Canvas root (sibling of RivaliMap) so the world-space centerline
+// points are not shifted by RivaliMap's recenter. Mirrors RouteCurve.jsx's curve/tube/
+// material lifecycle conventions.
 const rp = locationsConfig.roadPulses
+const IS_STATIC = rp.static === true
 
 const vertexShader = /* glsl */ `
   varying float vT;                       // along-curve 0..1 = TubeGeometry uv.x
@@ -33,6 +38,7 @@ const fragmentShader = /* glsl */ `
   uniform float uDim;                     // multiplier tweened down while selected
   uniform float uHeadA;                   // 0..1 forward comet head
   uniform float uHeadB;                   // 0..1 reverse comet head
+  uniform float uStatic;                  // 1 = light the whole line evenly, 0 = comets
   varying float vT;
   void main() {
     // Comet A: bright at the head, fading along the tail BEHIND it (wrap-aware).
@@ -42,8 +48,11 @@ const fragmentShader = /* glsl */ `
     float dB = fract(vT - uHeadB);
     float cometB = smoothstep(uTailLength, 0.0, dB);
     float comet = max(cometA, cometB);    // two pulses passing through each other
-    vec3 col = uColor * uIntensity * comet;
-    gl_FragColor = vec4(col, comet * uOpacity * uDim);
+    // Static mode: every point along the tube is "at the head", so the road
+    // reads as one evenly-lit line with no travelling bright spot.
+    float lit = mix(comet, 1.0, uStatic);
+    vec3 col = uColor * uIntensity * lit;
+    gl_FragColor = vec4(col, lit * uOpacity * uDim);
   }
 `
 
@@ -57,6 +66,7 @@ function makePulseMaterial(roadCfg, headA, headB) {
       uDim: { value: 1 },
       uHeadA: { value: headA },
       uHeadB: { value: headB },
+      uStatic: { value: IS_STATIC ? 1 : 0 },
     },
     vertexShader,
     fragmentShader,
@@ -97,7 +107,9 @@ export default function RoadPulses({ selectedLocationId }) {
 
   // Advance both comets every frame. uHeadA runs forward, uHeadB the other way; wrap to
   // [0,1) so the float stays precise over a long session. Continuous, never restarts.
+  // No-op in static mode — the heads are unused there, so nothing needs advancing.
   useFrame((_, dt) => {
+    if (IS_STATIC) return
     const step = rp.speed * dt
     for (const m of [wehMat, metroMat]) {
       m.uniforms.uHeadA.value = (m.uniforms.uHeadA.value + step) % 1

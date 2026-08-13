@@ -26,6 +26,13 @@ const LocationsView = () => {
   // category changes (handleCategoryChange + the outside-click handler below).
   const [selectedLocationId, setSelectedLocationId] = useState(null)
 
+  // Is the category's location list (the drop-up) actually on screen? Tracked
+  // SEPARATELY from activeCategory: picking a location closes the list so it
+  // stops covering the map, while the category stays open so the chosen route,
+  // its card and the camera framing all hold (client feedback, 08 Aug). Tapping
+  // the lit category button again brings the list back.
+  const [isFlyoutOpen, setIsFlyoutOpen] = useState(false)
+
   // Phase flag for the sequenced deselect: selected -> exiting -> idle. While true, the routes
   // retract-out and the card fades out, the camera HOLDS at the category framing, and the idle rig
   // stays inert. activeCategory/selectedLocationId are kept ALIVE during this window (so the routes
@@ -66,11 +73,25 @@ const LocationsView = () => {
   const handleCategoryChange = (id) => {
     if (id == null) {
       setIsExiting(true) // Phase A; the null transition is deferred to handleExitComplete (Phase B).
+      setIsFlyoutOpen(false)
       return
     }
     setIsExiting(false)
     setActiveCategory(id)
     setSelectedLocationId(null)
+    setIsFlyoutOpen(true)
+  }
+
+  // Re-tapping the lit category button while its list is hidden just brings the
+  // list back — the current selection, route and camera are left alone, so this
+  // is never a way to lose your place.
+  const handleReopenFlyout = () => setIsFlyoutOpen(true)
+
+  // Picking a location keeps the category open and hides the list, so nothing
+  // sits over the establishment you just selected.
+  const handleSelectLocation = (location) => {
+    setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
+    setIsFlyoutOpen(false)
   }
 
   // Phase B: the route retract-out has finished (RouteLayer onAllExited). NOW drop the selection so
@@ -82,6 +103,7 @@ const LocationsView = () => {
     setActiveCategory(null)
     setSelectedLocationId(null)
     setIsExiting(false)
+    setIsFlyoutOpen(false)
   }, [])
 
   // Close the open panel on any pointer-down outside the nav bar. navRef attaches to
@@ -238,11 +260,11 @@ const LocationsView = () => {
         <LocationsNav
           navRef={navRef}
           activeCategory={isExiting ? null : activeCategory}
+          isFlyoutOpen={isFlyoutOpen && !isExiting}
           selectedLocationId={selectedLocationId}
           onCategoryChange={handleCategoryChange}
-          onSelectLocation={(location) =>
-            setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
-          }
+          onReopenFlyout={handleReopenFlyout}
+          onSelectLocation={handleSelectLocation}
         />
       </div>
 

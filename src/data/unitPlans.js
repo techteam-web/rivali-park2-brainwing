@@ -112,6 +112,14 @@ export const PLAN_H = 704
 // PLAN_W x PLAN_H box), hand-tuned in the editor until it lines up.
 export const STARGAZE_OVERLAY = { left: 48.8, top: 47, width: 53.7 }
 
+// NOTE (client feedback, 08 Aug): "Courtyard Facing / External Facing must line
+// up with the sheet's own tower title, logo and disclaimer, same across all
+// towers/plans". That can't be done reliably from this side — each exported
+// sheet has different margins (Stargaze's plate runs right to the top edge),
+// so any single position lands on the drawing for some towers. Parked until
+// re-exported sheets arrive with consistent clear space above the plan and
+// between the plan and the bottom disclaimer/logo row.
+
 export const fmtSqft = (n) => n.toLocaleString('en-US')
 
 // Label used in the unit dropdown and selectors, e.g. "Unit 6 - 2 BHK".
