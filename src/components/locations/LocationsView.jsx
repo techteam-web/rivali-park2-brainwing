@@ -88,11 +88,15 @@ const LocationsView = () => {
   const handleReopenFlyout = () => setIsFlyoutOpen(true)
 
   // Picking a location keeps the category open and hides the list, so nothing
-  // sits over the establishment you just selected.
-  const handleSelectLocation = (location) => {
-    setSelectedLocationId((prev) => (prev === location.id ? null : location.id))
+  // sits over the establishment you just selected. Taken by id so the map pins
+  // (LocationMarkers) and the list rows can share one path; stable identity so
+  // the memo on LocationsCanvas is not defeated by a new function every render.
+  const handleSelectLocationId = useCallback((id) => {
+    setSelectedLocationId((prev) => (prev === id ? null : id))
     setIsFlyoutOpen(false)
-  }
+  }, [])
+
+  const handleSelectLocation = (location) => handleSelectLocationId(location.id)
 
   // Phase B: the route retract-out has finished (RouteLayer onAllExited). NOW drop the selection so
   // the routes/card unmount and isIdle flips true, releasing the camera to IdleOrbitController, which
@@ -118,6 +122,9 @@ const LocationsView = () => {
   useEffect(() => {
     if (!activeCategory) return
     const onPointerDown = (e) => {
+      // A press on one of the map's location pins is a selection, not an outside
+      // click — it must switch the route, not close the whole category.
+      if (e.target.closest?.('[data-location-marker]')) return
       if (navRef.current && !navRef.current.contains(e.target)) {
         setIsExiting(true) // Phase A; the null transition is deferred to handleExitComplete.
       }
@@ -243,6 +250,7 @@ const LocationsView = () => {
           selectedLocationId={selectedLocationId}
           isExiting={isExiting}
           onExitComplete={handleExitComplete}
+          onSelectLocation={handleSelectLocationId}
           onReady={handleSceneReady}
         />
         </div>

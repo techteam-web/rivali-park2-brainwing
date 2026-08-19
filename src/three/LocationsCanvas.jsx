@@ -9,6 +9,7 @@ import RivaliMap from './RivaliMap'
 import BirdFlock from './BirdFlock'
 import MainBuildingRig from './MainBuildingRig'
 import RouteLayer from './RouteLayer'
+import LocationMarkers from './LocationMarkers'
 import CameraRig from './CameraRig'
 import IdleOrbitController from './IdleOrbitController'
 // [dev camera capture - commented out, restore together] Re-enable with its render below and the
@@ -29,7 +30,7 @@ const { fogColor, fogNear, fogFar, camera, controls, bloom } = locationsConfig
 // [dev camera capture - commented out, restore together] The captureMode prop below was threaded
 // from LocationsView down to CameraRig. Restore the signature as:
 // ({ activeCategory, selectedLocationId, captureMode, onReady })
-const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExitComplete, onReady }) => {
+const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExitComplete, onSelectLocation, onReady }) => {
   // Idle = nothing selected. Drives the IdleOrbitController on/off; CameraRig owns the camera
   // whenever this is false.
   const isIdle = activeCategory == null && selectedLocationId == null
@@ -99,6 +100,18 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExit
         selectedLocationId={selectedLocationId}
         exiting={isExiting}
         onAllExited={onExitComplete}
+      />
+    )}
+
+    {/* Standing pins for the rest of the open category, so a second destination can be
+        picked straight off the map instead of reopening the list. Only renders once a
+        location is selected -- before that every route carries its own pin. Sibling of
+        RouteLayer for the same world-space reason. */}
+    {activeCategory && !isExiting && (
+      <LocationMarkers
+        category={activeCategory}
+        selectedLocationId={selectedLocationId}
+        onSelect={onSelectLocation}
       />
     )}
 

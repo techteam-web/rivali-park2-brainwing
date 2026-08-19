@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from '../../lib/gsap'
 import Panorama from './Panorama'
+import CurvedPanorama from './CurvedPanorama'
 import { PanoramaSyncProvider } from './PanoramaSyncProvider'
 import { VIEW_SOURCES, ordinal } from '../../data/courtyardViews'
+
+// Apartments served by the curved-projection viewer instead of the flat pan.
+// Moonrise's 05 series only for now (405, 505, 605 ... 4205): its frames are the
+// widest in the project at 5.2:1-5.8:1, so a cover fit throws away about two
+// thirds of each one — which is exactly the crop the curved viewer buys back.
+// Everything else keeps <Panorama>. See CurvedPanorama.jsx.
+const CURVED_TOWER = 'moonrise'
+const CURVED_POSITION = 5
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
@@ -113,6 +122,8 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
     () => initialFloor ?? floors[0] ?? null,
   )
   const src = views && floor != null ? views.viewImage(floor, position) : null
+  const isCurved =
+    tower === CURVED_TOWER && Number(position) === CURVED_POSITION
   // Keep the current floor visible in the drop-up even if it isn't one of the
   // floors with a view, so the list never contradicts the button's label.
   const floorOptions =
@@ -187,16 +198,29 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
   const handleHome = useCallback(() => runExit(onHome), [runExit, onHome])
 
   return (
-    <div ref={rootRef} className="fixed inset-0 z-50 overflow-hidden bg-[#23211E]">
+    <div
+      ref={rootRef}
+      className={`fixed inset-0 z-50 overflow-hidden ${
+        isCurved ? 'bg-white' : 'bg-[#23211E]'
+      }`}
+    >
       {/* Panorama stage — stays mounted across floor changes so it can crossfade
           internally. Falls back to a flat dark fill when no view exists. Its
           own sync group of one — the compare page groups several together. */}
       {src ? (
-        <PanoramaSyncProvider>
-          <Panorama src={src} />
-        </PanoramaSyncProvider>
+        isCurved ? (
+          <CurvedPanorama src={src} />
+        ) : (
+          <PanoramaSyncProvider>
+            <Panorama src={src} />
+          </PanoramaSyncProvider>
+        )
       ) : (
-        <div className="absolute inset-0 grid place-items-center bg-[#23211E] px-12 text-center">
+        <div
+          className={`absolute inset-0 grid place-items-center px-12 text-center ${
+            isCurved ? 'bg-white' : 'bg-[#23211E]'
+          }`}
+        >
           <p
             className="uppercase"
             style={{
@@ -204,7 +228,7 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
               fontWeight: 500,
               fontSize: 16,
               letterSpacing: '0.12em',
-              color: 'rgba(255,255,255,0.55)',
+              color: isCurved ? 'rgba(49,49,49,0.55)' : 'rgba(255,255,255,0.55)',
             }}
           >
             {/* Sales-team wording (client feedback, 08 Aug): the honest read
