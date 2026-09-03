@@ -127,7 +127,11 @@ const CentralCourtyardHotspot = () => {
         drawSVG: '0% 100%',
         duration: 1.4,
         ease: 'power2.inOut',
-        stagger: { each: 0.02, from: 'random' },
+        // Cap the total stagger window. At a flat 0.02s per path a slide
+        // whose artwork reuses one drawing several times (the cafeteria
+        // has 282 paths across six vases) took ~10s to finish drawing.
+        // Small sets keep the original per-path feel.
+        stagger: { amount: Math.min(paths.length * 0.02, 1.2), from: 'random' },
         delay: 0.25,
       })
     })
@@ -344,6 +348,10 @@ const CentralCourtyardHotspot = () => {
                     top: `${d.top * 100}%`,
                     left: `${d.left * 100}%`,
                     width: `${d.width * 100}%`,
+                    // Mirrors a doodle the artwork reuses facing the other way.
+                    // Scaling about the centre leaves the bounding box — and so
+                    // top/left — exactly where it is.
+                    transform: d.flip ? 'scaleX(-1)' : undefined,
                   }}
                 />
               ))}

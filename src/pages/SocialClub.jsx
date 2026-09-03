@@ -23,16 +23,22 @@ const BG_H = 745
 //
 // Screening room moves to the far left, where their mark-up places it. That
 // position is read off the mark-up and is the one value here worth a second
-// look on screen. Four more rooms they named — Recording Studio, Vista
+// look on screen.
+//
+// Cafeteria is back as a room, but NOT at its old coordinates: the mark-up gave
+// that exact spot (0.360, 0.24) to Card room. It sits at one of the three
+// positions the mark-up freed up, and that coordinate is a placeholder — the
+// only value on this screen not taken from the client's own artwork. Four more rooms they named — Recording Studio, Vista
 // Balcony and Social Lounge — have no icon artwork yet, so they are not
 // listed; see the pending list shared with the client.
 const cards = [
   { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.346, left: 0.10, slug: 'screening-room' },
-  { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.360, left: 0.24 },
+  { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.360, left: 0.24, slug: 'card-room' },
   { name: 'Billiards room',            src: '/gallery/svgs/social club/billiard room.svg',             top: 0.40, left: 0.36, slug: 'billiards-room' },
-  { name: 'Library & business centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22 },
-  { name: 'Teens Lounge',              src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.33, left: 0.824 },
-  { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.54, left: 0.85 },
+  { name: 'Library & business centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22, slug: 'library-business-centre' },
+  { name: 'Teens Lounge',              src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.33, left: 0.824, slug: 'teens-lounge' },
+  { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.54, left: 0.85, slug: 'kids-club' },
+  { name: 'Cafeteria',                 src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.42, left: 0.57, slug: 'cafeteria' },
 ]
 
 const decoratives = [

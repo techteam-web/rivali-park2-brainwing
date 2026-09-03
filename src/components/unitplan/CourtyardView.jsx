@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { gsap } from '../../lib/gsap'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Panorama from './Panorama'
 import CurvedPanorama from './CurvedPanorama'
 import { PanoramaSyncProvider } from './PanoramaSyncProvider'
 import { VIEW_SOURCES, ordinal } from '../../data/courtyardViews'
+import PageNav from '../layout/PageNav'
+import { usePageTransition } from '../../hooks/usePageTransition'
 
 // Apartments served by the curved-projection viewer instead of the flat pan.
 // Moonrise's 05 series only for now (405, 505, 605 ... 4205): its frames are the
@@ -12,10 +13,6 @@ import { VIEW_SOURCES, ordinal } from '../../data/courtyardViews'
 // Everything else keeps <Panorama>. See CurvedPanorama.jsx.
 const CURVED_TOWER = 'moonrise'
 const CURVED_POSITION = 5
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 // Bottom-right floor selector. Opens UPWARD (a "drop-up") so the list never
 // runs off the bottom of the screen; the keyboard_arrow_up glyph flips to point
@@ -111,7 +108,6 @@ const FloorSelect = ({ value, floors, onChange }) => {
 // gallery / plan-lightbox transition feel).
 const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }) => {
   const rootRef = useRef(null)
-  const closingRef = useRef(false)
   const views = VIEW_SOURCES[tower] ?? null
   const floors = views && position ? views.floorsForPosition(position) : []
   // A floor picked back on the tower elevation wins even when THIS apartment
@@ -151,51 +147,22 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tower, position])
 
-  useLayoutEffect(() => {
-    const el = rootRef.current
-    if (!el || prefersReducedMotion()) return
-    gsap.set(el, { autoAlpha: 0, scale: 0.985, filter: 'blur(10px)' })
-  }, [])
+  // The overlay runs the app's standard page transition — the same hook every
+  // screen change in this flow uses — instead of its own hand-rolled copy.
+  //
+  // The copy had drifted from it (blur 10px vs 8px, 0.85s/0.5s vs 0.9s/0.55s,
+  // no transformOrigin), and crucially it lacked the hook's StrictMode
+  // hardening: with nothing gating the entrance, the effect's double-invocation
+  // could replay it, which is what made the header controls flicker in
+  // half-blurred instead of rising cleanly out of the blur.
+  //
+  // exitWith (not exitTo) for both actions: closing is a state swap back to the
+  // unit sheet, and Home defers to the parent's own onHome, which runs the
+  // page's exit before navigating.
+  const { exitWith } = usePageTransition({ containerRef: rootRef })
 
-  useEffect(() => {
-    const el = rootRef.current
-    if (!el || prefersReducedMotion()) return
-    const tl = gsap.timeline()
-    tl.to(el, {
-      autoAlpha: 1,
-      scale: 1,
-      filter: 'blur(0px)',
-      duration: 0.85,
-      ease: 'power2.out',
-    })
-    return () => tl.kill()
-  }, [])
-
-  // Shared exit choreography for both Close (return to the unit sheet) and
-  // Home (jump to the homepage) — same fade/scale/blur, different onDone.
-  const runExit = useCallback(
-    (onDone) => {
-      if (closingRef.current) return
-      const el = rootRef.current
-      if (!el || prefersReducedMotion()) {
-        onDone()
-        return
-      }
-      closingRef.current = true
-      gsap.to(el, {
-        autoAlpha: 0,
-        scale: 1.015,
-        filter: 'blur(10px)',
-        duration: 0.5,
-        ease: 'power2.inOut',
-        onComplete: onDone,
-      })
-    },
-    [],
-  )
-
-  const handleClose = useCallback(() => runExit(onClose), [runExit, onClose])
-  const handleHome = useCallback(() => runExit(onHome), [runExit, onHome])
+  const handleClose = useCallback(() => exitWith(onClose), [exitWith, onClose])
+  const handleHome = useCallback(() => exitWith(onHome), [exitWith, onHome])
 
   return (
     <div
@@ -263,15 +230,10 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
         >
           {title}
         </h2>
+        {/* Close only. Home used to sit alongside it here, at a size and a
+            corner all its own; it's now the shared <PageNav> home button at
+            top-left, on the same pixels as every other screen's. */}
         <div className="pointer-events-auto absolute right-12 top-1/2 flex -translate-y-1/2 items-center gap-3">
-          <button
-            type="button"
-            aria-label="Go to homepage"
-            onClick={handleHome}
-            className="grid h-8 w-8 cursor-pointer place-items-center transition-[opacity,transform] hover:opacity-60 active:scale-90"
-          >
-            <img src="/unit/svgs/home.svg" alt="" className="h-4.5 w-4.5" />
-          </button>
           <button
             type="button"
             aria-label="Close"
@@ -282,6 +244,10 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
           </button>
         </div>
       </header>
+
+      {/* No back arrow here — closing is what returns to the unit sheet — so
+          PageNav holds the back slot open and home keeps its usual position. */}
+      <PageNav onHome={handleHome} />
 
       {floor != null && (
         <FloorSelect value={floor} floors={floorOptions} onChange={setFloor} />

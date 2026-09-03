@@ -50,7 +50,7 @@ const App = () => {
         <Route path="/360" element={<Viewspage />} />
         <Route path="/viewspage" element={<Viewspage />} />
         <Route path="/video" element={<Video />} />
-        <Route path="/construction" element={<Video videoId="1cio1iIzrqM" showLoader />} />
+        <Route path="/construction" element={<Video videoId="1cio1iIzrqM" loader="construction" />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

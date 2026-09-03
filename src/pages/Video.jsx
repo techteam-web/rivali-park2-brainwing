@@ -2,8 +2,30 @@ import { useRef, useState } from 'react'
 import { usePageTransition } from '../hooks/usePageTransition'
 import useLoaderReady from '../hooks/useLoaderReady'
 import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
-import LoaderVector from '../assets/construction/loader-vector.svg?react'
-import LoaderSubheading from '../assets/construction/loader-subheading.svg?react'
+import ConstructionVector from '../assets/construction/loader-vector.svg?react'
+import ConstructionSubheading from '../assets/construction/loader-subheading.svg?react'
+import AvVector from '../assets/loaders/av-loader-vector.svg?react'
+import AvSubheading from '../assets/loaders/av-loader-subheading.svg?react'
+
+// Both routes that render this page open on a hand-sketch intro; only the
+// artwork and wording differ. Keyed by the `loader` prop so App.jsx picks one
+// by name instead of threading four props through the route.
+const LOADERS = {
+  av: {
+    Vector: AvVector,
+    vectorClassName: 'w-40 md:w-48 lg:w-48 2xl:w-56 3xl:w-64 h-auto',
+    heading: 'Step into life',
+    Subheading: AvSubheading,
+    subheadingClassName: 'w-52 md:w-60 lg:w-60 2xl:w-68 h-auto',
+  },
+  construction: {
+    Vector: ConstructionVector,
+    vectorClassName: 'w-32 md:w-36 lg:w-36 2xl:w-44 3xl:w-52 h-auto',
+    heading: 'Progress',
+    Subheading: ConstructionSubheading,
+    subheadingClassName: 'w-60 md:w-72 lg:w-72 2xl:w-80 h-auto',
+  },
+}
 
 // Full-screen YouTube playback reached from the home navbar (the "Video" and
 // "Construction" tabs both render this with their own `videoId`). The video is
@@ -16,13 +38,14 @@ import LoaderSubheading from '../assets/construction/loader-subheading.svg?react
 // viewer's bandwidth and can only ever serve a rendition the upload actually
 // has, so this is a request, not a guarantee.
 //
-// `showLoader` enables the hand-sketch loading overlay (used by /construction).
-const Video = ({ videoId = 'fYk0s5Ja9iM', showLoader = false }) => {
+// `loader` picks which sketch intro plays over the black stage (see LOADERS).
+const Video = ({ videoId = 'fYk0s5Ja9iM', loader = 'av' }) => {
   const pageRef = useRef(null)
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   const [playing, setPlaying] = useState(false)
   const ready = useLoaderReady()
-  const [overlayGone, setOverlayGone] = useState(!showLoader)
+  const [overlayGone, setOverlayGone] = useState(false)
+  const loaderConfig = LOADERS[loader] ?? LOADERS.av
 
   const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`
 
@@ -83,15 +106,11 @@ const Video = ({ videoId = 'fYk0s5Ja9iM', showLoader = false }) => {
         </svg>
       </button>
 
-      {showLoader && !overlayGone && (
+      {!overlayGone && (
         <SketchLoadingScreen
           ready={ready}
           onExitComplete={() => setOverlayGone(true)}
-          Vector={LoaderVector}
-          vectorClassName="w-32 md:w-36 lg:w-36 2xl:w-44 3xl:w-52 h-auto"
-          heading="Progress"
-          Subheading={LoaderSubheading}
-          subheadingClassName="w-60 md:w-72 lg:w-72 2xl:w-80 h-auto"
+          {...loaderConfig}
         />
       )}
     </div>

@@ -35,26 +35,33 @@ const SketchLoadingScreen = ({
         else fillPaths.push(p)
       })
 
-      gsap.set(strokePaths, { drawSVG: '0% 0%' })
-      gsap.set(fillPaths, { opacity: 0 })
+      // Some vectors are pure line art with nothing filled (the About, AV and
+      // Amenities loaders are), so guard both lists — tweening an empty array
+      // is a no-op that still logs "GSAP target not found" on every mount.
+      if (strokePaths.length) gsap.set(strokePaths, { drawSVG: '0% 0%' })
+      if (fillPaths.length) gsap.set(fillPaths, { opacity: 0 })
       gsap.set(headingRef.current, { yPercent: 20, opacity: 0 })
       gsap.set(subheadingRef.current, { clipPath: 'inset(0 100% 0 0)', opacity: 0 })
 
       const tl = gsap.timeline()
 
       // 1. Draw the line-art strokes.
-      tl.to(
-        strokePaths,
-        {
-          drawSVG: '0% 100%',
-          duration: 0.9,
-          ease: 'power2.out',
-          stagger: { each: 0.03, from: 'start' },
-        },
-        0,
-      )
+      if (strokePaths.length) {
+        tl.to(
+          strokePaths,
+          {
+            drawSVG: '0% 100%',
+            duration: 0.9,
+            ease: 'power2.out',
+            stagger: { each: 0.03, from: 'start' },
+          },
+          0,
+        )
+      }
 
-      tl.to(fillPaths, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.9)
+      if (fillPaths.length) {
+        tl.to(fillPaths, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.9)
+      }
 
       // 2. Reveal the black heading.
       tl.to(

@@ -9,6 +9,10 @@ import { useSlideTransition } from '../hooks/useSlideTransition'
 import { usePageTransition } from '../hooks/usePageTransition'
 import InlineSVG from '../components/about/InlineSVG'
 import Header from '../components/layout/Header'
+import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
+import useLoaderReady from '../hooks/useLoaderReady'
+import AboutLoaderVector from '../assets/loaders/about-loader-vector.svg?react'
+import AboutLoaderSubheading from '../assets/loaders/about-loader-subheading.svg?react'
 
 const AboutUs = () => {
   const containerRef = useRef(null)
@@ -20,6 +24,9 @@ const AboutUs = () => {
   const sectionRefs = useRef([])
   const headerRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  // Sketch intro over the page while the fonts settle, matching the other tabs.
+  const loaderReady = useLoaderReady()
+  const [overlayGone, setOverlayGone] = useState(false)
 
   // Per-slide scale per breakpoint and full-viewport background color.
   // `bg` paints the entire slide so colored sections (e.g. pastel brown)
@@ -122,6 +129,7 @@ const AboutUs = () => {
   )
 
   return (
+    <>
     <div ref={pageRef} className="h-full w-full">
     <div
       ref={containerRef}
@@ -162,6 +170,21 @@ const AboutUs = () => {
       })}
     </div>
     </div>
+    {/* Sibling of the transition container on purpose: usePageTransition scales
+        and blurs that container, which would both blur this overlay and make it
+        the containing block for its `fixed` positioning. */}
+    {!overlayGone && (
+      <SketchLoadingScreen
+        ready={loaderReady}
+        onExitComplete={() => setOverlayGone(true)}
+        Vector={AboutLoaderVector}
+        vectorClassName="w-28 md:w-32 lg:w-32 2xl:w-40 3xl:w-48 h-auto"
+        heading="Discover the story"
+        Subheading={AboutLoaderSubheading}
+        subheadingClassName="w-56 md:w-64 lg:w-64 2xl:w-72 h-auto"
+      />
+    )}
+    </>
   )
 }
 

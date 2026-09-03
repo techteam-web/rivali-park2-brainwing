@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
+import PageNav from '../components/layout/PageNav'
 import UnitSelect from '../components/unitplan/UnitSelect'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
 import CourtyardView from '../components/unitplan/CourtyardView'
@@ -99,19 +100,29 @@ const UnitPlanDetail = () => {
   }, [n])
 
   // Bad/stale tower or unit number → bounce back to the floor-plan selector.
+  //
+  // Declaratively, via <Navigate>: calling navigate() during render is a no-op
+  // in React Router (it only warns), so the guard used to render null and leave
+  // the user on a permanently blank page at the bad URL.
   if (!unit) {
-    navigate(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`, { replace: true })
-    return null
+    return (
+      <Navigate
+        to={`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`}
+        replace
+      />
+    )
   }
 
   return (
     <>
-      <div ref={pageRef} className="h-full w-full">
+      <div ref={pageRef} className="relative h-full w-full">
+      {/* Sibling of the artboard so the buttons keep real viewport pixels. */}
+      <PageNav
+        onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`)}
+        onHome={() => exitTo('/')}
+      />
       <UnitArtboard>
-        <UnitHeader
-          onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`)}
-          onHome={() => exitTo('/')}
-        >
+        <UnitHeader>
           <h1
             className="whitespace-nowrap uppercase"
             style={{
@@ -277,6 +288,10 @@ const UnitPlanDetail = () => {
       </UnitArtboard>
       </div>
 
+      {/* Home from an overlay navigates directly rather than going through the
+          page's exitTo: the overlay runs its own exit first, so chaining the
+          page's exit on top played a second fade with the sheet underneath
+          flashing back to full opacity in between. */}
       {zoomed && (
         <PlanLightbox
           src={unit.image}
@@ -284,7 +299,7 @@ const UnitPlanDetail = () => {
           title={`${label} Unit Plan`}
           bg={towerBg(tower)}
           onClose={() => setZoomed(false)}
-          onHome={() => exitTo('/')}
+          onHome={() => navigate('/')}
         />
       )}
 
@@ -295,7 +310,7 @@ const UnitPlanDetail = () => {
           position={unit.n}
           initialFloor={selectedFloor}
           onClose={() => setCourtyardOpen(false)}
-          onHome={() => exitTo('/')}
+          onHome={() => navigate('/')}
         />
       )}
     </>

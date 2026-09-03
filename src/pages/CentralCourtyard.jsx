@@ -7,8 +7,8 @@ const BG_W = 1440
 const BG_H = 1024
 
 const cards = [
-  { name: 'Art Gallery',         src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538 },
-  { name: 'Coffee Shop',         src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094 },
+  { name: 'Art Gallery',         src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538, slug: 'art-gallery' },
+  { name: 'Coffee Shop',         src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094, slug: 'coffee-shop' },
   { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.2412, left: 0.8396, slug: 'kids-play-area' },
   { name: 'Liesure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365, slug: 'liesure-pool' },
   { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.4854, left: 0.8608, slug: 'swimming-pool' },

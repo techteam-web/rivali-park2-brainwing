@@ -3,8 +3,10 @@ import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useConventionCenterHovers } from '../hooks/useConventionCenterHovers'
 
-const BG_W = 1498
-const BG_H = 1068
+// Matches the delivered render (5760x4096). The earlier background was a
+// slightly different crop, hence the older 1498x1068 pair.
+const BG_W = 5760
+const BG_H = 4096
 
 
 // `slug` (when present) wires the card to its detail slider page at
@@ -16,11 +18,30 @@ const cards = [
   { name: 'Guest rooms',  src: '/gallery/svgs/convention center/guest rooms.svg',   top: 0.342, left: 0.874, slug: 'guest-rooms' },
 ]
 
+// Placements measured from the design team's Figma export for this frame
+// rather than eyeballed. Two things that export makes you correct for:
+// Figma gives a group's box as geometry bounds (stroke excluded) while the
+// exported SVG canvas includes the stroke, so each `width` is the geometry
+// width grown by one stroke and `top`/`left` are pulled back by half of one;
+// and the delivered render is a 4x export of their 1440x1024 artboard (its
+// aspect matches the artboard exactly, not the bled image layer inside it),
+// so the numbers are normalized against the artboard.
+//
+// One pendant-lamp drawing hangs six times down both sides of the room. The
+// export is of one of the right-hand instances, so it is the three on the LEFT
+// that are mirrored (`flip`) — confirmed by scoring both orientations against
+// the client's own composite rather than reading it off the Figma transform,
+// which describes the instance and not the export.
+const LAMP = '/gallery/svgs/convention center/pendant-lamp.svg'
+
 const decoratives = [
-  { name: 'left-lamp-1',  src: '/gallery/svgs/convention center/left-lamp-1.svg',  top: 0.002, left: 0.111, width: 0.043 },
-  { name: 'left-lamp-2',  src: '/gallery/svgs/convention center/left-lamp-2.svg',  top: 0.096, left: 0.201, width: 0.043 },
-  { name: 'right-lamp-1', src: '/gallery/svgs/convention center/right-lamp-1.svg', top: 0.012, left: 0.849, width: 0.043 },
-  { name: 'right-lamp-2', src: '/gallery/svgs/convention center/right-lamp-2.svg', top: 0.106, left: 0.760, width: 0.043 },
+  { name: 'left-lamp-1',  src: LAMP, top: 0.0161, left: 0.1263, width: 0.0356, flip: true },
+  { name: 'left-lamp-2',  src: LAMP, top: 0.0918, left: 0.1984, width: 0.0357, flip: true },
+  { name: 'left-lamp-3',  src: LAMP, top: 0.1776, left: 0.2680, width: 0.0357, flip: true },
+  { name: 'right-lamp-1', src: LAMP, top: 0.0409, left: 0.8338, width: 0.0357 },
+  { name: 'right-lamp-2', src: LAMP, top: 0.1166, left: 0.7616, width: 0.0357 },
+  { name: 'right-lamp-3', src: LAMP, top: 0.2024, left: 0.6920, width: 0.0357 },
+  { name: 'chandelier',   src: '/gallery/svgs/convention center/chandelier.svg', top: 0.1039, left: 0.4143, width: 0.1671 },
 ]
 
 const PILL_BG =
@@ -62,6 +83,10 @@ const ConventionCenter = () => {
               top: `${d.top * 100}%`,
               left: `${d.left * 100}%`,
               width: `${d.width * 100}%`,
+              // Mirrors a doodle the artwork reuses on the opposite side of the
+              // room. Scaling about the centre leaves the bounding box — and so
+              // top/left — exactly where it is.
+              transform: d.flip ? 'scaleX(-1)' : undefined,
             }}
           />
         ))}

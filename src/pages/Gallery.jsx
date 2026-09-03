@@ -1,5 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
+import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
+import useLoaderReady from '../hooks/useLoaderReady'
+import AmenitiesLoaderVector from '../assets/loaders/amenities-loader-vector.svg?react'
+import AmenitiesLoaderSubheading from '../assets/loaders/amenities-loader-subheading.svg?react'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 
 const BG_W = 1226
@@ -57,9 +61,13 @@ const towers = [
 
 const Gallery = () => {
   const containerRef = useRef(null)
+  // Sketch intro over the page while the fonts settle, matching the other tabs.
+  const loaderReady = useLoaderReady()
+  const [overlayGone, setOverlayGone] = useState(false)
   const { exitTo } = useGalleryTransition({ containerRef })
 
   return (
+    <>
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -146,6 +154,22 @@ const Gallery = () => {
         </button>
       </div>
     </div>
+
+    {/* Sibling of the transition container on purpose: useGalleryTransition
+        fades that root up from autoAlpha 0, which would take this overlay
+        with it. */}
+    {!overlayGone && (
+      <SketchLoadingScreen
+          ready={loaderReady}
+          onExitComplete={() => setOverlayGone(true)}
+          Vector={AmenitiesLoaderVector}
+          vectorClassName="w-44 md:w-52 lg:w-52 2xl:w-60 3xl:w-68 h-auto"
+          heading="Everything you need"
+          Subheading={AmenitiesLoaderSubheading}
+        subheadingClassName="w-56 md:w-64 lg:w-64 2xl:w-72 h-auto"
+      />
+    )}
+    </>
   )
 }
 

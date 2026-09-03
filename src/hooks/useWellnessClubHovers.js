@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { inlineSvgsReady } from '../lib/gsap'
+import { bindCardHovers } from './bindCardHovers'
 import {
   setupSalon,
   setupAmphitheatre,
@@ -9,12 +9,18 @@ import {
   setupBarbell,
 } from './cardHoverSetups'
 
+// Keyed by the card's lowercased name. Each setup is written against a specific
+// icon's path structure, so a card that was renamed but kept its artwork keeps
+// the matching setup -- "Spa and Wellness Cafe" still carries the dining icon.
+// The old keys are left in place: they cost nothing and save re-deriving the
+// animation if a room comes back.
 const setups = {
   salon:                          setupSalon,
   'outdoor amphitheatre':         setupAmphitheatre,
   spa:                            setupLotus,
   'wellness bar':                 setupWellnessBar,
   dinning:                        setupDining,
+  'spa and wellness cafe':        setupDining,
   'gymnasium & fitness studio':   setupBarbell,
 }
 
@@ -22,29 +28,8 @@ export function useWellnessClubHovers(scopeRef) {
   useEffect(() => {
     const root = scopeRef.current
     if (!root) return
-    let cancelled = false
-    const cleanups = []
-
-    inlineSvgsReady(root).then(() => {
-      if (cancelled) return
-      const cards = root.querySelectorAll('[data-card-name]')
-      cards.forEach((card) => {
-        // Disabled (non-clickable) cards stay inert — animating them would
-        // signal interactivity they don't have.
-        if (!card.classList.contains('is-clickable')) return
-        const name = card.getAttribute('data-card-name')
-        const setup = setups[name]
-        if (!setup) return
-        const svgEl = card.querySelector('svg')
-        if (!svgEl) return
-        const cleanup = setup(svgEl)
-        if (cleanup) cleanups.push(cleanup)
-      })
-    })
-
-    return () => {
-      cancelled = true
-      cleanups.forEach((c) => c())
-    }
+    // Self-healing: binds each icon as it lands, so artwork added later needs
+    // no extra wiring. See bindCardHovers.
+    return bindCardHovers(root, setups)
   }, [scopeRef])
 }

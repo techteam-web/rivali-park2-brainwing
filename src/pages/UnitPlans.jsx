@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
+import PageNav from '../components/layout/PageNav'
 import StargazeOverlay from '../components/unitplan/StargazeOverlay'
 import UnitFootprints from '../components/unitplan/UnitFootprints'
 import {
@@ -122,20 +123,23 @@ const UnitPlans = () => {
 
 
   return (
-    <div ref={pageRef} className="h-full w-full">
+    <div ref={pageRef} className="relative h-full w-full">
+    {/* Outside <UnitArtboard> on purpose: the artboard's scale transform would
+        rescale these offsets and drift the buttons off the shared position. */}
+    <PageNav
+      onBack={() =>
+        exitTo(
+          entryOrigin === 'towers'
+            ? // Came in through the elevation floor picker? Go back to it,
+              // not past it to the tower detail.
+              `/towers?tower=${activeTower}${entryFloor ? '&view=floors' : ''}`
+            : '/',
+        )
+      }
+      onHome={() => exitTo('/')}
+    />
     <UnitArtboard>
-      <UnitHeader
-        onBack={() =>
-          exitTo(
-            entryOrigin === 'towers'
-              ? // Came in through the elevation floor picker? Go back to it,
-                // not past it to the tower detail.
-                `/towers?tower=${activeTower}${entryFloor ? '&view=floors' : ''}`
-              : '/',
-          )
-        }
-        onHome={() => exitTo('/')}
-      />
+      <UnitHeader />
 
       {/* Courtyard / external facing labels + floor plan */}
       <p

@@ -65,7 +65,22 @@ const InlineSVG = forwardRef(function InlineSVG(
     if (content === null || !el) return
     if (el.hasAttribute('data-draw')) {
       const paths = el.querySelectorAll(DRAW_SEL)
-      if (paths.length) gsap.set(paths, { opacity: 0, drawSVG: 0 })
+      if (paths.length) {
+        // Only pre-hide while the page's entrance is still to come. Once that
+        // entrance has built its timeline it has snapshotted the DOM, so paths
+        // that land afterwards can never be in it — and the [data-draw] CSS
+        // default would strand them at opacity 0 permanently. They'd still be
+        // hoverable, because `pointer-events: visiblePainted` keys off
+        // `visibility`, not opacity, which is exactly the invisible-but-
+        // interactive shape that bug takes. Reveal late arrivals instead.
+        const entrancePlayed = el.closest('[data-gallery-entrance-played="1"]')
+        gsap.set(
+          paths,
+          entrancePlayed
+            ? { opacity: 1, drawSVG: '0% 100%' }
+            : { opacity: 0, drawSVG: 0 },
+        )
+      }
     }
     el.setAttribute('data-inline-svg-loaded', 'true')
   }, [content])

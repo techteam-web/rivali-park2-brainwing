@@ -6,6 +6,7 @@ import TowerDecorations from './TowerDecorations'
 import RaggedyEdge from './RaggedyEdge'
 import TowersCanvas from '../../three/TowersCanvas'
 import { usePageTransition } from '../../hooks/usePageTransition'
+import PageNav from '../layout/PageNav'
 
 // Standalone single-tower detail view. Reproduces one carousel panel at the
 // exact same dimensions, but driven by selection instead of scroll. The parent
@@ -165,36 +166,13 @@ const TowerDetail = ({ tower, onBack, onPlans, play = true }) => {
         <RaggedyEdge />
       </div>
 
-      {/* Back to the aerial landing + Home (z-40 keeps it above the panel).
-          Grouped in one positioned flex row so Home always sits directly to
-          Back's right, at the same offsets/breakpoints, without duplicating
-          the position classes on a second absolutely-positioned element. */}
-      <div className="absolute left-5 top-3 md:left-8 md:top-4 lg:left-10 lg:top-4 xl:left-14 xl:top-5 2xl:left-15 2xl:top-6 3xl:left-18 3xl:top-8 4xl:left-24 4xl:top-10 5xl:left-36 5xl:top-14 z-40 flex items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 3xl:gap-3 4xl:gap-4 5xl:gap-6">
-        <button
-          type="button"
-          aria-label="Back to towers"
-          onClick={() => exitWith(onBack)}
-          className="grid h-9 w-9 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20 place-items-center hover:opacity-60 transition-opacity"
-        >
-          <img
-            src="/about/icon-arrow-left.svg"
-            alt=""
-            className="w-5 h-5 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 3xl:w-7 3xl:h-7 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
-          />
-        </button>
-        <button
-          type="button"
-          aria-label="Go to homepage"
-          onClick={() => exitTo('/')}
-          className="grid h-9 w-9 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20 place-items-center hover:opacity-60 transition-opacity"
-        >
-          <img
-            src="/about/icon-home.svg"
-            alt=""
-            className="w-5 h-5 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 3xl:w-7 3xl:h-7 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
-          />
-        </button>
-      </div>
+      {/* Back to the aerial landing + Home — the shared group (z-40 keeps it
+          above the panel). */}
+      <PageNav
+        backLabel="Back to towers"
+        onBack={() => exitWith(onBack)}
+        onHome={() => exitTo('/')}
+      />
     </div>
   )
 }

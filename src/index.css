@@ -126,6 +126,23 @@ button:not(:disabled) {
   opacity: 0;
 }
 
+/*
+  ...but only until that page's entrance has run. After it has, inline opacity
+  set by GSAP is the only thing keeping these shapes visible, so any node
+  recreated later (a re-render that rewrites innerHTML drops inline styles) would
+  be born hidden by the rule above — invisible yet still hoverable, since
+  `pointer-events: visiblePainted` ignores opacity. Flipping the default once the
+  entrance flag is on removes that failure mode at the source. The entrance
+  itself is unaffected: it writes inline opacity, which outranks this.
+*/
+[data-gallery-entrance-played='1']
+  [data-draw]
+  :is(path, line, polyline, polygon, circle, ellipse, rect):not(
+    [data-no-draw]
+  ):not([data-no-undraw]) {
+  opacity: 1;
+}
+
 /* Pill navbar icons follow the tab's text colour (white when the tab is the
    selected brown pill, #313131 otherwise). Only the colour is remapped — each
    icon keeps its authored stroke-width and round linecaps so the line weight
@@ -210,4 +227,18 @@ button:not(:disabled) {
 .amenity-hotspot.is-clickable:hover .amenity-icon,
 .amenity-hotspot.is-clickable:focus-visible .amenity-icon {
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.12));
+}
+
+/* Hotspot icon disc colour.
+   Icons are delivered with the disc baked in, and one that was drawn while its
+   room had no artwork yet ships the muted "pending" beige (#CFBFA1) instead of
+   the live one. That tint then survives the hotspot going live, so a perfectly
+   available amenity keeps reading as switched off — which is what happened to
+   the Sky Club banquet hall. Pinning the disc for clickable hotspots means
+   turning one on is just a matter of adding its asset; no re-export, and no
+   per-hotspot follow-up when new rooms land. Hotspots without a detail page are
+   deliberately left alone, so a genuinely disabled one still reads muted.
+   The disc is the first <circle> in every icon (r="35.4"). */
+.amenity-hotspot.is-clickable .amenity-icon > svg > circle:first-of-type {
+  fill: #fff4df;
 }

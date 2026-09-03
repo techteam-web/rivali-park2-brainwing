@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from '../../lib/gsap'
 import { usePageTransition } from '../../hooks/usePageTransition'
+import PageNav from '../layout/PageNav'
 import {
   contentViewBox,
   elevationFor,
@@ -626,33 +627,12 @@ const TowerElevation = ({ tower, onBack, onPick, onSkip }) => {
         </div>
       </div>
 
-      {/* Back + Home, matching the tower detail header exactly. */}
-      <div className="absolute left-5 top-3 z-40 flex items-center gap-2 md:left-8 md:top-4 lg:left-10 lg:gap-1.5 xl:left-14 xl:top-5 xl:gap-2 2xl:left-15 2xl:top-6 2xl:gap-2.5 3xl:left-18 3xl:top-8 3xl:gap-3 4xl:left-24 4xl:top-10 4xl:gap-4 5xl:left-36 5xl:top-14 5xl:gap-6">
-        <button
-          type="button"
-          aria-label="Back to tower"
-          onClick={() => exitWith(onBack)}
-          className="grid h-9 w-9 place-items-center transition-opacity hover:opacity-60 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20"
-        >
-          <img
-            src="/about/icon-arrow-left.svg"
-            alt=""
-            className="h-5 w-5 lg:h-4 lg:w-4 xl:h-5 xl:w-5 2xl:h-6 2xl:w-6 3xl:h-7 3xl:w-7 4xl:h-8 4xl:w-8 5xl:h-12 5xl:w-12"
-          />
-        </button>
-        <button
-          type="button"
-          aria-label="Go to homepage"
-          onClick={() => exitTo('/')}
-          className="grid h-9 w-9 place-items-center transition-opacity hover:opacity-60 lg:h-7 lg:w-7 xl:h-9 xl:w-9 2xl:h-10 2xl:w-10 3xl:h-12 3xl:w-12 4xl:h-14 4xl:w-14 5xl:h-20 5xl:w-20"
-        >
-          <img
-            src="/about/icon-home.svg"
-            alt=""
-            className="h-5 w-5 lg:h-4 lg:w-4 xl:h-5 xl:w-5 2xl:h-6 2xl:w-6 3xl:h-7 3xl:w-7 4xl:h-8 4xl:w-8 5xl:h-12 5xl:w-12"
-          />
-        </button>
-      </div>
+      {/* Back + Home — the shared group every screen in the app uses. */}
+      <PageNav
+        backLabel="Back to tower"
+        onBack={() => exitWith(onBack)}
+        onHome={() => exitTo('/')}
+      />
     </div>
   )
 }

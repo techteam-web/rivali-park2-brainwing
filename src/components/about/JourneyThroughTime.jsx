@@ -396,11 +396,14 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
             />
           </div>
           <div className="col-span-4 flex justify-center">
+            {/* Was the central courtyard render; swapped for the T1 lobby on
+                client feedback (08 Aug). The T2 lobby render arrived with it
+                and sits in /about as t2-lobby.webp, no screen assigned yet. */}
             <TimelineCard
               pos={5}
               year="2023"
               caption="Launch of Rivali Park 2"
-              image="/about/central-courtyard.webp"
+              image="/about/t1-lobby.webp"
             />
           </div>
         </div>

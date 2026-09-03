@@ -217,7 +217,7 @@ export const setupBanquetHall = (svgEl) => {
   const paths = Array.from(svgEl.querySelectorAll('path'))
   if (paths.length < 6) return null
   markHoverTargets(paths)
-  paths.forEach((p, i) => gsap.set(p, { svgOrigin: '36 36', y: 0 }))
+  paths.forEach((p) => gsap.set(p, { svgOrigin: '36 36', y: 0 }))
 
   let tw
   const enter = () => {

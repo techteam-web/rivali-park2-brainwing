@@ -11,7 +11,7 @@ const cards = [
   { name: 'Viewing Decks',  src: '/gallery/svgs/sky club/viewing decks.svg',   top: 0.4282, left: 0.2323, slug: 'viewing-decks' },
   { name: 'Kids play area', src: '/gallery/svgs/sky club/kids play area.svg',  top: 0.4282, left: 0.4025, slug: 'kids-play-area' },
   { name: 'Guests Rooms',   src: '/gallery/svgs/sky club/guest rooms.svg',     top: 0.4282, left: 0.555,  slug: 'guest-rooms' },
-  { name: 'Banquet hall',   src: '/gallery/svgs/sky club/banquette hall.svg',  top: 0.4282, left: 0.7135 },
+  { name: 'Banquet hall',   src: '/gallery/svgs/sky club/banquette hall.svg',  top: 0.4282, left: 0.7135, slug: 'banquet-hall' },
   { name: 'Sky Fitness',    src: '/gallery/svgs/sky club/sky fitness.svg',     top: 0.3833, left: 0.8369, slug: 'sky-fitness' },
   { name: 'Spa',            src: '/gallery/svgs/sky club/spa.svg',             top: 0.4282, left: 0.9421, slug: 'spa' },
 ]

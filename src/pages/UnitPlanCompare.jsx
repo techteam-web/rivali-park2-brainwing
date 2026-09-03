@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import UnitArtboard from '../components/unitplan/UnitArtboard'
 import UnitHeader from '../components/unitplan/UnitHeader'
+import PageNav from '../components/layout/PageNav'
 import Dropdown from '../components/unitplan/Dropdown'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
 import Panorama from '../components/unitplan/Panorama'
@@ -105,6 +106,7 @@ const Spec = ({ label, value }) => (
 // different towers can be compared against each other.
 const UnitPlanCompare = () => {
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const pageRef = useRef(null)
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   const fromTower = towerUnits(params.get('tower')).length
@@ -226,9 +228,11 @@ const UnitPlanCompare = () => {
 
   return (
     <>
-      <div ref={pageRef} className="h-full w-full">
+      <div ref={pageRef} className="relative h-full w-full">
+      {/* Sibling of the artboard so the buttons keep real viewport pixels. */}
+      <PageNav onBack={goBack} onHome={() => exitTo('/')} />
       <UnitArtboard>
-        <UnitHeader onBack={goBack} onHome={() => exitTo('/')}>
+        <UnitHeader>
           <h1
             className="whitespace-nowrap capitalize"
             style={{
@@ -479,13 +483,17 @@ const UnitPlanCompare = () => {
       </UnitArtboard>
       </div>
 
+      {/* Home from an overlay navigates directly rather than going through the
+          page's exitTo: the overlay runs its own exit first, so chaining the
+          page's exit on top played a second fade with the sheet underneath
+          flashing back to full opacity in between. */}
       {zoom && (
         <PlanLightbox
           src={zoom.src}
           title={zoom.title}
           bg={zoom.bg}
           onClose={() => setZoom(null)}
-          onHome={() => exitTo('/')}
+          onHome={() => navigate('/')}
         />
       )}
 
@@ -496,7 +504,7 @@ const UnitPlanCompare = () => {
           position={expandedView.position}
           initialFloor={expandedView.floor}
           onClose={() => setExpandedView(null)}
-          onHome={() => exitTo('/')}
+          onHome={() => navigate('/')}
         />
       )}
     </>

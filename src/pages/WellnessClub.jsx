@@ -14,10 +14,10 @@ const BG_H = 892
 // Outdoor amphitheatre and Gymnasium & Fitness Studio were both ticked as
 // correct and are untouched.
 const cards = [
-  { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.302, left: 0.437 },
+  { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.302, left: 0.437, slug: 'outdoor-amphitheatre' },
   { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.382, left: 0.26, slug: 'spa' },
   { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.370, left: 0.683, slug: 'salon' },
-  { name: 'Spa and Wellness Cafe',       src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47},
+  { name: 'Spa and Wellness Cafe',       src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47, slug: 'spa-and-wellness-cafe' },
   { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.588, left: 0.669, slug: 'gymnasium' },
 ]
 

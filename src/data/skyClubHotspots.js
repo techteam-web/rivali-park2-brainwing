@@ -2,9 +2,10 @@
 // each entry powers one slide in SkyClubHotspot.jsx; coordinates are
 // normalized (0..1) against a 1440x1024 reference frame.
 //
-// Order here is the scroll order on the slider; `progress` (0..1) controls
-// how far the bottom-right wavy progress bar fills on each slide. Five
-// slides → 1/5, 2/5, 3/5, 4/5, 5/5.
+// Order here is the scroll order on the slider, and matches the icon order on
+// the landing screen (see SkyClub.jsx); `progress` (0..1) controls how far the
+// bottom-right wavy progress bar fills on each slide, so it is written as
+// index/total and every entry is renumbered when one is added or removed.
 
 const ASSET_BASE = '/gallery/hotspots/sky club'
 
@@ -13,7 +14,7 @@ export const skyClubHotspots = [
     slug: 'viewing-decks',
     name: 'Viewing Decks',
     bg: `${ASSET_BASE}/viewing decks bg.webp`,
-    progress: 0.2,
+    progress: 1 / 6,
     decoratives: [],
   },
   {
@@ -21,7 +22,7 @@ export const skyClubHotspots = [
     name: 'Kids Play Area',
     bg: `${ASSET_BASE}/kids play area bg.webp`,
     objectPosition: 'center bottom',
-    progress: 0.4,
+    progress: 2 / 6,
     decoratives: [
       {
         name: 'left-car',
@@ -51,7 +52,7 @@ export const skyClubHotspots = [
     name: 'Guest Rooms',
     bg: `${ASSET_BASE}/guest suites bg.webp`,
     objectPosition: 'center bottom',
-    progress: 0.6,
+    progress: 3 / 6,
     decoratives: [
       {
         name: 'left-vase',
@@ -77,10 +78,31 @@ export const skyClubHotspots = [
     ],
   },
   {
+    slug: 'banquet-hall',
+    name: 'Banquet Hall',
+    bg: `${ASSET_BASE}/banquet hall bg.webp`,
+    progress: 4 / 6,
+    // Placement measured from the design team's Figma export for this frame.
+    // The delivered render is a 4x export of their 1440x1024 artboard, so the
+    // numbers are normalized against that artboard; and because Figma reports a
+    // group's box as geometry bounds while the exported SVG canvas includes the
+    // stroke, `width` is the geometry width grown by one stroke and `top`/`left`
+    // are pulled back by half of one.
+    decoratives: [
+      {
+        name: 'table',
+        src: `${ASSET_BASE}/table-banquet-hall.svg`,
+        top: 0.5195,
+        left: 0.2919,
+        width: 0.4370,
+      },
+    ],
+  },
+  {
     slug: 'sky-fitness',
     name: 'Sky Fitness',
     bg: `${ASSET_BASE}/gymnasium bg.webp`,
-    progress: 0.8,
+    progress: 5 / 6,
     decoratives: [
       {
         name: 'dumbell',
@@ -109,7 +131,7 @@ export const skyClubHotspots = [
     slug: 'spa',
     name: 'Spa',
     bg: `${ASSET_BASE}/spa bg.webp`,
-    progress: 1,
+    progress: 6 / 6,
     decoratives: [
       {
         name: 'left-cloud',

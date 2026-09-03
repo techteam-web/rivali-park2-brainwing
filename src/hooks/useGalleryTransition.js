@@ -68,6 +68,53 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
     let cancelled = false
     isExitingRef.current = false
 
+    // Self-healing reveal.
+    //
+    // The entrance reveals a SNAPSHOT of the drawables present when its timeline
+    // was built, by tweening inline `opacity` over the [data-draw] CSS default of
+    // opacity 0. That leaves two ways for a shape to end up stranded hidden:
+    // it arrives after the snapshot, or its DOM node is recreated later (a
+    // re-render that rewrites innerHTML drops the inline styles, and the CSS
+    // default takes over again). Either way it is invisible but still
+    // hit-testable, because `pointer-events: visiblePainted` keys off
+    // `visibility`, not opacity — the "I can hover them but I can't see them"
+    // bug, and the reason they blink out again a beat after the loader lifts.
+    //
+    // Rather than guess when that happens, watch for it: any drawable sitting at
+    // opacity 0 that nothing is animating gets revealed on the next frame.
+    const entranceActive = () => Boolean(root._galleryEntranceTl?.isActive())
+
+    const revealStranded = () => {
+      if (root.dataset.galleryEntrancePlayed !== '1') return
+      if (isExitingRef.current || entranceActive()) return
+      const stranded = collectDrawables(root).filter(
+        (el) =>
+          !gsap.isTweening(el) && Number(getComputedStyle(el).opacity) === 0,
+      )
+      if (stranded.length) gsap.set(stranded, { opacity: 1, drawSVG: '0% 100%' })
+    }
+
+    let queued = 0
+    const scheduleReveal = () => {
+      if (queued) return
+      queued = requestAnimationFrame(() => {
+        queued = 0
+        revealStranded()
+      })
+    }
+
+    const observer = new MutationObserver(scheduleReveal)
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style'],
+    })
+
+    // Backstop for the case where nothing mutates because the entrance never
+    // ran at all (e.g. inlineSvgsReady timed out before any SVG landed).
+    const backstop = setTimeout(revealStranded, 6000)
+
     inlineSvgsReady(root).then(() => {
       if (cancelled) return
       if (root.dataset.galleryEntrancePlayed === '1') return
@@ -222,6 +269,9 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
 
     return () => {
       cancelled = true
+      observer.disconnect()
+      if (queued) cancelAnimationFrame(queued)
+      clearTimeout(backstop)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, entranceDeps)

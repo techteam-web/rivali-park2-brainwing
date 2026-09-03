@@ -47,7 +47,10 @@ const Hero = forwardRef((_props, ref) => {
         gsap.set(headingEl, { autoAlpha: 0, y: 18 })
         gsap.set(cursiveEl, { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cloudEl, { autoAlpha: 1 })
-        gsap.set(cloudPaths, { drawSVG: 0 })
+        // Empty on the first pass — InlineSVG has not inlined yet. The
+        // containers above already hide them, and this reruns once the
+        // paths exist; the guard just keeps GSAP from logging a miss.
+        if (cloudPaths.length) gsap.set(cloudPaths, { drawSVG: 0 })
         // craneEl starts hidden via autoAlpha (not just drawSVG: 0 on the
         // inner paths). 18 of the crane's paths are filled (fill="#7A4833"),
         // so drawSVG alone wouldn't hide them — fillOpacity: 0 is needed too,
@@ -59,7 +62,7 @@ const Hero = forwardRef((_props, ref) => {
         // them. See peers: heroImg/cursive use clipPath, heading/body use
         // autoAlpha; cloud is inside heroImg's clipPath so it's covered.
         gsap.set(craneEl, { autoAlpha: 0 })
-        gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
+        if (cranePaths.length) gsap.set(cranePaths, { drawSVG: 0, fillOpacity: 0 })
         gsap.set(bodyParas, { y: 18, autoAlpha: 0 })
         gsap.set(heroImg, { autoAlpha: 1, clipPath: 'inset(0 100% 100% 0)' })
       }
