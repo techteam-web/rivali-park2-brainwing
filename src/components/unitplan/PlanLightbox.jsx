@@ -1,9 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
-import { gsap } from '../../lib/gsap'
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+import { useCallback, useRef } from 'react'
+import { usePageTransition } from '../../hooks/usePageTransition'
 
 // Fullscreen plan viewer, opened from the expand icon on any unit plan. The
 // raggedy edge IS the thin white header (no solid bar, per Figma): the title
@@ -16,55 +12,34 @@ const prefersReducedMotion = () =>
 // Rendered outside the scaled <UnitArtboard> so it covers the real viewport. It
 // rises forward out of a soft blur on open and eases back on close (matching
 // the gallery transition feel) — the close button animates out before unmount.
-const PlanLightbox = ({ src, alt = 'Floor plan', title, bg = '#9C6A7B', onClose, onHome }) => {
+const PlanLightbox = ({
+  src,
+  alt = 'Floor plan',
+  title,
+  bg = '#9C6A7B',
+  onClose,
+  onHome,
+  // Called the instant Home is pressed, before this overlay starts fading, so
+  // the page underneath can take itself out of sight rather than be revealed.
+  onLeaving,
+}) => {
   const rootRef = useRef(null)
-  const closingRef = useRef(false)
 
-  useLayoutEffect(() => {
-    const el = rootRef.current
-    if (!el || prefersReducedMotion()) return
-    gsap.set(el, { autoAlpha: 0, scale: 0.985, filter: 'blur(10px)' })
-  }, [])
+  // The app's standard page transition, same as every other screen change
+  // (and as CourtyardView) — so this overlay and the page underneath it run
+  // tweens of identical duration and easing, which handleHome below depends on.
+  const { exitWith } = usePageTransition({ containerRef: rootRef })
 
-  useEffect(() => {
-    const el = rootRef.current
-    if (!el || prefersReducedMotion()) return
-    const tl = gsap.timeline()
-    tl.to(el, {
-      autoAlpha: 1,
-      scale: 1,
-      filter: 'blur(0px)',
-      duration: 0.85,
-      ease: 'power2.out',
-    })
-    return () => tl.kill()
-  }, [])
+  const handleClose = useCallback(() => exitWith(onClose), [exitWith, onClose])
 
-  // Shared exit choreography for both Close (return to the unit sheet) and
-  // Home (jump to the homepage) — same fade/scale/blur, different onDone.
-  const runExit = useCallback(
-    (onDone) => {
-      if (closingRef.current) return
-      const el = rootRef.current
-      if (!el || prefersReducedMotion()) {
-        onDone()
-        return
-      }
-      closingRef.current = true
-      gsap.to(el, {
-        autoAlpha: 0,
-        scale: 1.015,
-        filter: 'blur(10px)',
-        duration: 0.5,
-        ease: 'power2.inOut',
-        onComplete: onDone,
-      })
-    },
-    [],
-  )
-
-  const handleClose = useCallback(() => runExit(onClose), [runExit, onClose])
-  const handleHome = useCallback(() => runExit(onHome), [runExit, onHome])
+  // Home leaves for the homepage in ONE fade, straight from this overlay.
+  // onLeaving hides the sheet underneath outright (instantly, under cover of
+  // this still-opaque overlay) so it can't be revealed as this fades; then this
+  // fades away over the background and onHome navigates once it lands.
+  const handleHome = useCallback(() => {
+    onLeaving?.()
+    exitWith(onHome)
+  }, [onLeaving, exitWith, onHome])
 
   return (
   <div

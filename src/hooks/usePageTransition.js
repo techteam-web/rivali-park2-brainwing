@@ -117,5 +117,19 @@ export function usePageTransition({ containerRef, skipEntrance = false, play = t
 
   const exitWith = useCallback((onDone) => runExit(onDone), [runExit])
 
-  return { exitTo, exitWith }
+  // Drop the page out of sight with no animation at all.
+  //
+  // For pages that sit UNDER a fullscreen overlay (the courtyard view, the plan
+  // lightbox). When the overlay leaves for the homepage it fades itself out,
+  // and anything still painted behind it is revealed mid-fade — the page the
+  // user already left reappears, then fades in its turn. Fading both together
+  // doesn't help: at 50% the overlay is half-transparent, so the sheet behind
+  // it still shows through. The page has to be gone before the fade starts,
+  // which is safe precisely because the opaque overlay is covering it.
+  const hideNow = useCallback(() => {
+    const root = containerRef.current
+    if (root) gsap.set(root, { autoAlpha: 0 })
+  }, [containerRef])
+
+  return { exitTo, exitWith, hideNow }
 }

@@ -71,7 +71,7 @@ const UnitPlanDetail = () => {
     .join('&')
   const carrySuffix = carry ? `?${carry}` : ''
   const pageRef = useRef(null)
-  const { exitTo } = usePageTransition({ containerRef: pageRef })
+  const { exitTo, hideNow } = usePageTransition({ containerRef: pageRef })
   // Card is gently crossfaded when switching unit within the same tower (a
   // same-route param change, so the page itself doesn't re-transition).
   const cardRef = useRef(null)
@@ -288,10 +288,11 @@ const UnitPlanDetail = () => {
       </UnitArtboard>
       </div>
 
-      {/* Home from an overlay navigates directly rather than going through the
-          page's exitTo: the overlay runs its own exit first, so chaining the
-          page's exit on top played a second fade with the sheet underneath
-          flashing back to full opacity in between. */}
+      {/* Leaving for home from an overlay is ONE fade: onLeaving pulls this
+          page out of sight first (it is hidden behind the opaque overlay at
+          that moment, so nothing flickers), the overlay fades, then it
+          navigates. Without the hide, the overlay's fade would reveal this
+          sheet again on the way out. */}
       {zoomed && (
         <PlanLightbox
           src={unit.image}
@@ -300,6 +301,7 @@ const UnitPlanDetail = () => {
           bg={towerBg(tower)}
           onClose={() => setZoomed(false)}
           onHome={() => navigate('/')}
+          onLeaving={hideNow}
         />
       )}
 
@@ -311,6 +313,7 @@ const UnitPlanDetail = () => {
           initialFloor={selectedFloor}
           onClose={() => setCourtyardOpen(false)}
           onHome={() => navigate('/')}
+          onLeaving={hideNow}
         />
       )}
     </>

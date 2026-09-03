@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import * as THREE from 'three'
 import { gsap } from '../../lib/gsap'
+import { usePanoramaSync } from '../../hooks/usePanoramaSync'
 
-// Curved-projection panorama viewer. Currently wired up for the Moonrise 05
-// series only (see CourtyardView) — every other apartment keeps the flat
-// <Panorama>.
+// Curved-projection panorama viewer — the viewer for every apartment view, on
+// the unit detail page and on the compare screen.
 //
 // Why this exists: the stitched frames are 5.2:1 to 5.8:1, so cover-fitting one
 // into a ~1.9:1 viewport crops away roughly two thirds of its width. What's left
@@ -104,6 +104,18 @@ const makeFeatherMap = () => {
 const CurvedPanorama = ({ src }) => {
   const wrapRef = useRef(null)
   const engineRef = useRef(null)
+  // Compare shows up to three of these side by side and pans them together, so
+  // the cursor's position is broadcast as a FRACTION of this element rather
+  // than applied here directly. Each viewer then turns that fraction through
+  // its own yaw range, which is what keeps panels of different widths tracking
+  // the same relative point. A lone viewer is a group of one and behaves
+  // exactly as if unsynced. See PanoramaSyncProvider.
+  const id = useId()
+  const { register, broadcast } = usePanoramaSync()
+  const broadcastRef = useRef(broadcast)
+  useEffect(() => {
+    broadcastRef.current = broadcast
+  }, [broadcast])
 
   // Build the renderer once and tear it down completely on unmount. This view
   // is a modal that opens and closes repeatedly, and the app already holds
@@ -185,13 +197,21 @@ const CurvedPanorama = ({ src }) => {
       wake()
     }
 
-    const aim = (clientX, clientY) => {
+    // Where the cursor sits inside THIS element, 0-1 on each axis.
+    const fractionFor = (clientX, clientY) => {
       const r = wrap.getBoundingClientRect()
-      if (!r.width || !r.height) return
-      const nx = Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * 2 - 1
-      const ny = Math.min(1, Math.max(0, (clientY - r.top) / r.height)) * 2 - 1
-      targetYaw = -nx * maxYaw
-      targetPitch = -ny * MAX_PITCH_DEG * DEG
+      if (!r.width || !r.height) return null
+      return {
+        fx: Math.min(1, Math.max(0, (clientX - r.left) / r.width)),
+        fy: Math.min(1, Math.max(0, (clientY - r.top) / r.height)),
+      }
+    }
+
+    // Aim from a fraction, using this instance's own yaw range.
+    const applyFraction = (f) => {
+      if (!f) return
+      targetYaw = -(f.fx * 2 - 1) * maxYaw
+      targetPitch = -(f.fy * 2 - 1) * MAX_PITCH_DEG * DEG
       wake()
     }
 
@@ -266,7 +286,7 @@ const CurvedPanorama = ({ src }) => {
         // Open wherever the cursor already is rather than easing over to it.
         if (isFirst) {
           if (lastPointerX != null && lastPointerY != null) {
-            aim(lastPointerX, lastPointerY)
+            applyFraction(fractionFor(lastPointerX, lastPointerY))
           }
           yaw = targetYaw
           pitch = targetPitch
@@ -298,12 +318,13 @@ const CurvedPanorama = ({ src }) => {
       })
     }
 
-    const onPointerMove = (e) => aim(e.clientX, e.clientY)
-    const onPointerLeave = () => {
-      targetYaw = 0
-      targetPitch = 0
-      wake()
+    const onPointerMove = (e) => {
+      const f = fractionFor(e.clientX, e.clientY)
+      if (f) broadcastRef.current(f)
     }
+    // Centre is 0.5/0.5 — broadcast so every synced viewer settles back
+    // together rather than leaving the siblings where they were.
+    const onPointerLeave = () => broadcastRef.current({ fx: 0.5, fy: 0.5 })
 
     wrap.addEventListener('pointermove', onPointerMove)
     wrap.addEventListener('pointerleave', onPointerLeave)
@@ -331,7 +352,7 @@ const CurvedPanorama = ({ src }) => {
     }
     raf = requestAnimationFrame(tick)
 
-    engineRef.current = { show }
+    engineRef.current = { show, applyFraction }
 
     return () => {
       engineRef.current = null
@@ -348,6 +369,12 @@ const CurvedPanorama = ({ src }) => {
       canvas.remove()
     }
   }, [])
+
+  // Registered after the engine effect above has run, so applyFraction exists.
+  useEffect(
+    () => register(id, (f) => engineRef.current?.applyFraction(f)),
+    [register, id],
+  )
 
   useEffect(() => {
     if (src) engineRef.current?.show(src)

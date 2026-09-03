@@ -5,7 +5,7 @@ import UnitHeader from '../components/unitplan/UnitHeader'
 import PageNav from '../components/layout/PageNav'
 import Dropdown from '../components/unitplan/Dropdown'
 import PlanLightbox from '../components/unitplan/PlanLightbox'
-import Panorama from '../components/unitplan/Panorama'
+import CurvedPanorama from '../components/unitplan/CurvedPanorama'
 import { PanoramaSyncProvider } from '../components/unitplan/PanoramaSyncProvider'
 import CourtyardView from '../components/unitplan/CourtyardView'
 import UnitKeyPlan from '../components/unitplan/UnitKeyPlan'
@@ -108,7 +108,7 @@ const UnitPlanCompare = () => {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const pageRef = useRef(null)
-  const { exitTo } = usePageTransition({ containerRef: pageRef })
+  const { exitTo, hideNow } = usePageTransition({ containerRef: pageRef })
   const fromTower = towerUnits(params.get('tower')).length
     ? params.get('tower')
     : DEFAULT_TOWER
@@ -317,7 +317,7 @@ const UnitPlanCompare = () => {
                     <>
                       {viewSrc ? (
                         <>
-                          <Panorama src={viewSrc} />
+                          <CurvedPanorama src={viewSrc} />
                           <button
                             type="button"
                             aria-label="View from apartment fullscreen"
@@ -483,10 +483,9 @@ const UnitPlanCompare = () => {
       </UnitArtboard>
       </div>
 
-      {/* Home from an overlay navigates directly rather than going through the
-          page's exitTo: the overlay runs its own exit first, so chaining the
-          page's exit on top played a second fade with the sheet underneath
-          flashing back to full opacity in between. */}
+      {/* Leaving for home from an overlay is ONE fade: onLeaving pulls this
+          page out of sight first (hidden behind the opaque overlay at that
+          moment, so nothing flickers), the overlay fades, then it navigates. */}
       {zoom && (
         <PlanLightbox
           src={zoom.src}
@@ -494,6 +493,7 @@ const UnitPlanCompare = () => {
           bg={zoom.bg}
           onClose={() => setZoom(null)}
           onHome={() => navigate('/')}
+          onLeaving={hideNow}
         />
       )}
 
@@ -505,6 +505,7 @@ const UnitPlanCompare = () => {
           initialFloor={expandedView.floor}
           onClose={() => setExpandedView(null)}
           onHome={() => navigate('/')}
+          onLeaving={hideNow}
         />
       )}
     </>

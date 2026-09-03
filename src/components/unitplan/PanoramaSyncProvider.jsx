@@ -1,13 +1,13 @@
 import { useCallback, useRef } from 'react'
 import { PanoramaSyncContext } from './PanoramaSyncContext'
 
-// Lets every <Panorama> mounted under this provider pan in lockstep: whichever
-// instance the cursor is currently over computes its own fraction (0-1) of its
-// pan range and broadcasts it; every registered instance (including the
-// source) applies that fraction using its OWN overflow, so panoramas of
-// differing widths/crops still track the same relative position. A lone
-// <Panorama> under its own provider is just a group of one — broadcasting to
-// itself reproduces the original unsynced behavior.
+// Lets every <CurvedPanorama> mounted under this provider pan in lockstep:
+// whichever instance the cursor is currently over computes the cursor's
+// fraction (0-1 on each axis) of its own box and broadcasts it; every
+// registered instance (including the source) turns that fraction through its
+// OWN yaw range, so panoramas of differing widths still track the same relative
+// position. A lone viewer under its own provider is just a group of one —
+// broadcasting to itself reproduces unsynced behaviour.
 export const PanoramaSyncProvider = ({ children }) => {
   const membersRef = useRef(new Map())
 

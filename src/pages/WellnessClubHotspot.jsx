@@ -384,16 +384,13 @@ const WellnessClubHotspot = () => {
           style={{ backgroundColor: 'rgba(49, 49, 49, 0.2)' }}
         >
           <svg
-            viewBox="0 0 24 24"
+            viewBox="0 0 25 24"
             fill="none"
             stroke="white"
             strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
             className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12"
           >
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
+            <path d="M22.332 12.0191H2.21366M11.2814 20.3545L2.21366 12.0191L11.2814 3.64453" />
           </svg>
         </button>
         <button

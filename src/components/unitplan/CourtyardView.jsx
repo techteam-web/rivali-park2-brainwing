@@ -1,18 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Panorama from './Panorama'
 import CurvedPanorama from './CurvedPanorama'
 import { PanoramaSyncProvider } from './PanoramaSyncProvider'
 import { VIEW_SOURCES, ordinal } from '../../data/courtyardViews'
 import PageNav from '../layout/PageNav'
 import { usePageTransition } from '../../hooks/usePageTransition'
-
-// Apartments served by the curved-projection viewer instead of the flat pan.
-// Moonrise's 05 series only for now (405, 505, 605 ... 4205): its frames are the
-// widest in the project at 5.2:1-5.8:1, so a cover fit throws away about two
-// thirds of each one — which is exactly the crop the curved viewer buys back.
-// Everything else keeps <Panorama>. See CurvedPanorama.jsx.
-const CURVED_TOWER = 'moonrise'
-const CURVED_POSITION = 5
 
 // Bottom-right floor selector. Opens UPWARD (a "drop-up") so the list never
 // runs off the bottom of the screen; the keyboard_arrow_up glyph flips to point
@@ -106,7 +97,17 @@ const FloorSelect = ({ value, floors, onChange }) => {
 // Rendered outside the scaled <UnitArtboard> so it covers the real viewport. It
 // rises forward out of a soft blur on open and eases back on close (matching the
 // gallery / plan-lightbox transition feel).
-const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }) => {
+const CourtyardView = ({
+  title,
+  tower,
+  position,
+  initialFloor,
+  onClose,
+  onHome,
+  // Called the instant Home is pressed, before this view starts fading, so the
+  // page underneath can take itself out of sight rather than be revealed.
+  onLeaving,
+}) => {
   const rootRef = useRef(null)
   const views = VIEW_SOURCES[tower] ?? null
   const floors = views && position ? views.floorsForPosition(position) : []
@@ -118,8 +119,6 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
     () => initialFloor ?? floors[0] ?? null,
   )
   const src = views && floor != null ? views.viewImage(floor, position) : null
-  const isCurved =
-    tower === CURVED_TOWER && Number(position) === CURVED_POSITION
   // Keep the current floor visible in the drop-up even if it isn't one of the
   // floors with a view, so the list never contradicts the button's label.
   const floorOptions =
@@ -155,38 +154,38 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
   // hardening: with nothing gating the entrance, the effect's double-invocation
   // could replay it, which is what made the header controls flicker in
   // half-blurred instead of rising cleanly out of the blur.
-  //
-  // exitWith (not exitTo) for both actions: closing is a state swap back to the
-  // unit sheet, and Home defers to the parent's own onHome, which runs the
-  // page's exit before navigating.
   const { exitWith } = usePageTransition({ containerRef: rootRef })
 
   const handleClose = useCallback(() => exitWith(onClose), [exitWith, onClose])
-  const handleHome = useCallback(() => exitWith(onHome), [exitWith, onHome])
+
+  // Home leaves for the homepage in ONE fade, straight from this view.
+  //
+  // The unit sheet is still painted underneath, so it has to be taken out of
+  // the picture before the fade begins — otherwise it is revealed as this
+  // overlay turns transparent, and the trip home reads as "back a screen,
+  // then fade". onLeaving hides it outright (instantly, under cover of this
+  // still-opaque overlay); then this view fades away over the background and
+  // onHome navigates once it lands.
+  const handleHome = useCallback(() => {
+    onLeaving?.()
+    exitWith(onHome)
+  }, [onLeaving, exitWith, onHome])
 
   return (
     <div
       ref={rootRef}
-      className={`fixed inset-0 z-50 overflow-hidden ${
-        isCurved ? 'bg-white' : 'bg-[#23211E]'
-      }`}
+      className="fixed inset-0 z-50 overflow-hidden bg-white"
     >
       {/* Panorama stage — stays mounted across floor changes so it can crossfade
-          internally. Falls back to a flat dark fill when no view exists. Its
-          own sync group of one — the compare page groups several together. */}
+          internally. Falls back to a plain fill when no view exists. Its own
+          sync group of one — the compare page groups several together. */}
       {src ? (
-        isCurved ? (
+        <PanoramaSyncProvider>
           <CurvedPanorama src={src} />
-        ) : (
-          <PanoramaSyncProvider>
-            <Panorama src={src} />
-          </PanoramaSyncProvider>
-        )
+        </PanoramaSyncProvider>
       ) : (
         <div
-          className={`absolute inset-0 grid place-items-center px-12 text-center ${
-            isCurved ? 'bg-white' : 'bg-[#23211E]'
-          }`}
+          className="absolute inset-0 grid place-items-center px-12 text-center bg-white"
         >
           <p
             className="uppercase"
@@ -195,7 +194,7 @@ const CourtyardView = ({ title, tower, position, initialFloor, onClose, onHome }
               fontWeight: 500,
               fontSize: 16,
               letterSpacing: '0.12em',
-              color: isCurved ? 'rgba(49,49,49,0.55)' : 'rgba(255,255,255,0.55)',
+              color: 'rgba(49,49,49,0.55)',
             }}
           >
             {/* Sales-team wording (client feedback, 08 Aug): the honest read
