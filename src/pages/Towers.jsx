@@ -7,6 +7,7 @@ import TowerElevation from '../components/towers/TowerElevation'
 import TowersLoadingScreen from '../components/towers/TowersLoadingScreen'
 import useTowersAssetsReady from '../hooks/useTowersAssetsReady'
 import { elevationFor } from '../data/towerElevations'
+import { useEntryLoader } from '../hooks/useEntryLoader'
 
 // /towers is a single route with an aerial landing (four tower pills) and a
 // single-tower detail view. Which view shows is driven entirely by the URL: the
@@ -22,7 +23,12 @@ const Towers = () => {
   // Arriving with a ?tower= param means we're deep-linking to (or returning to)
   // a detail view — skip the loading screen and render it immediately. Captured
   // once on mount so it survives backToLanding clearing the param.
-  const [skipLoader] = useState(() => searchParams.get('tower') != null)
+  // ...and likewise when arriving from anywhere but the homepage: the loader
+  // introduces the section, it doesn't replay on every return to it.
+  const playLoader = useEntryLoader()
+  const [skipLoader] = useState(
+    () => searchParams.get('tower') != null || !playLoader,
+  )
   const [overlayGone, setOverlayGone] = useState(skipLoader)
 
   // The URL is the single source of truth for which tower is open.

@@ -11,6 +11,7 @@ import InlineSVG from '../components/about/InlineSVG'
 import Header from '../components/layout/Header'
 import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
 import useLoaderReady from '../hooks/useLoaderReady'
+import { useEntryLoader } from '../hooks/useEntryLoader'
 import AboutLoaderVector from '../assets/loaders/about-loader-vector.svg?react'
 import AboutLoaderSubheading from '../assets/loaders/about-loader-subheading.svg?react'
 
@@ -26,7 +27,8 @@ const AboutUs = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   // Sketch intro over the page while the fonts settle, matching the other tabs.
   const loaderReady = useLoaderReady()
-  const [overlayGone, setOverlayGone] = useState(false)
+  const playLoader = useEntryLoader()
+  const [overlayGone, setOverlayGone] = useState(() => !playLoader)
 
   // Per-slide scale per breakpoint and full-viewport background color.
   // `bg` paints the entire slide so colored sections (e.g. pastel brown)

@@ -12,14 +12,14 @@ const ASSET_BASE = '/gallery/hotspots/sky club'
 export const skyClubHotspots = [
   {
     slug: 'viewing-decks',
-    name: 'Viewing Decks',
+    name: 'Viewing decks',
     bg: `${ASSET_BASE}/viewing decks bg.webp`,
     progress: 1 / 6,
     decoratives: [],
   },
   {
     slug: 'kids-play-area',
-    name: 'Kids Play Area',
+    name: 'Kids club',
     bg: `${ASSET_BASE}/kids play area bg.webp`,
     objectPosition: 'center bottom',
     progress: 2 / 6,
@@ -49,7 +49,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'guest-rooms',
-    name: 'Guest Rooms',
+    name: 'Sky suites',
     bg: `${ASSET_BASE}/guest suites bg.webp`,
     objectPosition: 'center bottom',
     progress: 3 / 6,
@@ -79,7 +79,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'banquet-hall',
-    name: 'Banquet Hall',
+    name: 'Sky Lounge',
     bg: `${ASSET_BASE}/banquet hall bg.webp`,
     progress: 4 / 6,
     // Placement measured from the design team's Figma export for this frame.
@@ -100,7 +100,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'sky-fitness',
-    name: 'Sky Fitness',
+    name: 'Sky Gym',
     bg: `${ASSET_BASE}/gymnasium bg.webp`,
     progress: 5 / 6,
     decoratives: [
@@ -129,7 +129,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'spa',
-    name: 'Spa',
+    name: 'Spa and Open to sky Jacuzzi',
     bg: `${ASSET_BASE}/spa bg.webp`,
     progress: 6 / 6,
     decoratives: [

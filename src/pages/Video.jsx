@@ -6,6 +6,7 @@ import ConstructionVector from '../assets/construction/loader-vector.svg?react'
 import ConstructionSubheading from '../assets/construction/loader-subheading.svg?react'
 import AvVector from '../assets/loaders/av-loader-vector.svg?react'
 import AvSubheading from '../assets/loaders/av-loader-subheading.svg?react'
+import { useEntryLoader } from '../hooks/useEntryLoader'
 
 // Both routes that render this page open on a hand-sketch intro; only the
 // artwork and wording differ. Keyed by the `loader` prop so App.jsx picks one
@@ -44,7 +45,8 @@ const Video = ({ videoId = 'fYk0s5Ja9iM', loader = 'av' }) => {
   const { exitTo } = usePageTransition({ containerRef: pageRef })
   const [playing, setPlaying] = useState(false)
   const ready = useLoaderReady()
-  const [overlayGone, setOverlayGone] = useState(false)
+  const playLoader = useEntryLoader()
+  const [overlayGone, setOverlayGone] = useState(() => !playLoader)
   const loaderConfig = LOADERS[loader] ?? LOADERS.av
 
   const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1&vq=hd1080`

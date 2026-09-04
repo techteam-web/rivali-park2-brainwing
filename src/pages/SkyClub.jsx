@@ -3,17 +3,35 @@ import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useSkyClubHovers } from '../hooks/useSkyClubHovers'
 
+// Reference frame for the hotspot coordinates below: the aerial render's own
+// 5000x2250 proportions (served at 3200x1440). The stage covers the viewport
+// against this ratio, so on anything narrower than 2.22:1 the left and right
+// edges are cropped — hotspots are kept inside the band that survives that.
 const BG_W = 1440
-const BG_H = 1024
+const BG_H = 648
 
 
+// Labels follow the sales-team markup (Sales tool feedback.pdf, p3); the slugs
+// and detail pages behind them are unchanged, so only the wording moved.
+//
+// Positions are re-derived for the aerial render — the markup was drawn on the
+// straight-on elevation, where the amenities read left-to-right across three
+// towers. Looking down instead, the same amenities are the roof decks and the
+// glazed amenity floors, so each hotspot sits on the part of the building that
+// actually shows it, keeping the markup's left-to-right order.
+//
+// They also all sit left of x≈0.68. The stage covers the viewport against the
+// render's 2.22:1 ratio and is anchored left, so a narrower screen crops the
+// RIGHT edge away: only x 0..0.80 survives at 1920x1080, 0..0.72 at 1440x900,
+// 0..0.60 at 4:3. Anything placed on the right tower's own amenity floor
+// (x>0.72) is simply never on screen.
 const cards = [
-  { name: 'Viewing Decks',  src: '/gallery/svgs/sky club/viewing decks.svg',   top: 0.4282, left: 0.2323, slug: 'viewing-decks' },
-  { name: 'Kids play area', src: '/gallery/svgs/sky club/kids play area.svg',  top: 0.4282, left: 0.4025, slug: 'kids-play-area' },
-  { name: 'Guests Rooms',   src: '/gallery/svgs/sky club/guest rooms.svg',     top: 0.4282, left: 0.555,  slug: 'guest-rooms' },
-  { name: 'Banquet hall',   src: '/gallery/svgs/sky club/banquette hall.svg',  top: 0.4282, left: 0.7135, slug: 'banquet-hall' },
-  { name: 'Sky Fitness',    src: '/gallery/svgs/sky club/sky fitness.svg',     top: 0.3833, left: 0.8369, slug: 'sky-fitness' },
-  { name: 'Spa',            src: '/gallery/svgs/sky club/spa.svg',             top: 0.4282, left: 0.9421, slug: 'spa' },
+  { name: 'Sky Gym',                      src: '/gallery/svgs/sky club/sky fitness.svg',    top: 0.720, left: 0.100, slug: 'sky-fitness' },
+  { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.440, left: 0.215, slug: 'viewing-decks' },
+  { name: 'Sky suites',                   src: '/gallery/svgs/sky club/guest rooms.svg',    top: 0.660, left: 0.330, slug: 'guest-rooms' },
+  { name: 'Spa and Open to sky Jacuzzi',  src: '/gallery/svgs/sky club/spa.svg',            top: 0.280, left: 0.475, slug: 'spa' },
+  { name: 'Kids club',                    src: '/gallery/svgs/sky club/kids play area.svg', top: 0.460, left: 0.575, slug: 'kids-play-area' },
+  { name: 'Sky Lounge',                   src: '/gallery/svgs/sky club/banquette hall.svg', top: 0.220, left: 0.655, slug: 'banquet-hall' },
 ]
 
 const PILL_BG =

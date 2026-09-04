@@ -82,37 +82,11 @@ export const socialClubHotspots = [
     name: 'Library & Business Centre',
     bg: `${ASSET_BASE}/library business centre bg.webp`,
     progress: 4 / 7,
-    decoratives: [
-      // Placements measured from the design team's Figma export for this frame,
-      // normalized against their 1440x1024 artboard and corrected for the stroke
-      // Figma leaves out of a group's box but the SVG canvas includes.
-      //
-      // That dump covers the whole Social Club section — five artboards stacked
-      // in one column — so it also carries the screening room's doodles at
-      // coordinates that look plausible here. Only the three that actually
-      // appear on this render are listed.
-      {
-        name: 'floor-lamp',
-        src: `${ASSET_BASE}/floor-lamp-library.svg`,
-        top: 0.3538,
-        left: 0.0333,
-        width: 0.1139,
-      },
-      {
-        name: 'camera',
-        src: `${ASSET_BASE}/camera-library.svg`,
-        top: 0.6004,
-        left: 0.6412,
-        width: 0.0319,
-      },
-      {
-        name: 'bin',
-        src: `${ASSET_BASE}/bin-library.svg`,
-        top: 0.6770,
-        left: 0.9172,
-        width: 0.0563,
-      },
-    ],
+    // No overlay drawings on this one: the render is used exactly as supplied.
+    // The Figma doodles (floor lamp, camera, bin) were placed against the
+    // earlier library render and don't describe this room, and the render
+    // already carries its own line art baked in.
+    decoratives: [],
   },
   {
     slug: 'teens-lounge',
@@ -195,21 +169,11 @@ export const socialClubHotspots = [
     name: 'Cafeteria',
     bg: `${ASSET_BASE}/cafeteria bg.webp`,
     progress: 7 / 7,
-    // Placements measured from the design team's Figma export for this frame.
-    // One flower-vase drawing is reused six times at two sizes; the cups and the
-    // glasses are their own exports. Mirroring is decided by scoring each vase
-    // both ways against the client's composite, not by the Figma transform,
-    // which describes the instance rather than the export.
-    decoratives: [
-      { name: 'vase-1',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.5419, left: 0.0880, width: 0.0480, flip: true },
-      { name: 'vase-2',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.4873, left: 0.2680, width: 0.0329, flip: true },
-      { name: 'vase-3',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.4993, left: 0.5911, width: 0.0299, flip: true },
-      { name: 'vase-4',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.5062, left: 0.6640, width: 0.0298 },
-      { name: 'vase-5',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.5697, left: 0.7537, width: 0.0479 },
-      { name: 'vase-6',  src: `${ASSET_BASE}/vase-cafeteria.svg`,    top: 0.4679, left: 0.8507, width: 0.0299, flip: true },
-      { name: 'cups',    src: `${ASSET_BASE}/cups-cafeteria.svg`,    top: 0.5835, left: 0.6122, width: 0.0598 },
-      { name: 'glasses', src: `${ASSET_BASE}/glasses-cafeteria.svg`, top: 0.5949, left: 0.8196, width: 0.0438 },
-    ],
+    // No overlay drawings on this one: the render is used exactly as supplied.
+    // The Figma doodles (six vases, cups, glasses) were placed against the
+    // earlier cafeteria render, and this one already has its own line art
+    // (the two figures and the pendant lamps) baked into the image.
+    decoratives: [],
   },
 ]
 

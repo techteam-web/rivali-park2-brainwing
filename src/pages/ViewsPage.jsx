@@ -6,6 +6,7 @@ import useLoaderReady from '../hooks/useLoaderReady';
 import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen';
 import LoaderVector from '../assets/svgs-viewspage/views-loader-vector.svg?react';
 import LoaderSubheading from '../assets/svgs-viewspage/views-loader-subheading.svg?react';
+import { useEntryLoader } from '../hooks/useEntryLoader';
 
 const SunSvg = ({ className }) => (
   <svg className={className} width="34" height="26" viewBox="0 0 34 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -46,7 +47,8 @@ const ViewsPage = () => {
   // Hand-sketch loading overlay: stays until the 360 viewer iframe has loaded
   // (and a minimum display window so the draw-in animation is seen).
   const ready = useLoaderReady(isViewerReady);
-  const [overlayGone, setOverlayGone] = useState(false);
+  const playLoader = useEntryLoader();
+  const [overlayGone, setOverlayGone] = useState(() => !playLoader);
 
   const containerRef = useRef(null);
   // Entrance is handled by the sketch loader above; we only need the animated

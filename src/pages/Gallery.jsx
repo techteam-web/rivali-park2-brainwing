@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
 import useLoaderReady from '../hooks/useLoaderReady'
+import { useEntryLoader } from '../hooks/useEntryLoader'
 import AmenitiesLoaderVector from '../assets/loaders/amenities-loader-vector.svg?react'
 import AmenitiesLoaderSubheading from '../assets/loaders/amenities-loader-subheading.svg?react'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
@@ -63,7 +64,10 @@ const Gallery = () => {
   const containerRef = useRef(null)
   // Sketch intro over the page while the fonts settle, matching the other tabs.
   const loaderReady = useLoaderReady()
-  const [overlayGone, setOverlayGone] = useState(false)
+  // The loader introduces the section from the homepage; coming back from a
+  // club page lands straight on the hub instead of replaying it.
+  const playLoader = useEntryLoader()
+  const [overlayGone, setOverlayGone] = useState(() => !playLoader)
   const { exitTo } = useGalleryTransition({ containerRef })
 
   return (

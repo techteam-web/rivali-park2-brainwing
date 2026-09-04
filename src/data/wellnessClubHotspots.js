@@ -14,31 +14,10 @@ export const wellnessClubHotspots = [
     name: 'Outdoor Amphitheatre',
     bg: `${ASSET_BASE}/outdoor amphitheatre bg.webp`,
     progress: 0.2,
-    // Placements measured from the design team's Figma export for this frame.
-    // The delivered render is a 4x export of their 1440x1024 artboard, so the
-    // numbers are normalized against that artboard. Two corrections are baked
-    // in: Figma reports a group's box as geometry bounds while the exported SVG
-    // includes the stroke, and the man's layer carries a drop-shadow filter that
-    // pads his export canvas by ~19px a side, which has to come back off.
-    // Neither figure is mirrored here: the man's layer carries a matrix(-1) but
-    // his export already has it baked in, so re-applying it would face him the
-    // wrong way. Checked against the client's own composite.
-    decoratives: [
-      {
-        name: 'woman',
-        src: `${ASSET_BASE}/woman-amphitheatre.svg`,
-        top: 0.5062,
-        left: 0.6121,
-        width: 0.0625,
-      },
-      {
-        name: 'man',
-        src: `${ASSET_BASE}/man-amphitheatre.svg`,
-        top: 0.4099,
-        left: 0.8127,
-        width: 0.0895,
-      },
-    ],
+    // No overlay drawings on this one: the render is used exactly as supplied.
+    // The Figma figures (woman, man) were placed against the earlier
+    // amphitheatre render, and this one already carries its own line art.
+    decoratives: [],
   },
   {
     slug: 'spa',

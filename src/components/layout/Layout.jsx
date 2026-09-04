@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
+import { useRecordPath } from '../../hooks/useEntryLoader'
 import Header from './Header'
 import Footer from './Footer'
 
@@ -21,6 +22,9 @@ const galleryTintFor = (pathname) => {
 
 const Layout = () => {
   const { pathname } = useLocation()
+  // Remember where each navigation came from, so section loaders can tell an
+  // arrival from the homepage apart from a return out of a nested page.
+  useRecordPath()
   const isFullscreen = pathname === '/about' || pathname.startsWith('/gallery')
   const isHome = pathname === '/'
   const isAbout = pathname === '/about'

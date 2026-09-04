@@ -9,14 +9,17 @@ import {
   setupLotus,
 } from './cardHoverSetups'
 
-// Card names defined in SkyClub.jsx — must match `data-card-name` after lowercasing.
+// Card names defined in SkyClub.jsx — must match `data-card-name` after
+// lowercasing. Re-keyed when the labels were reworded to the sales-team markup
+// (Sales tool feedback.pdf, p3); the icons and their animations are unchanged,
+// so each new label points at exactly the setup its icon had before.
 const setups = {
-  'viewing decks':  setupViewingDecks,
-  'kids play area': setupKidsSlide,
-  'guests rooms':   setupGuestRoomsSC,
-  'banquet hall':   setupBanquetHall,
-  'sky fitness':    setupBarbell,
-  spa:              setupLotus,
+  'sky gym':                     setupBarbell,
+  'viewing decks':               setupViewingDecks,
+  'sky suites':                  setupGuestRoomsSC,
+  'spa and open to sky jacuzzi': setupLotus,
+  'kids club':                   setupKidsSlide,
+  'sky lounge':                  setupBanquetHall,
 }
 
 export function useSkyClubHovers(scopeRef) {

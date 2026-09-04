@@ -82,14 +82,31 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
     //
     // Rather than guess when that happens, watch for it: any drawable sitting at
     // opacity 0 that nothing is animating gets revealed on the next frame.
-    const entranceActive = () => Boolean(root._galleryEntranceTl?.isActive())
+    // Shapes the entrance timeline is responsible for, and whether it has
+    // finished with them. The rescue below must leave these alone until then.
+    //
+    // This bookkeeping replaces an `isActive()` check, which was not enough and
+    // broke the entrance outright: the drawables tween is positioned 0.4s into
+    // the timeline, so for that first 0.4s every shape sits at opacity 0 with
+    // NO tween on it yet — `gsap.isTweening(el)` is false and the timeline
+    // hasn't ticked, so the rescue saw a page full of "stranded" shapes and
+    // snapped them all to fully drawn before their draw-in ever started. The
+    // page then looked pre-drawn on arrival while still undrawing correctly on
+    // exit, because the exit builds its own timeline.
+    let entranceOwned = new Set()
+    let entranceFinished = false
 
     const revealStranded = () => {
       if (root.dataset.galleryEntrancePlayed !== '1') return
-      if (isExitingRef.current || entranceActive()) return
+      if (isExitingRef.current) return
       const stranded = collectDrawables(root).filter(
         (el) =>
-          !gsap.isTweening(el) && Number(getComputedStyle(el).opacity) === 0,
+          !gsap.isTweening(el) &&
+          // Owned shapes are the entrance's until it has finished; everything
+          // else (a late arrival, or a node some re-render recreated) is fair
+          // game, which is what this rescue exists for.
+          (entranceFinished || !entranceOwned.has(el)) &&
+          Number(getComputedStyle(el).opacity) === 0,
       )
       if (stranded.length) gsap.set(stranded, { opacity: 1, drawSVG: '0% 100%' })
     }
@@ -134,6 +151,8 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       // linecap "dot" artefacts that drawSVG: 0 alone would leave behind.
       // The entrance tween below restores opacity in lockstep with the
       // drawSVG reveal.
+      entranceOwned = new Set([...drawables, ...outlines])
+
       if (drawables.length) gsap.set(drawables, { opacity: 0, drawSVG: 0 })
       if (outlines.length) gsap.set(outlines, { opacity: 1, drawSVG: 0 })
 
@@ -178,10 +197,11 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
         if (labels.length) gsap.set(labels, { autoAlpha: 1 })
         if (backBtn) gsap.set(backBtn, { autoAlpha: 1 })
         if (cardSvgs.length) gsap.set(cardSvgs, { autoAlpha: 1, scale: 1 })
+        entranceFinished = true
         return
       }
 
-      const tl = gsap.timeline()
+      const tl = gsap.timeline({ onComplete: () => { entranceFinished = true } })
       // Stash the timeline on the DOM so exitTo can find and kill it
       // even after a strict re-mount (refs reset across the cycle, but
       // the DOM element persists).
