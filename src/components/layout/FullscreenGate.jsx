@@ -21,12 +21,10 @@ const canRequest = () => {
   return Boolean(el.requestFullscreen || el.webkitRequestFullscreen)
 }
 
-// F11 / the macOS green button put the window in fullscreen without the API,
-// and that already gives the pages the whole screen, so it counts too.
-const isFullscreen = () =>
-  Boolean(fsElement()) ||
-  (typeof window.matchMedia === 'function' &&
-    window.matchMedia('(display-mode: fullscreen)').matches)
+// Only real (API) fullscreen counts. A window put in fullscreen with F11 or
+// the macOS green button still matches `display-mode: fullscreen` while the
+// tab strip and address bar stay on screen, so it is not treated as enough.
+const isFullscreen = () => Boolean(fsElement())
 
 const requestFullscreen = () => {
   const el = document.documentElement
@@ -79,12 +77,9 @@ const FullscreenGate = () => {
     }
     document.addEventListener('fullscreenchange', sync)
     document.addEventListener('webkitfullscreenchange', sync)
-    // display-mode changes (F11) don't fire fullscreenchange.
-    window.addEventListener('resize', sync)
     return () => {
       document.removeEventListener('fullscreenchange', sync)
       document.removeEventListener('webkitfullscreenchange', sync)
-      window.removeEventListener('resize', sync)
     }
   }, [])
 
