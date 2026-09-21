@@ -6,17 +6,22 @@ import { useCentralCourtyardHovers } from '../hooks/useCentralCourtyardHovers'
 const BG_W = 1440
 const BG_H = 1024
 
+// Labels follow the sales-team markup (Sales Tool Feedback 16.09.26, p3):
+// Art Gallery -> Colonnade, Coffee Shop -> Wellness Club, "Liesure" spelling
+// fixed. Slugs are unchanged so existing detail-page URLs keep working.
+// Multipurpose courts (and the bushes drawn around it) moved up 0.06 to clear
+// the page title.
 const cards = [
-  { name: 'Art Gallery',         src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538, slug: 'art-gallery' },
-  { name: 'Coffee Shop',         src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094, slug: 'coffee-shop' },
+  { name: 'Colonnade',           src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538, slug: 'art-gallery' },
+  { name: 'Wellness Club',       src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094, slug: 'coffee-shop' },
   { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.2412, left: 0.8396, slug: 'kids-play-area' },
-  { name: 'Liesure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365, slug: 'liesure-pool' },
+  { name: 'Leisure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365, slug: 'liesure-pool' },
   { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.4854, left: 0.8608, slug: 'swimming-pool' },
-  { name: 'Multipurpose courts', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.6582, left: 0.0974, slug: 'multipurpose-courts' },
+  { name: 'Multipurpose courts', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.5982, left: 0.0974, slug: 'multipurpose-courts' },
 ]
 
 const decoratives = [
-  { name: 'left-bushes', src: '/gallery/svgs/central courtyard/left-side-bushes.svg', top: 0.668,  left: 0.0549, width: 0.0813 },
+  { name: 'left-bushes', src: '/gallery/svgs/central courtyard/left-side-bushes.svg', top: 0.608,  left: 0.0549, width: 0.0813 },
   { name: 'right-tree',  src: '/gallery/svgs/central courtyard/right-side-tree.svg',  top: 0.6211, left: 0.8875, width: 0.0681 },
 ]
 

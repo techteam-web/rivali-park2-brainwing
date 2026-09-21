@@ -382,7 +382,9 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
               caption="CCI Projects is formed"
               image="/about/timeline-image-36.webp"
               imageClass="object-[center_0%] origin-top scale-140"
-              badge="/about/cci-logo.webp"
+              // Monochrome per the 16 Sep feedback: the logos are black &
+              // white, not colour.
+              badge="/about/cci-logo-black.webp"
               badgeClass="h-[35%] max-w-100"
             />
           </div>
@@ -491,7 +493,9 @@ const JourneyThroughTime = forwardRef((_props, ref) => {
               image="/about/timeline-image-36.webp"
               imageClass="object-left origin-top-left scale-280 -translate-y-[68%]"
               badge="/about/rivali-park-white.webp"
-              badgeClass="h-[40%] max-w-100"
+              // Stripes are coloured in the asset; flatten to all-white so
+              // the mark reads monochrome (16 Sep feedback).
+              badgeClass="h-[40%] max-w-100 brightness-0 invert"
             />
           </div>
           <div className="col-span-4 col-start-7 flex justify-center">

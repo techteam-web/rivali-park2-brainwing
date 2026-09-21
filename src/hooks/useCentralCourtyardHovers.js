@@ -8,13 +8,13 @@ import {
   setupCourts,
 } from './cardHoverSetups'
 
-// Card names defined in CentralCourtyard.jsx (lowercased): the data uses
-// "Liesure pool" — yes, that's the spelling currently on the page.
+// Card names defined in CentralCourtyard.jsx (lowercased). Keep in step with
+// the labels there — a renamed card silently loses its hover otherwise.
 const setups = {
-  'art gallery':         setupArtGallery,
-  'coffee shop':         setupSteamCup,
+  'colonnade':           setupArtGallery,
+  'wellness club':       setupSteamCup,
   'kids play area':      setupKidsSlide,
-  'liesure pool':        setupPool,
+  'leisure pool':        setupPool,
   'swimming pool':       setupPool,
   'multipurpose courts': setupCourts,
 }

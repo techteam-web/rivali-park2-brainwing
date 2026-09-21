@@ -31,7 +31,7 @@ const cards = [
   { name: 'Sky suites',                   src: '/gallery/svgs/sky club/guest rooms.svg',    top: 0.660, left: 0.330, slug: 'guest-rooms' },
   { name: 'Spa and Open to sky Jacuzzi',  src: '/gallery/svgs/sky club/spa.svg',            top: 0.280, left: 0.475, slug: 'spa' },
   { name: 'Kids club',                    src: '/gallery/svgs/sky club/kids play area.svg', top: 0.460, left: 0.575, slug: 'kids-play-area' },
-  { name: 'Sky Lounge',                   src: '/gallery/svgs/sky club/banquette hall.svg', top: 0.220, left: 0.655, slug: 'banquet-hall' },
+  { name: 'Banquet hall',                 src: '/gallery/svgs/sky club/banquette hall.svg', top: 0.220, left: 0.655, slug: 'banquet-hall' },
 ]
 
 const PILL_BG =

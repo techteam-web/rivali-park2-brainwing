@@ -436,7 +436,7 @@ const setupTeenLounge = (svgEl) => {
 // save re-deriving the animation if the room comes back.
 const setups = {
   cafeteria: setupCafeteria,
-  'library & business centre': setupLibrary,
+  'business centre': setupLibrary,
   'screening room': setupScreeningRoom,
   'kids club': setupKidsClub,
   'billiard room': setupBilliard,

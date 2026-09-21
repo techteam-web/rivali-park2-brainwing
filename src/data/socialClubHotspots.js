@@ -79,7 +79,7 @@ export const socialClubHotspots = [
   },
   {
     slug: 'library-business-centre',
-    name: 'Library & Business Centre',
+    name: 'Business Centre',
     bg: `${ASSET_BASE}/library business centre bg.webp`,
     progress: 4 / 7,
     // No overlay drawings on this one: the render is used exactly as supplied.
@@ -169,13 +169,22 @@ export const socialClubHotspots = [
     name: 'Cafeteria',
     bg: `${ASSET_BASE}/cafeteria bg.webp`,
     progress: 7 / 7,
-    // No overlay drawings on this one: the render is used exactly as supplied.
-    // The Figma doodles (six vases, cups, glasses) were placed against the
-    // earlier cafeteria render, and this one already has its own line art
-    // (the two figures and the pendant lamps) baked into the image.
-    decoratives: [],
+    // Wooden-bar render (21 Sep), supplied clean so the cups can draw in.
+    // Placed from the Figma "CUPS" group (115.19x58.47 at 646.52, 600.6);
+    // the export is 117x61 because it includes the 1.6px stroke, so the box
+    // is pulled up-left by half the difference to keep the lines on the mark.
+    decoratives: [
+      {
+        name: 'cups',
+        src: `${ASSET_BASE}/cups-bar-cafeteria.svg`,
+        top: 0.5853,
+        left: 0.4484,
+        width: 0.0813,
+      },
+    ],
   },
 ]
 
 export const findHotspotIndex = (slug) =>
   socialClubHotspots.findIndex((h) => h.slug === slug)
+ 

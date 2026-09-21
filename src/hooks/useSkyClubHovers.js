@@ -19,7 +19,7 @@ const setups = {
   'sky suites':                  setupGuestRoomsSC,
   'spa and open to sky jacuzzi': setupLotus,
   'kids club':                   setupKidsSlide,
-  'sky lounge':                  setupBanquetHall,
+  'banquet hall':                setupBanquetHall,
 }
 
 export function useSkyClubHovers(scopeRef) {

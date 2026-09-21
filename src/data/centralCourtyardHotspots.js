@@ -11,7 +11,7 @@ const ASSET_BASE = '/gallery/hotspots/central courtyard'
 export const centralCourtyardHotspots = [
   {
     slug: 'art-gallery',
-    name: 'Art Gallery',
+    name: 'Colonnade',
     bg: `${ASSET_BASE}/art gallery bg.webp`,
     progress: 1 / 6,
     // Placements measured from the design team's Figma export for this frame.
@@ -40,7 +40,7 @@ export const centralCourtyardHotspots = [
   },
   {
     slug: 'coffee-shop',
-    name: 'Coffee Shop',
+    name: 'Wellness Club',
     bg: `${ASSET_BASE}/coffee shop bg.webp`,
     progress: 2 / 6,
     decoratives: [
@@ -67,7 +67,7 @@ export const centralCourtyardHotspots = [
   },
   {
     slug: 'liesure-pool',
-    name: 'Liesure Pool',
+    name: 'Leisure Pool',
     bg: `${ASSET_BASE}/leisure pool bg.webp`,
     progress: 3 / 6,
     decoratives: [

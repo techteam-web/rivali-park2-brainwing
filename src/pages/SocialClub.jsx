@@ -19,7 +19,8 @@ const BG_H = 745
 //   Teen lounge         -> Kids Club
 // Three icons on the right of the render were struck out and are gone:
 // the old Kids Club (0.57), Card room (0.69) and Billiard room (0.66).
-// Library & business centre was ticked as correct and is untouched.
+// Library & business centre was ticked as correct on 13 Aug; renamed to
+// Business centre by the 16 Sep feedback (slug unchanged).
 //
 // Screening room moves to the far left, where their mark-up places it. That
 // position is read off the mark-up and is the one value here worth a second
@@ -35,7 +36,7 @@ const cards = [
   { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.346, left: 0.10, slug: 'screening-room' },
   { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.360, left: 0.24, slug: 'card-room' },
   { name: 'Billiards room',            src: '/gallery/svgs/social club/billiard room.svg',             top: 0.40, left: 0.36, slug: 'billiards-room' },
-  { name: 'Library & business centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22, slug: 'library-business-centre' },
+  { name: 'Business centre',           src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22, slug: 'library-business-centre' },
   { name: 'Teens Lounge',              src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.33, left: 0.824, slug: 'teens-lounge' },
   { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.54, left: 0.85, slug: 'kids-club' },
   { name: 'Cafeteria',                 src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.42, left: 0.57, slug: 'cafeteria' },

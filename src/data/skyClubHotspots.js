@@ -79,7 +79,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'banquet-hall',
-    name: 'Sky Lounge',
+    name: 'Banquet Hall',
     bg: `${ASSET_BASE}/banquet hall bg.webp`,
     progress: 4 / 6,
     // Placement measured from the design team's Figma export for this frame.

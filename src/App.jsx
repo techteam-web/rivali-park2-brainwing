@@ -21,8 +21,12 @@ import Maps from './pages/Maps'
 import Locations from './pages/Locations'
 import Viewspage from './pages/ViewsPage'
 import Video from './pages/Video'
+import FullscreenGate from './components/layout/FullscreenGate'
 const App = () => {
   return (
+    <>
+    {/* Sits above every route, loaders included; see FullscreenGate. */}
+    <FullscreenGate />
     <Routes>
          
       <Route element={<Layout />}>
@@ -55,6 +59,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </>
   )
 }
 
