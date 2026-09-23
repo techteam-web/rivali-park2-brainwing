@@ -175,7 +175,6 @@ const FullscreenGate = () => {
         role="button"
         tabIndex={open ? 0 : -1}
         aria-hidden={!open}
-        aria-label="Enter full screen"
         onClick={handleEnter}
         onKeyDown={handleKey}
         className={`invisible fixed inset-0 flex flex-col items-center justify-center bg-pastel-brown-bg px-6 select-none cursor-pointer focus:outline-none ${open ? '' : 'pointer-events-none'}`}
@@ -184,6 +183,11 @@ const FullscreenGate = () => {
         <img
           ref={logoRef}
           src="/about/cci-logo-black.webp"
+          width={2216}
+          height={898}
+          // First thing on screen; don't let a page's large assets (the
+          // Locations map is ~30 MB) queue ahead of it.
+          fetchPriority="high"
           alt="CCI Projects"
           className={`${logoScale} h-auto mb-10 lg:mb-12 xl:mb-14 2xl:mb-16 3xl:mb-20 4xl:mb-24 5xl:mb-36 [@media(max-height:560px)]:mb-6`}
           draggable={false}

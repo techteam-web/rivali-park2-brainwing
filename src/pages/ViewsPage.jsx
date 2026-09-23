@@ -78,6 +78,23 @@ const ViewsPage = () => {
     }
   }, [isDay]);
 
+  // Wait for the viewer on the iframe itself, not through React's onLoad: this
+  // page is a lazy route, so the iframe can finish loading before React has
+  // committed it, and a load event in that gap is dropped. Hence the check for
+  // an already-loaded document too. The effect below then opens the scene.
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const markReady = () => setIsViewerReady(true);
+    const doc = iframe.contentDocument;
+    if (doc && doc.readyState === 'complete' && doc.URL !== 'about:blank') {
+      markReady();
+      return;
+    }
+    iframe.addEventListener('load', markReady);
+    return () => iframe.removeEventListener('load', markReady);
+  }, []);
+
   useEffect(() => {
     if (!isViewerReady) {
       return;
@@ -94,10 +111,6 @@ const ViewsPage = () => {
         src="/RivaliCCI_P2ViewsMarzipano/index.html"
         title="360 panorama viewer"
         className="absolute inset-0 h-full w-full border-0"
-        onLoad={() => {
-          setIsViewerReady(true);
-          activateScene(isDay ? '0-cci_park2day' : '1-cci_park2night');
-        }}
       />
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,0.22)_0%,rgba(0,0,0,0)_28%)]" />

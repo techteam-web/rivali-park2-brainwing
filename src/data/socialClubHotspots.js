@@ -82,11 +82,20 @@ export const socialClubHotspots = [
     name: 'Business Centre',
     bg: `${ASSET_BASE}/library business centre bg.webp`,
     progress: 4 / 7,
-    // No overlay drawings on this one: the render is used exactly as supplied.
-    // The Figma doodles (floor lamp, camera, bin) were placed against the
-    // earlier library render and don't describe this room, and the render
-    // already carries its own line art baked in.
-    decoratives: [],
+    // Clean photo cropped to the design team's latest Figma frame for this room
+    // (622:9522). Only the floor lamp is drawn over it there; the frame's other
+    // two doodle groups sit beneath the photo and never show. Placement is
+    // normalized against the 1440x1024 artboard and stroke-corrected like the
+    // rest.
+    decoratives: [
+      {
+        name: 'floor-lamp',
+        src: `${ASSET_BASE}/floor-lamp-business-centre.svg`,
+        top: 0.3099,
+        left: 0.7626,
+        width: 0.1470,
+      },
+    ],
   },
   {
     slug: 'teens-lounge',

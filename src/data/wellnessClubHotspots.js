@@ -14,10 +14,37 @@ export const wellnessClubHotspots = [
     name: 'Outdoor Amphitheatre',
     bg: `${ASSET_BASE}/outdoor amphitheatre bg.webp`,
     progress: 0.2,
-    // No overlay drawings on this one: the render is used exactly as supplied.
-    // The Figma figures (woman, man) were placed against the earlier
-    // amphitheatre render, and this one already carries its own line art.
-    decoratives: [],
+    // Latest Figma frame (622:10099). The supplied render had these three
+    // figures flattened into it, so they were lifted back out: the background
+    // is that render with the clean photo patched in along each figure, and the
+    // figures are the frame's own vector layers. Placement is normalized
+    // against the 1440x1024 artboard and stroke-corrected; the woman and dog
+    // are mirrored in Figma, which the exports do not carry, so they flip here.
+    decoratives: [
+      {
+        name: 'woman',
+        src: `${ASSET_BASE}/woman-outdoor-amphitheatre.svg`,
+        top: 0.5347,
+        left: 0.1897,
+        width: 0.0581,
+        flip: true,
+      },
+      {
+        name: 'dog',
+        src: `${ASSET_BASE}/dog-outdoor-amphitheatre.svg`,
+        top: 0.6582,
+        left: 0.5096,
+        width: 0.0641,
+        flip: true,
+      },
+      {
+        name: 'runner',
+        src: `${ASSET_BASE}/runner-outdoor-amphitheatre.svg`,
+        top: 0.3513,
+        left: 0.6984,
+        width: 0.0614,
+      },
+    ],
   },
   {
     slug: 'spa',
@@ -69,9 +96,7 @@ export const wellnessClubHotspots = [
       // That suits the two outer clusters, which hang from above the frame —
       // each is placed with its top pushed down by the ~90px the export lost,
       // which is what lands the shades correctly on the left one even though it
-      // sits at a different offset. The two middle clusters DO show their
-      // ceiling roses and are arranged differently, so they are not here; they
-      // need a full-height export of their own.
+      // sits at a different offset. The two middle clusters are further down.
       //
       // The left cluster is the right one mirrored. That is not read off the
       // Figma transform — the export already has its own instance's transform
@@ -90,6 +115,24 @@ export const wellnessClubHotspots = [
         left: 0.0763,
         width: 0.1745,
         flip: true,
+      },
+      // The two middle clusters (Figma 622:7443 and 622:7466) are one smaller
+      // arrangement, used twice, that shows its ceiling roses. It is built from
+      // the frame's own single-lamp exports, each mirrored as it is in Figma,
+      // and fits the design team's render of the frame to within half a pixel.
+      {
+        name: 'lamp-cluster-middle-left',
+        src: `${ASSET_BASE}/lamp-cluster-middle-dining.svg`,
+        top: 0.0533,
+        left: 0.3241,
+        width: 0.1081,
+      },
+      {
+        name: 'lamp-cluster-middle-right',
+        src: `${ASSET_BASE}/lamp-cluster-middle-dining.svg`,
+        top: 0.0689,
+        left: 0.5770,
+        width: 0.1081,
       },
       {
         name: 'bottles-left',

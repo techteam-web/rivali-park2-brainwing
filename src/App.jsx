@@ -1,32 +1,74 @@
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
-import Home from './pages/Home'
-import AboutUs from './pages/AboutUs'
-import Towers from './pages/Towers'
-import Gallery from './pages/Gallery'
-import SocialClub from './pages/SocialClub'
-import SocialClubHotspot from './pages/SocialClubHotspot'
-import WellnessClub from './pages/WellnessClub'
-import WellnessClubHotspot from './pages/WellnessClubHotspot'
-import CentralCourtyard from './pages/CentralCourtyard'
-import CentralCourtyardHotspot from './pages/CentralCourtyardHotspot'
-import SkyClub from './pages/SkyClub'
-import SkyClubHotspot from './pages/SkyClubHotspot'
-import ConventionCenter from './pages/ConventionCenter'
-import ConventionCenterHotspot from './pages/ConventionCenterHotspot'
-import UnitPlans from './pages/UnitPlans'
-import UnitPlanDetail from './pages/UnitPlanDetail'
-import UnitPlanCompare from './pages/UnitPlanCompare'
-import Maps from './pages/Maps'
-import Locations from './pages/Locations'
-import Viewspage from './pages/ViewsPage'
-import Video from './pages/Video'
 import FullscreenGate from './components/layout/FullscreenGate'
+
+// Every page is its own chunk. Imported eagerly they all landed in one 2.4 MB
+// bundle, and the 3D pages' module-scope preloads (Map.glb, the tower and bird
+// models, the terrain textures, ~30 MB) then fired on whichever page loaded
+// first, even a gallery slide. Now a page pulls only its own code, and the rest
+// are warmed in the background once the first page has settled, so moving
+// between pages still doesn't wait on a download.
+const routes = {
+  Home: () => import('./pages/Home'),
+  AboutUs: () => import('./pages/AboutUs'),
+  Towers: () => import('./pages/Towers'),
+  Gallery: () => import('./pages/Gallery'),
+  SocialClub: () => import('./pages/SocialClub'),
+  SocialClubHotspot: () => import('./pages/SocialClubHotspot'),
+  WellnessClub: () => import('./pages/WellnessClub'),
+  WellnessClubHotspot: () => import('./pages/WellnessClubHotspot'),
+  CentralCourtyard: () => import('./pages/CentralCourtyard'),
+  CentralCourtyardHotspot: () => import('./pages/CentralCourtyardHotspot'),
+  SkyClub: () => import('./pages/SkyClub'),
+  SkyClubHotspot: () => import('./pages/SkyClubHotspot'),
+  ConventionCenter: () => import('./pages/ConventionCenter'),
+  ConventionCenterHotspot: () => import('./pages/ConventionCenterHotspot'),
+  UnitPlans: () => import('./pages/UnitPlans'),
+  UnitPlanDetail: () => import('./pages/UnitPlanDetail'),
+  UnitPlanCompare: () => import('./pages/UnitPlanCompare'),
+  Maps: () => import('./pages/Maps'),
+  Locations: () => import('./pages/Locations'),
+  Viewspage: () => import('./pages/ViewsPage'),
+  Video: () => import('./pages/Video'),
+}
+const L = Object.fromEntries(
+  Object.entries(routes).map(([name, load]) => [name, lazy(load)]),
+)
+const { Home, AboutUs, Towers, Gallery, SocialClub, SocialClubHotspot, WellnessClub, WellnessClubHotspot, CentralCourtyard, CentralCourtyardHotspot, SkyClub, SkyClubHotspot, ConventionCenter, ConventionCenterHotspot, UnitPlans, UnitPlanDetail, UnitPlanCompare, Maps, Locations, Viewspage, Video } = L
+
+// Towers and Locations are left out: loading their code runs the 3D asset
+// preloads at module scope (useGLTF/useTexture.preload), so warming them would
+// pull the ~30 MB of models and textures on every page. They have their own
+// loading screens, which cover the fetch when someone actually opens them.
+const COLD_ROUTES = new Set(['Towers', 'Locations'])
+const warmRoutes = () => {
+  Object.entries(routes).forEach(([name, load]) => {
+    if (!COLD_ROUTES.has(name)) load().catch(() => {})
+  })
+}
 const App = () => {
+  // Warm the other pages only after this one has loaded and gone idle, so
+  // their downloads never compete with the page actually on screen.
+  useEffect(() => {
+    let idle
+    const start = () => {
+      const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
+      idle = setTimeout(() => ric(warmRoutes), 2500)
+    }
+    if (document.readyState === 'complete') start()
+    else window.addEventListener('load', start, { once: true })
+    return () => {
+      clearTimeout(idle)
+      window.removeEventListener('load', start)
+    }
+  }, [])
+
   return (
     <>
     {/* Sits above every route, loaders included; see FullscreenGate. */}
     <FullscreenGate />
+    <Suspense fallback={null}>
     <Routes>
          
       <Route element={<Layout />}>
@@ -59,6 +101,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
     </>
   )
 }

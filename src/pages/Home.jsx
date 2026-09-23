@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from '../lib/gsap'
 import EnterExperience from '../components/home/EnterExperience'
@@ -47,6 +47,27 @@ const Home = () => {
   // const handleFormExit = () => {
   //   setIsFormMounted(false)
   // }
+
+  // Listen on the element itself rather than through React's onLoadedData.
+  // Home is a lazy route, so React can create the <video> (and it can start
+  // loading) before the page is committed; a load event that lands in that gap
+  // is dropped, and with a cached video it never fires again, leaving the gate
+  // on "Loading…" for good. So check whether it is already ready, too.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const markReady = () => setIsVideoReady(true)
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      markReady()
+      return
+    }
+    video.addEventListener('loadeddata', markReady)
+    video.addEventListener('canplay', markReady)
+    return () => {
+      video.removeEventListener('loadeddata', markReady)
+      video.removeEventListener('canplay', markReady)
+    }
+  }, [])
 
   const handleEnter = () => {
     sessionStorage.setItem(SESSION_KEY, '1')
@@ -102,8 +123,6 @@ const Home = () => {
           playsInline
           preload="auto"
           controls={false}
-          onLoadedData={() => setIsVideoReady(true)}
-          onCanPlay={() => setIsVideoReady(true)}
           onEnded={handleVideoEnded}
           className="absolute inset-0 w-full h-full object-cover"
         />

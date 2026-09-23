@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr'
+import hotspotPreload from './scripts/hotspotPreloadPlugin.js'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,5 +12,6 @@ export default defineConfig({
     // dimensions: false strips width/height attrs so Tailwind w-[N%] in
     // className controls size and the SVG's viewBox derives the height.
     svgr({ svgrOptions: { dimensions: false } }),
+    hotspotPreload(),
   ],
 })

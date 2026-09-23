@@ -130,6 +130,11 @@ const EnterExperience = ({ isVideoReady, visitorName, onEnter, onExit }) => {
         <img
           ref={logoRef}
           src="/about/cci-logo-black.webp"
+          width={2216}
+          height={898}
+          // First thing on screen; don't let a page's large assets (the
+          // Locations map is ~30 MB) queue ahead of it.
+          fetchPriority="high"
           alt="CCI Projects"
           className={`${logoScale} h-auto select-none mb-8 lg:mb-10 xl:mb-11 2xl:mb-12 3xl:mb-16 4xl:mb-20 5xl:mb-28 [@media(max-height:560px)]:mb-5`}
           draggable={false}

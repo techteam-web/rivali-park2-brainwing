@@ -8,6 +8,45 @@
   font-display: swap;
 }
 
+/* Poppins is served from /fonts (Latin subset, the only one the copy uses)
+   rather than from Google Fonts: their stylesheet was render-blocking and
+   cost a second origin's connection before first paint. */
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-300.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
@@ -25,7 +64,7 @@
   --color-on-light-highlight-brown: rgba(122, 72, 51, 0.06);
 
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-script: "Ocean Trace", "Caveat", "Brush Script MT", cursive;
+  --font-script: "Ocean Trace", "Brush Script MT", cursive;
 }
 
 html,

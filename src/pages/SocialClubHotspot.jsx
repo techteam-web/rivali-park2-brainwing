@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { gsap, inlineSvgsReady } from '../lib/gsap'
 import InlineSVG from '../components/about/InlineSVG'
 import { socialClubHotspots, findHotspotIndex } from '../data/socialClubHotspots'
+import { hotspotBgSrcSet, HOTSPOT_BG_SIZES } from '../data/hotspotBgSrcSet'
 import { useGalleryHotspotTransition } from '../hooks/useGalleryHotspotTransition'
 import {
   runHotspotSlideTransition,
@@ -172,10 +173,17 @@ const SocialClubHotspot = () => {
   // the target — landing on any hotspot starts the bar at zero and draws
   // it in. Subsequent slide changes just tween from current to target.
   const hasMountedProgressRef = useRef(false)
-  useEffect(() => {
+  // The bar moves as soon as a slide change is asked for (goTo calls this
+  // straight away) rather than when the transition settles, which is also
+  // when the doodles start drawing; waiting made it lag the key press or
+  // scroll. progressIndexRef is the slide the bar is already heading to, so
+  // the activeIndex effect below does not restart a tween goTo started.
+  const progressIndexRef = useRef(null)
+  const animateProgress = (idx) => {
     const path = progressRef.current
     if (!path) return
-    const target = socialClubHotspots[activeIndex]?.progress ?? 0
+    progressIndexRef.current = idx
+    const target = socialClubHotspots[idx]?.progress ?? 0
     const end = `0% ${Math.max(0, Math.min(1, target)) * 100}%`
     gsap.killTweensOf(path)
     if (prefersReducedMotion()) {
@@ -190,8 +198,12 @@ const SocialClubHotspot = () => {
     gsap.to(path, {
       drawSVG: end,
       duration: 0.9,
-      ease: 'power2.inOut',
+      ease: 'power2.out',
     })
+  }
+  useEffect(() => {
+    if (progressIndexRef.current === activeIndex) return
+    animateProgress(activeIndex)
   }, [activeIndex])
 
   const goTo = (target) => {
@@ -207,6 +219,7 @@ const SocialClubHotspot = () => {
     if (!fromSlide || !toSlide) return
 
     isAnimatingRef.current = true
+    animateProgress(toIdx)
 
     // Pre-hide the incoming slide's strokes synchronously so they don't
     // appear fully drawn during the crossfade — only matters on revisits
@@ -342,7 +355,15 @@ const SocialClubHotspot = () => {
             >
               <img
                 src={h.bg}
+                // A 1920 copy on ordinary screens, the full file on large or
+                // high-density ones.
+                srcSet={hotspotBgSrcSet(h.bg)}
+                sizes={HOTSPOT_BG_SIZES}
                 alt=""
+                // The slide you land on is the page's main image; the
+                // others are only needed once you scroll to them.
+                fetchPriority={i === initialIndex ? 'high' : 'low'}
+                decoding="async"
                 className="block w-full h-full object-cover select-none pointer-events-none"
                 draggable={false}
               />
