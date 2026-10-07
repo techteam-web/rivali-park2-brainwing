@@ -128,9 +128,11 @@ export const unitLabel = (u) => `Unit ${u.n} - ${u.bhk} BHK`
 // Balcony spec for the detail/compare panels; units with no balcony show "—".
 export const fmtBalcony = (u) => (u.balcony == null ? '—' : `${u.balcony} sq.ft`)
 
-// Total area spec: carpet + balcony (units with no balcony just show carpet).
-export const fmtTotalArea = (u) =>
-  `${fmtSqft(u.carpet + (u.balcony ?? 0))} sq.ft`
+// Total area: carpet + balcony (units with no balcony just show carpet).
+// This is the figure shown in unit titles and the Total Area spec.
+export const totalArea = (u) => u.carpet + (u.balcony ?? 0)
+
+export const fmtTotalArea = (u) => `${fmtSqft(totalArea(u))} sq.ft`
 
 export const towerLabel = (tower) =>
   TOWER_TABS.find((t) => t.id === tower)?.label ?? ''

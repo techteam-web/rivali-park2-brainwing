@@ -15,6 +15,7 @@ import {
   fmtSqft,
   fmtBalcony,
   fmtTotalArea,
+  totalArea,
   findUnit,
   towerUnits,
   towerLabel,
@@ -323,7 +324,7 @@ const UnitPlanCompare = () => {
                             aria-label="View from apartment fullscreen"
                             onClick={() =>
                               setExpandedView({
-                                title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`,
+                                title: `View From ${towerLabel(col.tower)} ${unit.bhk}BHK (${fmtSqft(totalArea(unit))} Sq. Ft.)`,
                                 tower: col.tower,
                                 position: unit.n,
                                 floor,

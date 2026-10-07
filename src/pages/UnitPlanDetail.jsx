@@ -14,6 +14,7 @@ import {
   fmtSqft,
   fmtBalcony,
   fmtTotalArea,
+  totalArea,
   findUnit,
   towerLabel,
   towerBg,
@@ -133,7 +134,7 @@ const UnitPlanDetail = () => {
               color: '#313131',
             }}
           >
-            {label} {unit.bhk} BHK ({fmtSqft(unit.carpet)} Sq. Ft.)
+            {label} {unit.bhk} BHK ({fmtSqft(totalArea(unit))} Sq. Ft.)
           </h1>
         </UnitHeader>
 
@@ -307,7 +308,7 @@ const UnitPlanDetail = () => {
 
       {courtyardOpen && (
         <CourtyardView
-          title={`View From ${label} ${unit.bhk}BHK (${fmtSqft(unit.carpet)} Sq. Ft.)`}
+          title={`View From ${label} ${unit.bhk}BHK (${fmtSqft(totalArea(unit))} Sq. Ft.)`}
           tower={tower}
           position={unit.n}
           initialFloor={selectedFloor}
