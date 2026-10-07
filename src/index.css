@@ -241,6 +241,22 @@ button:not(:disabled) {
   backdrop-filter: blur(4px);
 }
 
+/* Amenity hotspot hit area — only the icon's disc and the label pill take the
+   pointer, so hover AND click start there and nowhere else. The button's own
+   box (the empty space beside the disc, the gap above the pill, the square
+   corners around the disc) lets the pointer straight through. :hover still
+   reaches the button through whichever of the two is under the cursor, so the
+   hover rules around this need no change. The disc is the first <circle> in
+   every icon; the artwork drawn over it stays inert and lets the pointer fall
+   through to the disc beneath. */
+.amenity-hotspot {
+  pointer-events: none;
+}
+.amenity-hotspot .amenity-pill,
+.amenity-hotspot .amenity-icon > svg > circle:first-of-type {
+  pointer-events: auto;
+}
+
 /* Amenity hotspot icon — the whole circular SVG scales up when the hotspot is
    hovered or focused. Keyed off .amenity-hotspot (the button wrapping both the
    icon and its label), so hovering EITHER the circle or the name triggers it. */

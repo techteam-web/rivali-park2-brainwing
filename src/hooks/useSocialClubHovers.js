@@ -3,8 +3,8 @@ import { gsap } from '../lib/gsap'
 import { bindCardHovers } from './bindCardHovers'
 
 // Per-card hover behaviors for the Social Club page.
-// Each setup attaches mouseenter/leave to the inner <svg> element only,
-// so hovering on the pill label does not trigger animations.
+// Each setup animates the inner <svg> while its hotspot (disc or label
+// pill) is hovered — see bind below.
 // All loops are infinite while hovered; on leave, we kill the loop
 // and tween the targeted elements back to their identity transform
 // (and dasharray for any drawn paths) before stopping.
@@ -16,15 +16,19 @@ const markHoverTargets = (els) => {
 }
 
 // Common helper: register listeners + return a cleanup that removes
-// them and kills tweens on the targeted elements.
+// them and kills tweens on the targeted elements. Listens on the whole
+// hotspot button, so hovering the label pill plays the icon's animation
+// too; only the disc and the pill take the pointer (see .amenity-hotspot
+// in index.css), so the button's empty box stays inert.
 const bind = (svgEl, targets, { enter, leave }) => {
+  const hoverEl = svgEl.closest('.amenity-hotspot') ?? svgEl
   const onEnter = () => enter()
   const onLeave = () => leave()
-  svgEl.addEventListener('mouseenter', onEnter)
-  svgEl.addEventListener('mouseleave', onLeave)
+  hoverEl.addEventListener('mouseenter', onEnter)
+  hoverEl.addEventListener('mouseleave', onLeave)
   return () => {
-    svgEl.removeEventListener('mouseenter', onEnter)
-    svgEl.removeEventListener('mouseleave', onLeave)
+    hoverEl.removeEventListener('mouseenter', onEnter)
+    hoverEl.removeEventListener('mouseleave', onLeave)
     if (targets && targets.length) gsap.killTweensOf(targets)
   }
 }

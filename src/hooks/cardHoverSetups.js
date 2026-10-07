@@ -1,9 +1,10 @@
 import { gsap } from '../lib/gsap'
 
 // Shared hover behaviors for the gallery sub-pages (Convention Center,
-// Wellness Club, Sky Club, Central Courtyard). Each setup attaches
-// mouseenter/leave to the inner <svg> element and returns a cleanup that
-// removes listeners and resets the transformed elements to their identity.
+// Wellness Club, Sky Club, Central Courtyard). Each setup animates the inner
+// <svg> while its hotspot (disc or label pill) is hovered, and returns a
+// cleanup that removes listeners and resets the transformed elements to their
+// identity.
 //
 // Conventions matched from the Social Club implementation:
 // - mark animated elements with `data-hover-anim` so QA / debugging can
@@ -19,14 +20,18 @@ const markHoverTargets = (els) => {
   els.forEach((el) => el && el.setAttribute(HOVER_ATTR, ''))
 }
 
+// Listens on the whole hotspot button, so hovering the label pill plays the
+// icon's animation too. Only the disc and the pill take the pointer (see
+// .amenity-hotspot in index.css), so the button's empty box stays inert.
 export const bind = (svgEl, targets, { enter, leave }) => {
+  const hoverEl = svgEl.closest('.amenity-hotspot') ?? svgEl
   const onEnter = () => enter()
   const onLeave = () => leave()
-  svgEl.addEventListener('mouseenter', onEnter)
-  svgEl.addEventListener('mouseleave', onLeave)
+  hoverEl.addEventListener('mouseenter', onEnter)
+  hoverEl.addEventListener('mouseleave', onLeave)
   return () => {
-    svgEl.removeEventListener('mouseenter', onEnter)
-    svgEl.removeEventListener('mouseleave', onLeave)
+    hoverEl.removeEventListener('mouseenter', onEnter)
+    hoverEl.removeEventListener('mouseleave', onLeave)
     if (targets && targets.length) gsap.killTweensOf(targets)
   }
 }
