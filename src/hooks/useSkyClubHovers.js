@@ -14,7 +14,7 @@ import {
 // (Sales tool feedback.pdf, p3); the icons and their animations are unchanged,
 // so each new label points at exactly the setup its icon had before.
 const setups = {
-  'sky gym':                     setupBarbell,
+  'gymnasium':                   setupBarbell,
   'viewing decks':               setupViewingDecks,
   'sky suites':                  setupGuestRoomsSC,
   'spa and open to sky jacuzzi': setupLotus,

@@ -8,6 +8,16 @@ import { gsap, useGSAP } from '../../gsap/Gsapconfig'
 //
 // Pass the vector / subheading as imported `?react` SVG components so their
 // individual <path>s can be animated.
+
+// Exit: a short beat, then the overlay slides up on expo.in.
+const EXIT_PAUSE = 0.15
+const EXIT_DURATION = 1.8
+
+// Seconds from `ready` until the overlay is halfway off screen, for pages that
+// start their own entrance as it clears. expo.in is 2^(10(p - 1)), which is
+// 0.5 at p = 0.9.
+export const LOADER_HALFWAY_S = EXIT_PAUSE + EXIT_DURATION * 0.9
+
 const SketchLoadingScreen = ({
   ready,
   onExitComplete,
@@ -86,12 +96,12 @@ const SketchLoadingScreen = ({
 
       const exitTl = gsap.timeline({ onComplete: onExitComplete })
 
-      exitTl.to({}, { duration: 0.15 }, 0)
+      exitTl.to({}, { duration: EXIT_PAUSE }, 0)
 
       exitTl.to(
         overlayRef.current,
-        { yPercent: -100, duration: 1.8, ease: 'expo.in' },
-        0.15,
+        { yPercent: -100, duration: EXIT_DURATION, ease: 'expo.in' },
+        EXIT_PAUSE,
       )
     },
     { scope: containerRef, dependencies: [ready] },

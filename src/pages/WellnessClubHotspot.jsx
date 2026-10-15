@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import ImageNote from '../components/layout/ImageNote'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gsap, inlineSvgsReady } from '../lib/gsap'
 import InlineSVG from '../components/about/InlineSVG'
@@ -13,6 +14,7 @@ import {
   resetHotspotSlide,
   POLYGON_FULL,
 } from '../lib/hotspotSlideTransition'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
 const BG_W = 1440
 const BG_H = 1024
@@ -396,6 +398,7 @@ const WellnessClubHotspot = () => {
         }}
       />
 
+      <ImageNote kind="stock" />
       <div className="hidden lg:flex absolute top-5 left-5 z-50 items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8">
         <button
           type="button"
@@ -434,6 +437,7 @@ const WellnessClubHotspot = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

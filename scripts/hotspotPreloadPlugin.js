@@ -19,7 +19,8 @@ const CLUBS = [
 
 // Landing screens use one plain image each (see the matching page component).
 const LANDINGS = {
-  '/gallery': '/gallery/gallery bg.webp',
+  '/gallery': '/gallery/site aerial bg.webp',
+  '/towers': '/gallery/site aerial bg.webp',
   '/gallery/social-club': '/gallery/social club bg.webp',
   '/gallery/wellness-club': '/gallery/wellness club bg.webp',
   '/gallery/central-courtyard': '/gallery/central courtyard bg.webp',

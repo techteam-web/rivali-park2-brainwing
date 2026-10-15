@@ -14,33 +14,12 @@ export const conventionCenterHotspots = [
     name: 'Banquet Hall',
     bg: `${ASSET_BASE}/banquet hall bg.webp`,
     progress: 0.33,
-    decoratives: [
-      {
-        name: 'left-person',
-        src: `${ASSET_BASE}/left-person-convention-decorative.svg`,
-        top: 0.5,
-        left: 0.128,
-        width: 0.078,
-      },
-      {
-        name: 'right-girl-1',
-        src: `${ASSET_BASE}/right-girl-1-convention-decorative.svg`,
-        top: 0.539,
-        left: 0.824,
-        width: 0.057,
-      },
-      {
-        name: 'right-girl-2',
-        src: `${ASSET_BASE}/right-girl-2-convention-decorative.svg`,
-        top: 0.551,
-        left: 0.911,
-        width: 0.035,
-      },
-    ],
+    // New render (12 Oct) arrives with its line drawings already in the picture, so no SVG doodles go over it.
+    decoratives: [],
   },
   {
     slug: 'restaurant',
-    name: 'Cafe',
+    name: 'Restaurant',
     bg: `${ASSET_BASE}/cafe bg.webp`,
     progress: 0.66,
     decoratives: [

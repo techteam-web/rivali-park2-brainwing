@@ -13,7 +13,7 @@ export const wellnessClubHotspots = [
     slug: 'outdoor-amphitheatre',
     name: 'Outdoor Amphitheatre',
     bg: `${ASSET_BASE}/outdoor amphitheatre bg.webp`,
-    progress: 0.2,
+    progress: 1 / 6,
     // Latest Figma frame (622:10099). The supplied render had these three
     // figures flattened into it, so they were lifted back out: the background
     // is that render with the clean photo patched in along each figure, and the
@@ -50,44 +50,23 @@ export const wellnessClubHotspots = [
     slug: 'spa',
     name: 'Spa',
     bg: `${ASSET_BASE}/spa bg.webp`,
-    progress: 0.4,
-    decoratives: [
-      {
-        name: 'tiny-table',
-        src: `${ASSET_BASE}/tiny-table-spa-decorative.svg`,
-        top: 0.56,
-        left: 0.16,
-        width: 0.07,
-      },
-    ],
+    progress: 2 / 6,
+    // New render (12 Oct) arrives with its line drawings already in the picture, so no SVG doodles go over it.
+    decoratives: [],
   },
   {
     slug: 'salon',
     name: 'Salon',
     bg: `${ASSET_BASE}/salon bg.webp`,
-    progress: 0.6,
-    decoratives: [
-      {
-        name: 'flower-pot-left',
-        src: `${ASSET_BASE}/flower-pot-left-salon-decorative.svg`,
-        top: 0.459,
-        left: 0.022,
-        width: 0.062,
-      },
-      {
-        name: 'flower-pot-right',
-        src: `${ASSET_BASE}/flower-pot-right-salon-decorative.svg`,
-        top: 0.336,
-        left: 0.918,
-        width: 0.081,
-      },
-    ],
+    progress: 3 / 6,
+    // New render (12 Oct) arrives with its line drawings already in the picture, so no SVG doodles go over it.
+    decoratives: [],
   },
   {
     slug: 'spa-and-wellness-cafe',
-    name: 'Spa and Wellness Cafe',
+    name: 'Wellness Cafe',
     bg: `${ASSET_BASE}/spa and wellness cafe bg.webp`,
-    progress: 0.8,
+    progress: 4 / 6,
     decoratives: [
       // Placements measured from the design team's Figma export for this frame.
       //
@@ -155,7 +134,7 @@ export const wellnessClubHotspots = [
     name: 'Gymnasium',
     bg: `${ASSET_BASE}/gymnasium bg.webp`,
     objectPosition: 'center bottom',
-    progress: 1,
+    progress: 5 / 6,
     decoratives: [
       {
         name: 'equipments',
@@ -163,6 +142,34 @@ export const wellnessClubHotspots = [
         top: 0.6,
         left: 0.30,
         width: 0.4,
+      },
+    ],
+  },
+  // Moved here from the Central Courtyard (12 Oct feedback): the courts sit on
+  // the footpath in front of the gym. Render and doodles stay in the courtyard
+  // folder, as before.
+  {
+    slug: 'multipurpose-courts',
+    name: 'Multipurpose Courts',
+    bg: '/gallery/hotspots/central courtyard/multipurpose courts bg.webp',
+    progress: 1,
+    // Portrait render (753x1024): pin the visible area to the bottom-left so
+    // the courts stay in view on wide screens.
+    objectPosition: '0% 100%',
+    decoratives: [
+      {
+        name: 'players',
+        src: '/gallery/hotspots/central courtyard/players-multipurpose-courts-decorative.svg',
+        top: 0.55,
+        left: 0.1,
+        width: 0.273,
+      },
+      {
+        name: 'bushes',
+        src: '/gallery/hotspots/central courtyard/Bushes-multipurpose-courts-decorative.svg',
+        top: 0.57,
+        left: 0.61,
+        width: 0.081,
       },
     ],
   },

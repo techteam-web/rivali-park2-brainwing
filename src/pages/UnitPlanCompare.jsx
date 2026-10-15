@@ -231,7 +231,11 @@ const UnitPlanCompare = () => {
     <>
       <div ref={pageRef} className="relative h-full w-full">
       {/* Sibling of the artboard so the buttons keep real viewport pixels. */}
-      <PageNav onBack={goBack} onHome={() => exitTo('/')} />
+      <PageNav
+        onBack={goBack}
+        onHome={() => exitTo('/')}
+        onTowers={() => exitTo('/towers')}
+      />
       <UnitArtboard>
         <UnitHeader>
           <h1
@@ -506,6 +510,7 @@ const UnitPlanCompare = () => {
           initialFloor={expandedView.floor}
           onClose={() => setExpandedView(null)}
           onHome={() => navigate('/')}
+          onTowers={() => navigate('/towers')}
           onLeaving={hideNow}
         />
       )}

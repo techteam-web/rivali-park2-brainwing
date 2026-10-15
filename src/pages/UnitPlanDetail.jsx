@@ -121,6 +121,7 @@ const UnitPlanDetail = () => {
       <PageNav
         onBack={() => exitTo(`/unit-plans?tower=${tower}${originSuffix}${floorSuffix}`)}
         onHome={() => exitTo('/')}
+        onTowers={() => exitTo('/towers')}
       />
       <UnitArtboard>
         <UnitHeader>
@@ -314,6 +315,7 @@ const UnitPlanDetail = () => {
           initialFloor={selectedFloor}
           onClose={() => setCourtyardOpen(false)}
           onHome={() => navigate('/')}
+          onTowers={() => navigate('/towers')}
           onLeaving={hideNow}
         />
       )}

@@ -104,7 +104,9 @@ const CourtyardView = ({
   initialFloor,
   onClose,
   onHome,
-  // Called the instant Home is pressed, before this view starts fading, so the
+  // Same exit as Home, landing on the towers page instead.
+  onTowers,
+  // Called the instant Home (or Towers) is pressed, before this view starts fading, so the
   // page underneath can take itself out of sight rather than be revealed.
   onLeaving,
 }) => {
@@ -170,6 +172,11 @@ const CourtyardView = ({
     onLeaving?.()
     exitWith(onHome)
   }, [onLeaving, exitWith, onHome])
+
+  const handleTowers = useCallback(() => {
+    onLeaving?.()
+    exitWith(onTowers)
+  }, [onLeaving, exitWith, onTowers])
 
   return (
     <div
@@ -246,7 +253,7 @@ const CourtyardView = ({
 
       {/* No back arrow here — closing is what returns to the unit sheet — so
           PageNav holds the back slot open and home keeps its usual position. */}
-      <PageNav onHome={handleHome} />
+      <PageNav onHome={handleHome} onTowers={onTowers && handleTowers} />
 
       {floor != null && (
         <FloorSelect value={floor} floors={floorOptions} onChange={setFloor} />

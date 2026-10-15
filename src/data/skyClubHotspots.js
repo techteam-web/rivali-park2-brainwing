@@ -100,7 +100,7 @@ export const skyClubHotspots = [
   },
   {
     slug: 'sky-fitness',
-    name: 'Sky Gym',
+    name: 'Gymnasium',
     bg: `${ASSET_BASE}/gymnasium bg.webp`,
     progress: 5 / 6,
     decoratives: [

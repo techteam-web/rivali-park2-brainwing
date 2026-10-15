@@ -137,6 +137,7 @@ const UnitPlans = () => {
         )
       }
       onHome={() => exitTo('/')}
+      onTowers={() => exitTo('/towers')}
     />
     <UnitArtboard>
       <UnitHeader />

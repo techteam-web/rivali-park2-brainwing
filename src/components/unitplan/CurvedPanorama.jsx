@@ -63,8 +63,8 @@ if (typeof window !== 'undefined') {
 }
 
 // Soft alpha falloff on all four edges so the strip dissolves into the white
-// page instead of ending on a hard rectangle. Horizontal feather is kept
-// tighter than vertical because the cursor traverses across it.
+// page instead of ending on a hard rectangle. The top and bottom feather was
+// cut from 10% to 3% (12 Oct feedback: too much fade above and below the view).
 const makeFeatherMap = () => {
   const w = 512
   const h = 128
@@ -90,8 +90,8 @@ const makeFeatherMap = () => {
   ])
   edge(ctx.createLinearGradient(0, 0, 0, h), [
     [0, 1],
-    [0.1, 0],
-    [0.9, 0],
+    [0.03, 0],
+    [0.97, 0],
     [1, 1],
   ])
 

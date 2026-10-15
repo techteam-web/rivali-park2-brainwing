@@ -13,10 +13,9 @@
 // added or removed.
 //
 // Order matches the icon order on the landing screen (see SocialClub.jsx).
-// Social Media Studio was dropped here along with its icon (13 Aug mark-up);
-// its render is still on disk if the room comes back. Cafeteria is the reverse:
-// its icon was dropped by that mark-up and has been restored, because the room
-// itself stayed — the mark-up renamed the POSITION it used to sit at.
+// Social Media Studio is back (12 Oct feedback) with its original render and
+// doodles. The same feedback renamed Cafeteria to Lounge and Business Centre to
+// Library & Business Centre.
 
 const ASSET_BASE = '/gallery/hotspots/social club'
 
@@ -26,7 +25,7 @@ export const socialClubHotspots = [
     name: 'Screening Room',
     bg: `${ASSET_BASE}/screening room bg.webp`,
     bgPosition: 'bottom',
-    progress: 1 / 7,
+    progress: 1 / 8,
     decoratives: [
       {
         name: 'dog',
@@ -45,10 +44,32 @@ export const socialClubHotspots = [
     ],
   },
   {
+    slug: 'social-media-studio',
+    name: 'Social Media Studio',
+    bg: `${ASSET_BASE}/social media studio bg.webp`,
+    progress: 2 / 8,
+    decoratives: [
+      {
+        name: 'lamp',
+        src: `${ASSET_BASE}/lamp-social-media-decorative.svg`,
+        top: 0.244,
+        left: 0.442,
+        width: 0.156,
+      },
+      {
+        name: 'camera',
+        src: `${ASSET_BASE}/camera-social-media-decorative.svg`,
+        top: 0.583,
+        left: 0.433,
+        width: 0.060,
+      },
+    ],
+  },
+  {
     slug: 'card-room',
     name: 'Card Room',
     bg: `${ASSET_BASE}/card room bg.webp`,
-    progress: 2 / 7,
+    progress: 3 / 8,
     decoratives: [
       // Placements measured from the design team's Figma export for this frame.
       // Both lamps are layers named "Mask group"; Figma numbers duplicate names
@@ -74,14 +95,14 @@ export const socialClubHotspots = [
     slug: 'billiards-room',
     name: 'Billiards Room',
     bg: `${ASSET_BASE}/billiards room bg.webp`,
-    progress: 3 / 7,
+    progress: 4 / 8,
     decoratives: [],
   },
   {
     slug: 'library-business-centre',
-    name: 'Business Centre',
+    name: 'Library & Business Centre',
     bg: `${ASSET_BASE}/library business centre bg.webp`,
-    progress: 4 / 7,
+    progress: 5 / 8,
     // Clean photo cropped to the design team's latest Figma frame for this room
     // (622:9522). Only the floor lamp is drawn over it there; the frame's other
     // two doodle groups sit beneath the photo and never show. Placement is
@@ -101,7 +122,7 @@ export const socialClubHotspots = [
     slug: 'teens-lounge',
     name: 'Teens Lounge',
     bg: `${ASSET_BASE}/teens lounge bg.webp`,
-    progress: 5 / 7,
+    progress: 6 / 8,
     // Placements measured from the design team's Figma export for this frame.
     // The two cushions are separate drawings rather than one mirrored twice, so
     // each is its own export and neither is flipped.
@@ -133,7 +154,7 @@ export const socialClubHotspots = [
     slug: 'kids-club',
     name: 'Kids Club',
     bg: `${ASSET_BASE}/kids club bg.webp`,
-    progress: 6 / 7,
+    progress: 7 / 8,
     decoratives: [
       // Placements measured from the design team's Figma export for this frame.
       // Both toys are layers named "Group"; Figma numbers duplicate names on
@@ -174,10 +195,10 @@ export const socialClubHotspots = [
     ],
   },
   {
-    slug: 'cafeteria',
-    name: 'Cafeteria',
+    slug: 'lounge',
+    name: 'Social Lounge',
     bg: `${ASSET_BASE}/cafeteria bg.webp`,
-    progress: 7 / 7,
+    progress: 8 / 8,
     // Wooden-bar render (21 Sep), supplied clean so the cups can draw in.
     // Placed from the Figma "CUPS" group (115.19x58.47 at 646.52, 600.6);
     // the export is 117x61 because it includes the 1.6px stroke, so the box

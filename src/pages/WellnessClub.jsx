@@ -2,6 +2,9 @@ import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useWellnessClubHovers } from '../hooks/useWellnessClubHovers'
+import ImageNote from '../components/layout/ImageNote'
+import { useHotspotsInView } from '../hooks/useHotspotsInView'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
 const BG_W = 896
 const BG_H = 892
@@ -9,16 +12,18 @@ const BG_H = 892
 // Re-labelled against the client's marked-up render (13 Aug):
 //   the upper Salon icon was struck out and is gone
 //   Wellness bar -> Salon   (the salon sits on this level, not the one above)
-//   Dinning      -> Spa and Wellness Cafe
+//   Dinning      -> Spa and Wellness Cafe -> Wellness Cafe (12 Oct)
 //   Spa          -> nudged left, per "move it towards left" on the mark-up
 // Outdoor amphitheatre and Gymnasium & Fitness Studio were both ticked as
-// correct and are untouched.
+// correct and are untouched. Multipurpose Courts moved here from the Central
+// Courtyard, on the footpath in front of the gym.
 const cards = [
   { name: 'Outdoor amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',        top: 0.302, left: 0.437, slug: 'outdoor-amphitheatre' },
   { name: 'Spa',                         src: '/gallery/svgs/wellness club/spa.svg',                         top: 0.382, left: 0.26, slug: 'spa' },
   { name: 'Salon',                       src: '/gallery/svgs/wellness club/salon.svg',                       top: 0.370, left: 0.683, slug: 'salon' },
-  { name: 'Spa and Wellness Cafe',       src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47, slug: 'spa-and-wellness-cafe' },
+  { name: 'Wellness Cafe',               src: '/gallery/svgs/wellness club/dining.svg',                      top: 0.442, left: 0.47, slug: 'spa-and-wellness-cafe' },
   { name: 'Gymnasium & Fitness Studio',  src: '/gallery/svgs/wellness club/gymnasium & fitness studio.svg',  top: 0.588, left: 0.669, slug: 'gymnasium' },
+  { name: 'Multipurpose Courts',         src: '/gallery/svgs/central courtyard/multipurpose courts.svg',     top: 0.685, left: 0.555, slug: 'multipurpose-courts' },
 ]
 
 const decoratives = [
@@ -41,6 +46,7 @@ const WellnessClub = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
   useWellnessClubHovers(containerRef)
+  useHotspotsInView(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
@@ -130,6 +136,7 @@ const WellnessClub = () => {
         style={{ backgroundImage: BOTTOM_BG }}
       />
 
+      <ImageNote />
       <div
         data-back-btn
         className="hidden lg:flex absolute top-5 left-5 z-[60] items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"
@@ -157,6 +164,7 @@ const WellnessClub = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

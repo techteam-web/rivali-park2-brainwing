@@ -2,6 +2,9 @@ import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useConventionCenterHovers } from '../hooks/useConventionCenterHovers'
+import ImageNote from '../components/layout/ImageNote'
+import { useHotspotsInView } from '../hooks/useHotspotsInView'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
 // Matches the delivered render (5760x4096). The earlier background was a
 // slightly different crop, hence the older 1498x1068 pair.
@@ -53,6 +56,7 @@ const ConventionCenter = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
   useConventionCenterHovers(containerRef)
+  useHotspotsInView(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
@@ -146,6 +150,7 @@ const ConventionCenter = () => {
         style={{ backgroundImage: BOTTOM_BG }}
       />
 
+      <ImageNote />
       <div
         data-back-btn
         className="hidden lg:flex absolute top-5 left-5 z-[60] items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"
@@ -173,6 +178,7 @@ const ConventionCenter = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

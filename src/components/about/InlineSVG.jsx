@@ -3,6 +3,7 @@ import {
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -85,13 +86,20 @@ const InlineSVG = forwardRef(function InlineSVG(
     el.setAttribute('data-inline-svg-loaded', 'true')
   }, [content])
 
+  // React 19 rewrites innerHTML whenever this object is a new one, even when
+  // the markup is identical, so an inline object would rebuild the SVG on every
+  // parent render — discarding any draw-in running on its paths (e.g. the
+  // Amenities outlines when the loader overlay unmounts mid-draw). Keep it
+  // stable until the content actually changes.
+  const html = useMemo(() => ({ __html: content ?? '' }), [content])
+
   return (
     <div
       ref={containerRef}
       data-inline-svg=""
       data-inline-svg-src={src}
       className={className}
-      dangerouslySetInnerHTML={{ __html: content ?? '' }}
+      dangerouslySetInnerHTML={html}
       {...rest}
     />
   )

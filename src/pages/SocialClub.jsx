@@ -2,9 +2,16 @@ import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useSocialClubHovers } from '../hooks/useSocialClubHovers'
+import ImageNote from '../components/layout/ImageNote'
+import { useHotspotsInView } from '../hooks/useHotspotsInView'
+import { hotspotStageStyle } from '../lib/hotspotStage'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
 const BG_W = 1324
 const BG_H = 745
+// Hotspots run from Social Media Studio (x 0.045) to Kids Club (0.85); the
+// render was pinned to its top before and still is.
+const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.4475, span: 0.9, vAnchor: 0 })
 
 // `slug` (when present) wires the card to its detail slider page at
 // /gallery/social-club/:slug. Cards without a slug are non-navigable
@@ -32,14 +39,23 @@ const BG_H = 745
 // only value on this screen not taken from the client's own artwork. Four more rooms they named — Recording Studio, Vista
 // Balcony and Social Lounge — have no icon artwork yet, so they are not
 // listed; see the pending list shared with the client.
+//
+// 12 Oct feedback: Social Media Studio is back (top left, beside Screening
+// room), Business centre is "Library & Business Centre" again, and Cafeteria
+// becomes "Lounge", moved down to the ground-floor lounge at the entrance.
+// Slide 24 names it "Social Lounge" and adds Vista Balcony above it; Vista
+// Balcony borrows the Sky Club viewing-decks icon and has no detail render yet,
+// so it is not clickable.
 const cards = [
-  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.346, left: 0.10, slug: 'screening-room' },
+  { name: 'Screening room',            src: '/gallery/svgs/social club/screeing room.svg',             top: 0.265, left: 0.10, slug: 'screening-room' },
+  { name: 'Social Media Studio',       src: '/gallery/svgs/social club/social media studio.svg',       top: 0.37, left: 0.045, slug: 'social-media-studio' },
   { name: 'Card room',                 src: '/gallery/svgs/social club/card room.svg',                 top: 0.360, left: 0.24, slug: 'card-room' },
   { name: 'Billiards room',            src: '/gallery/svgs/social club/billiard room.svg',             top: 0.40, left: 0.36, slug: 'billiards-room' },
-  { name: 'Business centre',           src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22, slug: 'library-business-centre' },
+  { name: 'Library & Business Centre', src: '/gallery/svgs/social club/library & business center.svg', top: 0.55, left: 0.22, slug: 'library-business-centre' },
   { name: 'Teens Lounge',              src: '/gallery/svgs/social club/teen lounge.svg',               top: 0.33, left: 0.824, slug: 'teens-lounge' },
   { name: 'Kids Club',                 src: '/gallery/svgs/social club/kids club.svg',                 top: 0.54, left: 0.85, slug: 'kids-club' },
-  { name: 'Cafeteria',                 src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.42, left: 0.57, slug: 'cafeteria' },
+  { name: 'Social Lounge',             src: '/gallery/svgs/social club/cafeteria.svg',                 top: 0.51, left: 0.50, slug: 'lounge' },
+  { name: 'Vista Balcony',             src: '/gallery/svgs/sky club/viewing decks.svg',                top: 0.40, left: 0.50 },
 ]
 
 const decoratives = [
@@ -56,16 +72,13 @@ const SocialClub = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
   useSocialClubHovers(containerRef)
+  useHotspotsInView(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
       <div
-        className="absolute inset-0 m-auto"
-        style={{
-          '--stage-w': `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-        }}
+        className="absolute"
+        style={STAGE}
       >
         <img
           src="/gallery/social club bg.webp"
@@ -145,6 +158,7 @@ const SocialClub = () => {
         style={{ backgroundImage: BOTTOM_BG }}
       />
 
+      <ImageNote />
       <div
         data-back-btn
         className="hidden lg:flex absolute top-5 left-5 z-[60] items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"
@@ -172,6 +186,7 @@ const SocialClub = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

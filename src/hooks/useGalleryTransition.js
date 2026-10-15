@@ -45,7 +45,19 @@ const prefersReducedMotion = () =>
 // can't run the animation twice (the visible "fade in → snap back to
 // hidden → fade in again" glitch). Real navigation destroys the DOM,
 // so the flag never persists across genuine route changes.
-export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
+//
+// Pages behind a loader overlay pass `enabled: false` until the overlay starts
+// to leave, so the entrance isn't spent underneath it, and `drawDelay`: the
+// second, into the entrance, at which the strokes start to ink. The labels,
+// title and back button move with them; the background starts on time either
+// way, so the screen the overlay uncovers is the render, not black. Left at 0,
+// everything keeps its usual timing.
+export function useGalleryTransition({
+  containerRef,
+  entranceDeps = [],
+  enabled = true,
+  drawDelay = 0,
+}) {
   const navigate = useNavigate()
   const isExitingRef = useRef(false)
 
@@ -63,6 +75,7 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
   useEffect(() => {
     const root = containerRef.current
     if (!root) return
+    if (!enabled) return
     if (root.dataset.galleryEntrancePlayed === '1') return
 
     let cancelled = false
@@ -201,6 +214,12 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
         return
       }
 
+      // Strokes normally start a beat after the card discs (or the bg) begin;
+      // `drawDelay` moves that start, and `shift` carries the rest along.
+      const strokeLead = cardSvgs.length ? 0.4 : 0.15
+      const drawAt = drawDelay > 0 ? drawDelay : strokeLead
+      const shift = drawAt - strokeLead
+
       const tl = gsap.timeline({ onComplete: () => { entranceFinished = true } })
       // Stash the timeline on the DOM so exitTo can find and kill it
       // even after a strict re-mount (refs reset across the cycle, but
@@ -229,7 +248,7 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
             ease: 'power3.out',
             stagger: 0.035,
           },
-          0,
+          shift,
         )
       }
       if (drawables.length) {
@@ -248,7 +267,7 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
             ease: 'power2.inOut',
             stagger: { each: 0.012, from: 'random' },
           },
-          cardSvgs.length ? 0.4 : 0.15,
+          drawAt,
         )
       }
       // Closed outlines: draw at full opacity so the line clearly inks in.
@@ -256,14 +275,14 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
         tl.to(
           outlines,
           { drawSVG: '0% 100%', duration: 1.7, ease: 'power2.inOut' },
-          cardSvgs.length ? 0.4 : 0.15,
+          drawAt,
         )
       }
       if (title) {
         tl.to(
           title,
           { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' },
-          0.5,
+          shift + 0.5,
         )
       }
       if (labels.length) {
@@ -275,14 +294,14 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
             ease: 'power2.out',
             stagger: 0.04,
           },
-          0.6,
+          shift + 0.6,
         )
       }
       if (backBtn) {
         tl.to(
           backBtn,
           { autoAlpha: 1, duration: 0.5, ease: 'power2.out' },
-          0.3,
+          shift + 0.3,
         )
       }
     })
@@ -294,7 +313,7 @@ export function useGalleryTransition({ containerRef, entranceDeps = [] }) {
       clearTimeout(backstop)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, entranceDeps)
+  }, [enabled, ...entranceDeps])
 
   const exitTo = useCallback(
     (path) => {

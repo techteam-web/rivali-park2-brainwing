@@ -2,36 +2,39 @@ import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useSkyClubHovers } from '../hooks/useSkyClubHovers'
+import ImageNote from '../components/layout/ImageNote'
+import { useHotspotsInView } from '../hooks/useHotspotsInView'
+import { hotspotStageStyle } from '../lib/hotspotStage'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
-// Reference frame for the hotspot coordinates below: the aerial render's own
-// 5000x2250 proportions (served at 3200x1440). The stage covers the viewport
-// against this ratio, so on anything narrower than 2.22:1 the left and right
-// edges are cropped — hotspots are kept inside the band that survives that.
-const BG_W = 1440
-const BG_H = 648
+// Reference frame for the hotspot coordinates below: the 12 Oct elevation
+// render (5000x2500, served at 3200x1600). The stage is centred and covers the
+// viewport, so a narrower screen crops both sides evenly.
+const BG_W = 3200
+const BG_H = 1600
+// Sized for the hotspots that must always show, Gymnasium (x 0.21) to Sky
+// Lounge (0.80); the side viewing decks are optional (see the cards).
+const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.505, span: 0.67 })
 
-
-// Labels follow the sales-team markup (Sales tool feedback.pdf, p3); the slugs
-// and detail pages behind them are unchanged, so only the wording moved.
-//
-// Positions are re-derived for the aerial render — the markup was drawn on the
-// straight-on elevation, where the amenities read left-to-right across three
-// towers. Looking down instead, the same amenities are the roof decks and the
-// glazed amenity floors, so each hotspot sits on the part of the building that
-// actually shows it, keeping the markup's left-to-right order.
-//
-// They also all sit left of x≈0.68. The stage covers the viewport against the
-// render's 2.22:1 ratio and is anchored left, so a narrower screen crops the
-// RIGHT edge away: only x 0..0.80 survives at 1920x1080, 0..0.72 at 1440x900,
-// 0..0.60 at 4:3. Anything placed on the right tower's own amenity floor
-// (x>0.72) is simply never on screen.
+// Placed per the 12 Oct markup of this render (Sales Tool Feedback 12.10, slide 26):
+// Gymnasium at the top of the left glazed block with Sky suites below it,
+// the Spa and open-to-sky Jacuzzi on the centre roof over the viewing deck,
+// Kids club in the right glazed block, Sky Lounge at the top of it. Sky Lounge
+// borrows the sofa icon from the Social Club's Teens Lounge and is not
+// clickable until its detail slide exists. Banquet hall is not on this markup,
+// so it is off this screen; its detail slide is untouched. The markup shows
+// three viewing decks (left terrace, centre, right terrace), each with its own
+// hotspot opening the same detail slide. The side two are optional: on screens
+// narrower than about 1.8:1 their terraces are cropped off, and they hide.
 const cards = [
-  { name: 'Sky Gym',                      src: '/gallery/svgs/sky club/sky fitness.svg',    top: 0.720, left: 0.100, slug: 'sky-fitness' },
-  { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.440, left: 0.215, slug: 'viewing-decks' },
-  { name: 'Sky suites',                   src: '/gallery/svgs/sky club/guest rooms.svg',    top: 0.660, left: 0.330, slug: 'guest-rooms' },
-  { name: 'Spa and Open to sky Jacuzzi',  src: '/gallery/svgs/sky club/spa.svg',            top: 0.280, left: 0.475, slug: 'spa' },
-  { name: 'Kids club',                    src: '/gallery/svgs/sky club/kids play area.svg', top: 0.460, left: 0.575, slug: 'kids-play-area' },
-  { name: 'Banquet hall',                 src: '/gallery/svgs/sky club/banquette hall.svg', top: 0.220, left: 0.655, slug: 'banquet-hall' },
+  { name: 'Gymnasium',                    src: '/gallery/svgs/sky club/sky fitness.svg',    top: 0.360, left: 0.210, slug: 'sky-fitness' },
+  { name: 'Sky suites',                   src: '/gallery/svgs/sky club/guest rooms.svg',    top: 0.470, left: 0.290, slug: 'guest-rooms' },
+  { name: 'Spa and Open to sky Jacuzzi',  src: '/gallery/svgs/sky club/spa.svg',            top: 0.300, left: 0.500, slug: 'spa' },
+  { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.450, left: 0.500, slug: 'viewing-decks' },
+  { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.453, left: 0.088, slug: 'viewing-decks', optional: true },
+  { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.428, left: 0.919, slug: 'viewing-decks', optional: true },
+  { name: 'Kids club',                    src: '/gallery/svgs/sky club/kids play area.svg', top: 0.470, left: 0.720, slug: 'kids-play-area' },
+  { name: 'Sky Lounge',                   src: '/gallery/svgs/social club/teen lounge.svg', top: 0.360, left: 0.800 },
 ]
 
 const PILL_BG =
@@ -43,16 +46,13 @@ const SkyClub = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
   useSkyClubHovers(containerRef)
+  useHotspotsInView(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
       <div
-        className="absolute inset-0 m-auto"
-        style={{
-          '--stage-w': `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-        }}
+        className="absolute"
+        style={STAGE}
       >
         <img
           src="/gallery/sky club bg.webp"
@@ -64,10 +64,11 @@ const SkyClub = () => {
 
         {cards.map((c) => (
           <button
-            key={c.name}
+            key={`${c.name}-${c.left}`}
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
+            data-optional={c.optional || undefined}
             onClick={c.slug ? () => exitTo(`/gallery/sky-club/${c.slug}`) : undefined}
             className={`absolute -translate-x-1/2 z-[60] amenity-hotspot group flex flex-col items-center ${c.slug ? 'cursor-pointer is-clickable' : 'cursor-default'} p-0 border-0 bg-transparent focus:outline-none lg:gap-0.5 xl:gap-0.75 2xl:gap-0.75 3xl:gap-1 4xl:gap-1.25 5xl:gap-2`}
             style={{
@@ -117,6 +118,7 @@ const SkyClub = () => {
         style={{ backgroundImage: BOTTOM_BG }}
       />
 
+      <ImageNote />
       <div
         data-back-btn
         className="hidden lg:flex absolute top-5 left-5 z-[60] items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"
@@ -144,6 +146,7 @@ const SkyClub = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

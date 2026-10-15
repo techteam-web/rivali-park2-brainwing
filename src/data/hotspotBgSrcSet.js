@@ -6,7 +6,7 @@ const SRCSETS = {
   "/gallery/hotspots/central courtyard/coffee shop bg.webp": "/gallery/hotspots/central%20courtyard/coffee%20shop%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/coffee%20shop%20bg.webp 3600w",
   "/gallery/hotspots/central courtyard/kids play area bg.webp": "/gallery/hotspots/central%20courtyard/kids%20play%20area%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/kids%20play%20area%20bg.webp 2499w",
   "/gallery/hotspots/central courtyard/multipurpose courts bg.webp": "/gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg@1920.webp 1920w, /gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg.webp 2652w",
-  "/gallery/hotspots/convention center/banquet hall bg.webp": "/gallery/hotspots/convention%20center/banquet%20hall%20bg@1920.webp 1922w, /gallery/hotspots/convention%20center/banquet%20hall%20bg.webp 3444w",
+  "/gallery/hotspots/convention center/banquet hall bg.webp": "/gallery/hotspots/convention%20center/banquet%20hall%20bg@1920.webp 1922w, /gallery/hotspots/convention%20center/banquet%20hall%20bg.webp 3600w",
   "/gallery/hotspots/convention center/cafe bg.webp": "/gallery/hotspots/convention%20center/cafe%20bg@1920.webp 1920w, /gallery/hotspots/convention%20center/cafe%20bg.webp 3664w",
   "/gallery/hotspots/convention center/guests room bg.webp": "/gallery/hotspots/convention%20center/guests%20room%20bg@1920.webp 1922w, /gallery/hotspots/convention%20center/guests%20room%20bg.webp 3971w",
   "/gallery/hotspots/sky club/banquet hall bg.webp": "/gallery/hotspots/sky%20club/banquet%20hall%20bg@1920.webp 1922w, /gallery/hotspots/sky%20club/banquet%20hall%20bg.webp 3600w",
@@ -25,9 +25,9 @@ const SRCSETS = {
   "/gallery/hotspots/social club/teens lounge bg.webp": "/gallery/hotspots/social%20club/teens%20lounge%20bg@1920.webp 1922w, /gallery/hotspots/social%20club/teens%20lounge%20bg.webp 3600w",
   "/gallery/hotspots/wellness club/gymnasium bg.webp": "/gallery/hotspots/wellness%20club/gymnasium%20bg@1920.webp 1920w, /gallery/hotspots/wellness%20club/gymnasium%20bg.webp 3420w",
   "/gallery/hotspots/wellness club/outdoor amphitheatre bg.webp": "/gallery/hotspots/wellness%20club/outdoor%20amphitheatre%20bg@1920.webp 1922w, /gallery/hotspots/wellness%20club/outdoor%20amphitheatre%20bg.webp 2600w",
-  "/gallery/hotspots/wellness club/salon bg.webp": "/gallery/hotspots/wellness%20club/salon%20bg@1920.webp 1920w, /gallery/hotspots/wellness%20club/salon%20bg.webp 3996w",
+  "/gallery/hotspots/wellness club/salon bg.webp": "/gallery/hotspots/wellness%20club/salon%20bg@1920.webp 1922w, /gallery/hotspots/wellness%20club/salon%20bg.webp 3600w",
   "/gallery/hotspots/wellness club/spa and wellness cafe bg.webp": "/gallery/hotspots/wellness%20club/spa%20and%20wellness%20cafe%20bg@1920.webp 1922w, /gallery/hotspots/wellness%20club/spa%20and%20wellness%20cafe%20bg.webp 3600w",
-  "/gallery/hotspots/wellness club/spa bg.webp": "/gallery/hotspots/wellness%20club/spa%20bg@1920.webp 1920w, /gallery/hotspots/wellness%20club/spa%20bg.webp 3832w",
+  "/gallery/hotspots/wellness club/spa bg.webp": "/gallery/hotspots/wellness%20club/spa%20bg@1920.webp 1922w, /gallery/hotspots/wellness%20club/spa%20bg.webp 3600w",
   "/gallery/hotspots/wellness club/sports bar bg.webp": "/gallery/hotspots/wellness%20club/sports%20bar%20bg@1920.webp 1922w, /gallery/hotspots/wellness%20club/sports%20bar%20bg.webp 4005w"
 }
 

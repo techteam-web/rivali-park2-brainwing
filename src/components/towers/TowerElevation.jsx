@@ -222,7 +222,7 @@ const FloorShapes = ({ floor, band, outline }) =>
     )
   })
 
-const TowerElevation = ({ tower, onBack, onPick, onSkip }) => {
+const TowerElevation = ({ tower, onBack, onLanding, onPick, onSkip }) => {
   const pageRef = useRef(null)
   const svgHostRef = useRef(null)
   const overlayRef = useRef(null)
@@ -632,6 +632,7 @@ const TowerElevation = ({ tower, onBack, onPick, onSkip }) => {
         backLabel="Back to tower"
         onBack={() => exitWith(onBack)}
         onHome={() => exitTo('/')}
+        onTowers={onLanding && (() => exitWith(onLanding))}
       />
     </div>
   )

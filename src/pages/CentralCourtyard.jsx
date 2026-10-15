@@ -2,27 +2,41 @@ import { useRef } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
 import { useCentralCourtyardHovers } from '../hooks/useCentralCourtyardHovers'
+import ImageNote from '../components/layout/ImageNote'
+import { useHotspotsInView } from '../hooks/useHotspotsInView'
+import { hotspotStageStyle } from '../lib/hotspotStage'
+import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
-const BG_W = 1440
-const BG_H = 1024
+const BG_W = 2600
+const BG_H = 1682
+// Hotspots run from Kids play area (x 0.09) to Amphitheatre (0.93).
+const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.51, span: 0.92 })
 
-// Labels follow the sales-team markup (Sales Tool Feedback 16.09.26, p3):
-// Art Gallery -> Colonnade, Coffee Shop -> Wellness Club, "Liesure" spelling
-// fixed. Slugs are unchanged so existing detail-page URLs keep working.
-// Multipurpose courts (and the bushes drawn around it) moved up 0.06 to clear
-// the page title.
+// Background is the 12 Oct courtyard render (Sales Tool Feedback 12.10,
+// slides 27-28), served at 2600x1682; the stage is centred and covers the
+// viewport. Hotspots sit where slide 28 labels them, Cocoon Seating twice as
+// it is labelled there (Multi purpose lawns is from slide 14). Slugs are
+// unchanged so existing detail-page URLs keep working.
+//
+// Cards without a slug have no detail render yet, so they are not clickable.
+// Their icons are borrowed from other amenities until the design team draws
+// their own: Cocoon Seating uses the seat-and-table icon, Trail Walkway the
+// landscape picture, Pavilion the canopy, Amphitheatre the Wellness Club one.
+// Wellness Club is not labelled on the new render, so it is off this screen;
+// its detail slide is untouched.
 const cards = [
-  { name: 'Colonnade',           src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.1557, left: 0.3538, slug: 'art-gallery' },
-  { name: 'Wellness Club',       src: '/gallery/svgs/central courtyard/coffe shop.svg',          top: 0.1489, left: 0.6094, slug: 'coffee-shop' },
-  { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.2412, left: 0.8396, slug: 'kids-play-area' },
-  { name: 'Leisure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.3701, left: 0.2365, slug: 'liesure-pool' },
-  { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.4854, left: 0.8608, slug: 'swimming-pool' },
-  { name: 'Multipurpose courts', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.5982, left: 0.0974, slug: 'multipurpose-courts' },
+  { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.6100, left: 0.0900, slug: 'kids-play-area' },
+  { name: 'Leisure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.5400, left: 0.3400, slug: 'liesure-pool' },
+  { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.3000, left: 0.8780, slug: 'swimming-pool' },
+  { name: 'Trail Walkway',       src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.2000, left: 0.4750 },
+  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.6900, left: 0.5610 },
+  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.3260, left: 0.4380 },
+  { name: 'Pavilion',            src: '/gallery/svgs/wellness club/dining.svg',                  top: 0.1250, left: 0.8900 },
+  { name: 'Amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',    top: 0.4700, left: 0.9300 },
+  { name: 'Multi purpose lawns', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.6900, left: 0.2400 },
 ]
 
 const decoratives = [
-  { name: 'left-bushes', src: '/gallery/svgs/central courtyard/left-side-bushes.svg', top: 0.608,  left: 0.0549, width: 0.0813 },
-  { name: 'right-tree',  src: '/gallery/svgs/central courtyard/right-side-tree.svg',  top: 0.6211, left: 0.8875, width: 0.0681 },
 ]
 
 const PILL_BG =
@@ -34,16 +48,13 @@ const CentralCourtyard = () => {
   const containerRef = useRef(null)
   const { exitTo } = useGalleryTransition({ containerRef })
   useCentralCourtyardHovers(containerRef)
+  useHotspotsInView(containerRef)
 
   return (
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
       <div
-        className="absolute inset-0 m-auto"
-        style={{
-          '--stage-w': `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-        }}
+        className="absolute"
+        style={STAGE}
       >
         <img
           src="/gallery/central courtyard bg.webp"
@@ -70,7 +81,7 @@ const CentralCourtyard = () => {
 
         {cards.map((c) => (
           <button
-            key={c.name}
+            key={`${c.name}-${c.left}`}
             type="button"
             aria-label={c.name}
             data-card-name={c.name.toLowerCase()}
@@ -123,6 +134,7 @@ const CentralCourtyard = () => {
         style={{ backgroundImage: BOTTOM_BG }}
       />
 
+      <ImageNote />
       <div
         data-back-btn
         className="hidden lg:flex absolute top-5 left-5 z-[60] items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"
@@ -150,6 +162,7 @@ const CentralCourtyard = () => {
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>
         </button>
+        <AmenitiesButton onClick={() => exitTo('/gallery')} />
       </div>
 
       <h1

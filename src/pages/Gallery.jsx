@@ -1,64 +1,79 @@
 import { useRef, useState } from 'react'
 import InlineSVG from '../components/about/InlineSVG'
-import SketchLoadingScreen from '../components/loaders/SketchLoadingScreen'
+import SketchLoadingScreen, { LOADER_HALFWAY_S } from '../components/loaders/SketchLoadingScreen'
 import useLoaderReady from '../hooks/useLoaderReady'
 import { useEntryLoader } from '../hooks/useEntryLoader'
 import AmenitiesLoaderVector from '../assets/loaders/amenities-loader-vector.svg?react'
 import AmenitiesLoaderSubheading from '../assets/loaders/amenities-loader-subheading.svg?react'
 import { useGalleryTransition } from '../hooks/useGalleryTransition'
+import { SITE_AERIAL, SITE_AERIAL_W, SITE_AERIAL_H, TOWER_LABELS, SITE_AERIAL_FRAME } from '../data/siteAerial'
+import { hotspotStageStyle } from '../lib/hotspotStage'
+import ImageNote from '../components/layout/ImageNote'
 
-const BG_W = 1226
-const BG_H = 995
+const BG_W = SITE_AERIAL_W
+const BG_H = SITE_AERIAL_H
 
+// Central Courtyard, Wellness Club and Social Club are the design team's
+// outlines for this render (15 Oct), cropped from their 1852x1120 artboard; the
+// render sits at (144, 113), 1390.4 wide, in that artboard, which is where the
+// positions below come from. Central Courtyard is drawn at 85% of their size
+// about its own centre, so it reads as a marker inside the courtyard rather
+// than covering all of it. Social Club is drawn at 85% of their size, held to
+// its bottom-right corner on the building and nudged 0.005 right, so its west
+// edge pulls clear of the Central Courtyard. Sky Club and Convention Center are
+// still the older outlines, placed by eye: their new versions only link to
+// PNGs that were not delivered.
 const sections = [
   {
     name: 'Sky Club',
     src: '/gallery/Skyclub.svg',
-    top: 0.155,
-    left: 0.259,
-    width: 0.310,
+    top: 0.172,
+    left: 0.409,
+    width: 0.25,
     href: '/gallery/sky-club',
   },
   {
     name: 'Wellness Club',
     src: '/gallery/Wellness Club.svg',
-    top: 0.25,
-    left: 0.342,
-    width: 0.150,
+    top: 0.327,
+    left: 0.533,
+    width: 0.092,
     href: '/gallery/wellness-club',
   },
   {
     name: 'Central Courtyard',
     src: '/gallery/Central.svg',
-    top: 0.32,
-    left: 0.105,
-    width: 0.680,
+    top: 0.408,
+    left: 0.4559,
+    width: 0.3047,
     href: '/gallery/central-courtyard',
   },
   {
     name: 'Convention Center',
     src: '/gallery/Convention Center.svg',
-    top: 0.69,
-    left: 0.13,
-    width: 0.186,
+    top: 0.711,
+    left: 0.427,
+    width: 0.113,
     href: '/gallery/convention-center',
   },
   {
     name: 'Social Club',
     src: '/gallery/Social Club.svg',
-    top: 0.457,
-    left: 0.602,
-    width: 0.260,
+    top: 0.503,
+    left: 0.6996,
+    width: 0.1221,
     href: '/gallery/social-club',
   },
 ]
 
 const towers = [
-  { name: 'Skyleap',  top: 0.235, left: 0.634 },
-  { name: 'Sunburst', top: 0.355, left: 0.925 },
-  { name: 'Moonrise', top: 0.775, left: 0.555 },
-  { name: 'Stargaze', top: 0.735, left: 0.935 },
+  { name: 'Skyleap', ...TOWER_LABELS.skyleap },
+  { name: 'Sunburst', ...TOWER_LABELS.sunburst },
+  { name: 'Moonrise', ...TOWER_LABELS.moonrise },
+  { name: 'Stargaze', ...TOWER_LABELS.stargaze },
 ]
+
+const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, ...SITE_AERIAL_FRAME })
 
 const Gallery = () => {
   const containerRef = useRef(null)
@@ -68,20 +83,21 @@ const Gallery = () => {
   // club page lands straight on the hub instead of replaying it.
   const playLoader = useEntryLoader()
   const [overlayGone, setOverlayGone] = useState(() => !playLoader)
-  const { exitTo } = useGalleryTransition({ containerRef })
+  // Behind the loader, the render fades in as the overlay starts to lift and
+  // the outlines draw in once it is halfway up, so the draw is seen rather
+  // than finished underneath it.
+  const { exitTo } = useGalleryTransition({
+    containerRef,
+    enabled: !playLoader || loaderReady,
+    drawDelay: playLoader ? LOADER_HALFWAY_S : 0,
+  })
 
   return (
     <>
     <div ref={containerRef} className="relative w-screen h-screen overflow-hidden bg-black">
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-        }}
-      >
+      <div className="absolute" style={STAGE}>
         <img
-          src="/gallery/gallery bg.webp"
+          src={SITE_AERIAL}
           alt=""
           data-bg-image
           className="block w-full h-full select-none pointer-events-none"
@@ -130,6 +146,7 @@ const Gallery = () => {
         ))}
       </div>
 
+      <ImageNote />
       <div
         data-back-btn
         className="absolute top-5 left-5 z-10 flex items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8"

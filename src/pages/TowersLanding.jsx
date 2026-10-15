@@ -1,6 +1,9 @@
 import { useRef } from 'react'
 import { towers } from '../data/towers'
 import { usePageTransition } from '../hooks/usePageTransition'
+import { SITE_AERIAL, SITE_AERIAL_W, SITE_AERIAL_H, TOWER_LABELS, SITE_AERIAL_FRAME } from '../data/siteAerial'
+import { hotspotStageStyle } from '../lib/hotspotStage'
+import ImageNote from '../components/layout/ImageNote'
 
 // Aerial landing for /towers. Reuses the gallery's site render and pill pattern,
 // but shows only the four tower pills (no amenity markers) and selects a tower
@@ -8,24 +11,13 @@ import { usePageTransition } from '../hooks/usePageTransition'
 // parent, which swaps in the detail view.
 
 // Native size of the shared aerial render (matches Gallery.jsx).
-const BG_W = 1226
-const BG_H = 995
+const BG_W = SITE_AERIAL_W
+const BG_H = SITE_AERIAL_H
 
-// Pill placement anchored to the VIEWPORT (top/bottom/left/right) rather than to
-// the cover-cropped aerial image, so the names hold their on-screen position
-// across breakpoints and aspect ratios. Percentages keep it responsive;
-// skyleap/moonrise centre horizontally on their point via -translate-x-1/2
-// (which composes with the hover scale). Keyed by id.
-const PILL_POS = {
-  // Skyleap moved right off its old 41.5% per the client's markup (08 Aug), so
-  // the pill sits centred on the tower's own roof rather than at its left edge.
-  // This value is the pill's CENTRE as a % of the viewport width — nudge it
-  // here if it needs to travel further either way.
-  skyleap: 'top-[6%] left-[65%] -translate-x-1/2',
-  sunburst: 'top-[33%] right-[6%]',
-  moonrise: 'bottom-[7%] left-[60.5%] -translate-x-1/2',
-  stargaze: 'bottom-[7%] right-[6%]',
-}
+// Pills sit on the render itself (positions shared with the Amenities hub in
+// TOWER_LABELS), so each name stays on its tower's roof whatever the screen
+// shape; placed against the viewport they only lined up at exactly 16:9.
+const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, ...SITE_AERIAL_FRAME })
 
 const PILL_CLASS =
   'absolute z-10 cursor-pointer rounded-full border border-white/40 font-normal text-white text-center backdrop-blur-[1.3px] xl:backdrop-blur-[1.6px] 2xl:backdrop-blur-[2px] 3xl:backdrop-blur-[2.5px] 4xl:backdrop-blur-[3.3px] 5xl:backdrop-blur-[5px] transition-[transform,filter] duration-200 hover:scale-[1.05] hover:brightness-110 focus:outline-none focus-visible:scale-[1.05] focus-visible:brightness-110 px-5 py-1.5 text-[13px] leading-[165%] xl:px-6.25 xl:py-2 xl:text-[16px] 2xl:px-7.5 2xl:py-2.25 2xl:text-[20px] 3xl:px-9.5 3xl:py-2.75 3xl:text-[24px] 4xl:px-12.5 4xl:py-3.75 4xl:text-[32px] 5xl:px-18.75 5xl:py-5.75 5xl:text-[49px]'
@@ -41,40 +33,37 @@ const TowersLanding = ({ onSelect }) => {
 
   return (
     <div ref={pageRef} className="relative h-screen w-full overflow-hidden bg-black">
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: `max(100vw, calc(100vh * ${BG_W} / ${BG_H}))`,
-          height: `max(100vh, calc(100vw * ${BG_H} / ${BG_W}))`,
-        }}
-      >
+      <div className="absolute" style={STAGE}>
         <img
-          src="/gallery/gallery bg.webp"
+          src={SITE_AERIAL}
           alt=""
           className="block w-full h-full select-none pointer-events-none"
           draggable={false}
         />
+
+        {towers.map((t) => {
+          const pos = TOWER_LABELS[t.id]
+          if (!pos) return null
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => exitWith(() => onSelect(t))}
+              aria-label={t.name}
+              className={`${PILL_CLASS} -translate-x-1/2 -translate-y-1/2`}
+              style={{
+                top: `${pos.top * 100}%`,
+                left: `${pos.left * 100}%`,
+                backgroundImage: PILL_GRADIENT,
+              }}
+            >
+              {t.name}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Pills sit against the viewport (not inside the image wrapper) so their
-          top/bottom/left/right values are relative to the screen. */}
-      {towers.map((t) => {
-        const pos = PILL_POS[t.id]
-        if (!pos) return null
-        return (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => exitWith(() => onSelect(t))}
-            aria-label={t.name}
-            className={`${PILL_CLASS} ${pos}`}
-            style={{ backgroundImage: PILL_GRADIENT }}
-          >
-            {t.name}
-          </button>
-        )
-      })}
-
+      <ImageNote />
       <div className="absolute top-5 left-5 z-10 flex items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8">
         <button
           type="button"

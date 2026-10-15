@@ -3,16 +3,41 @@ import { useGSAP } from '@gsap/react'
 import { gsap } from '../lib/gsap'
 import EnterExperience from '../components/home/EnterExperience'
 import HomeNavbar from '../components/home/HomeNavbar'
+import ImageNote from '../components/layout/ImageNote'
 // WelcomeForm (name/email/phone gate shown on site entry) temporarily disabled.
 // Uncomment to re-enable. See the commented blocks below as well.
 // import WelcomeForm, { readStoredVisitor } from '../components/home/WelcomeForm'
 
 const SESSION_KEY = 'homeEntered'
 
+// Home cover (12 Oct site aerial, turned 180° like the Amenities/Towers one,
+// watermark cropped out). The intro video still plays on first entry and hands
+// over to this still when it ends.
+const HOME_COVER = '/home/landing-cover.jpg'
+
+// The intro (16 Oct cut) comes to rest on the same aerial as the cover, framed
+// wider: the cover is its last frame zoomed 1.272x about this point (fractions
+// of the 16:9 frame), measured by aligning the two. On `ended` both push in
+// about that point together, so the video lands exactly on the cover.
+const END_ZOOM = 1.272
+const END_FOCUS = { x: 0.2886, y: 0.2078 }
+const END_PUSH_S = 1.6
+
+// The focus point in px within an object-cover box. Video and cover are both
+// 16:9, so they are cropped identically and share it.
+const coverFocus = (el) => {
+  const { width: bw, height: bh } = el.getBoundingClientRect()
+  const k = Math.max(bw / 16, bh / 9)
+  const dw = 16 * k
+  const dh = 9 * k
+  return `${(bw - dw) / 2 + END_FOCUS.x * dw}px ${(bh - dh) / 2 + END_FOCUS.y * dh}px`
+}
+
 const Home = () => {
   const containerRef = useRef(null)
   const videoRef = useRef(null)
   const navRef = useRef(null)
+  const coverRef = useRef(null)
 
   // Session-scoped: once the user has entered Home in this tab, returning
   // skips the gate, the playback, and the navbar reveal animation.
@@ -36,6 +61,7 @@ const Home = () => {
         yPercent: hasEnteredOnce ? 0 : 100,
         opacity: hasEnteredOnce ? 1 : 0,
       })
+      if (!hasEnteredOnce) gsap.set(coverRef.current, { autoAlpha: 0 })
     },
     { scope: containerRef },
   )
@@ -96,6 +122,32 @@ const Home = () => {
   const handleVideoEnded = () => {
     if (hasEnteredOnce) return
     sessionStorage.setItem(SESSION_KEY, '1')
+    const video = videoRef.current
+    const cover = coverRef.current
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (video && !reduceMotion) {
+      // Cover starts shrunk onto the matching part of the last frame and both
+      // grow together, so they stay registered the whole way; the cover fades
+      // up over the start to soften its edge against the video.
+      const origin = coverFocus(video)
+      gsap.set([video, cover], { transformOrigin: origin })
+      gsap.set(cover, { scale: 1 / END_ZOOM })
+      gsap.to(video, { scale: END_ZOOM, duration: END_PUSH_S, ease: 'power2.inOut' })
+      gsap.to(cover, {
+        scale: 1,
+        duration: END_PUSH_S,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          gsap.set(cover, { clearProps: 'transform,transformOrigin' })
+          gsap.set(video, { autoAlpha: 0 })
+        },
+      })
+      gsap.to(cover, { autoAlpha: 1, duration: 0.8, ease: 'power1.out' })
+    } else {
+      gsap.to(cover, { autoAlpha: 1, duration: 1.2, ease: 'power2.inOut' })
+    }
     gsap.to(navRef.current, {
       yPercent: 0,
       opacity: 1,
@@ -109,14 +161,7 @@ const Home = () => {
       ref={containerRef}
       className="h-full w-full overflow-hidden relative bg-black"
     >
-      {hasEnteredOnce ? (
-        <img
-          src="/home/landing-poster-end.jpg"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      ) : (
+      {!hasEnteredOnce && (
         <video
           ref={videoRef}
           src="/home/landing-video.mp4"
@@ -127,6 +172,15 @@ const Home = () => {
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
+      <img
+        ref={coverRef}
+        src={HOME_COVER}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Not over the Enter screen, which is the logo, not a render. */}
+      {!isOverlayMounted && <ImageNote />}
       <HomeNavbar ref={navRef} />
       {isOverlayMounted && (
         <EnterExperience

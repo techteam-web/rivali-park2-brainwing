@@ -96,6 +96,7 @@ const Towers = () => {
         key={`${selectedTower.id}-floors`}
         tower={selectedTower}
         onBack={backToDetail}
+        onLanding={backToLanding}
         onPick={openPlansForFloor}
         onSkip={() =>
           navigate(`/unit-plans?tower=${selectedTower.id}&origin=towers`)
