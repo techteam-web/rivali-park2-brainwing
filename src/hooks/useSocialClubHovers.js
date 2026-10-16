@@ -395,7 +395,8 @@ const setupSocialMediaStudio = (svgEl) => {
 }
 
 // Crosshair scales outward + fades out, then resets — like an anime glint.
-const setupTeenLounge = (svgEl) => {
+// Exported for the Sky Club's Sky Lounge, which borrows this icon.
+export const setupTeenLounge = (svgEl) => {
   const paths = Array.from(svgEl.querySelectorAll('path'))
   if (paths.length < 10) return null
   // Crosshair lines are the last 4 stroked paths (top, right, left, bottom of +).

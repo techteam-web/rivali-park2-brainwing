@@ -52,6 +52,8 @@ const WellnessClubHotspot = () => {
 
   const initialIndex = Math.max(0, findWellnessHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
+  // The slide this visit started on; the progress bar counts from here.
+  const entryIndexRef = useRef(initialIndex)
   const isAnimatingRef = useRef(false)
   const wheelLockRef = useRef(false)
 
@@ -167,7 +169,12 @@ const WellnessClubHotspot = () => {
     const path = progressRef.current
     if (!path) return
     progressIndexRef.current = idx
-    const target = wellnessClubHotspots[idx]?.progress ?? 0
+    // Counted from the slide the visitor came in on, whichever hotspot that
+    // was: it reads as step 1 of N, and each step through the (looping)
+    // slider adds one. The per-slide `progress` values in the data are no
+    // longer used for this.
+    const total = wellnessClubHotspots.length
+    const target = (((idx - entryIndexRef.current + total) % total) + 1) / total
     const end = `0% ${Math.max(0, Math.min(1, target)) * 100}%`
     gsap.killTweensOf(path)
     if (prefersReducedMotion()) {

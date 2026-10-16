@@ -2,7 +2,10 @@
 // Maps a slide background to its srcset (see that script for how the
 // candidates are described).
 const SRCSETS = {
+  "/gallery/hotspots/central courtyard/amphitheatre bg.webp": "/gallery/hotspots/central%20courtyard/amphitheatre%20bg@1920.webp 1920w, /gallery/hotspots/central%20courtyard/amphitheatre%20bg.webp 3200w",
   "/gallery/hotspots/central courtyard/art gallery bg.webp": "/gallery/hotspots/central%20courtyard/art%20gallery%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/art%20gallery%20bg.webp 3600w",
+  "/gallery/hotspots/central courtyard/cocoon seating 2 bg.webp": "/gallery/hotspots/central%20courtyard/cocoon%20seating%202%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/cocoon%20seating%202%20bg.webp 2527w",
+  "/gallery/hotspots/central courtyard/cocoon seating bg.webp": "/gallery/hotspots/central%20courtyard/cocoon%20seating%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/cocoon%20seating%20bg.webp 2981w",
   "/gallery/hotspots/central courtyard/coffee shop bg.webp": "/gallery/hotspots/central%20courtyard/coffee%20shop%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/coffee%20shop%20bg.webp 3600w",
   "/gallery/hotspots/central courtyard/kids play area bg.webp": "/gallery/hotspots/central%20courtyard/kids%20play%20area%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/kids%20play%20area%20bg.webp 2499w",
   "/gallery/hotspots/central courtyard/multipurpose courts bg.webp": "/gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg@1920.webp 1920w, /gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg.webp 2652w",
@@ -13,8 +16,9 @@ const SRCSETS = {
   "/gallery/hotspots/sky club/guest suites bg.webp": "/gallery/hotspots/sky%20club/guest%20suites%20bg@1920.webp 1922w, /gallery/hotspots/sky%20club/guest%20suites%20bg.webp 4089w",
   "/gallery/hotspots/sky club/gymnasium bg.webp": "/gallery/hotspots/sky%20club/gymnasium%20bg@1920.webp 1920w, /gallery/hotspots/sky%20club/gymnasium%20bg.webp 4012w",
   "/gallery/hotspots/sky club/kids play area bg.webp": "/gallery/hotspots/sky%20club/kids%20play%20area%20bg@1920.webp 1920w, /gallery/hotspots/sky%20club/kids%20play%20area%20bg.webp 3244w",
+  "/gallery/hotspots/sky club/sky lounge bg.webp": "/gallery/hotspots/sky%20club/sky%20lounge%20bg@1920.webp 1920w, /gallery/hotspots/sky%20club/sky%20lounge%20bg.webp 3200w",
   "/gallery/hotspots/sky club/spa bg.webp": "/gallery/hotspots/sky%20club/spa%20bg@1920.webp 1920w, /gallery/hotspots/sky%20club/spa%20bg.webp 3296w",
-  "/gallery/hotspots/sky club/viewing decks bg.webp": "/gallery/hotspots/sky%20club/viewing%20decks%20bg@1920.webp 1922w, /gallery/hotspots/sky%20club/viewing%20decks%20bg.webp 3393w",
+  "/gallery/hotspots/sky club/viewing decks bg.webp": "/gallery/hotspots/sky%20club/viewing%20decks%20bg@1920.webp 1922w, /gallery/hotspots/sky%20club/viewing%20decks%20bg.webp 3600w",
   "/gallery/hotspots/social club/billiards room bg.webp": "/gallery/hotspots/social%20club/billiards%20room%20bg@1920.webp 1922w, /gallery/hotspots/social%20club/billiards%20room%20bg.webp 3035w",
   "/gallery/hotspots/social club/cafeteria bg.webp": "/gallery/hotspots/social%20club/cafeteria%20bg@1920.webp 1922w, /gallery/hotspots/social%20club/cafeteria%20bg.webp 3600w",
   "/gallery/hotspots/social club/card room bg.webp": "/gallery/hotspots/social%20club/card%20room%20bg@1920.webp 1922w, /gallery/hotspots/social%20club/card%20room%20bg.webp 3600w",

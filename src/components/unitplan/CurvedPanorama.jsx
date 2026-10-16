@@ -101,7 +101,12 @@ const makeFeatherMap = () => {
   return tex
 }
 
-const CurvedPanorama = ({ src }) => {
+// `crop` ([from, to], fractions of the frame's width) limits the viewer to part
+// of the frame — Skyleap's facade shots are shared between units, each of
+// which sees only its own part (see skyleapViewLayout.js). Only that part is mapped onto the band, so the pan
+// range, the curve and the edge feathering all apply to it exactly as they do
+// to a whole frame, and the far side of the split is simply never drawn.
+const CurvedPanorama = ({ src, crop = null }) => {
   const wrapRef = useRef(null)
   const engineRef = useRef(null)
   // Compare shows up to three of these side by side and pans them together, so
@@ -181,14 +186,21 @@ const CurvedPanorama = ({ src }) => {
 
       if (live) {
         const vSpanDeg = live.userData.vSpanDeg
-        const fov = Math.min(vSpanDeg * REVEAL, 80)
+        let fov = Math.min(vSpanDeg * REVEAL, 80)
+        // A frame narrower than the view at that zoom (a cropped Skyleap half)
+        // would float in white at both sides; zoom in just enough for it to
+        // run edge to edge like every other view.
+        const fillFov =
+          (2 * Math.atan(Math.tan((live.userData.hSpanDeg * DEG) / 2) / aspect)) /
+          DEG
+        fov = Math.min(fov, fillFov)
         camera.fov = fov
         // Traverse exactly the strip that is off-screen, so the cursor still
         // reaches both ends of the panorama like the flat viewer does.
         const hFovDeg =
           (2 * Math.atan(Math.tan((fov * DEG) / 2) * aspect)) / DEG
         maxYaw =
-          Math.max(0, (H_SPAN_DEG - hFovDeg) / 2) * TRAVERSE * DEG
+          Math.max(0, (live.userData.hSpanDeg - hFovDeg) / 2) * TRAVERSE * DEG
       }
 
       camera.aspect = aspect
@@ -226,14 +238,15 @@ const CurvedPanorama = ({ src }) => {
     // drop everything underneath. Two stacked meshes cost one extra draw call
     // for the duration of the fade only — and unlike the flat viewer's animated
     // CSS blur, nothing has to be re-rasterised per frame.
-    const show = (url) => {
-      latestSrc = url
+    const show = (url, crop) => {
+      const key = crop ? `${url}#${crop.join(',')}` : url
+      latestSrc = key
       loader.load(url, (texture) => {
         // Stepping through floors quickly can land these out of order (they're
         // already warm in the HTTP cache, so a later request can resolve first).
         // Anything that is no longer the requested frame is dropped, otherwise a
         // slow earlier load would stack on top and contradict the floor label.
-        if (url !== latestSrc) {
+        if (key !== latestSrc) {
           texture.dispose()
           return
         }
@@ -242,14 +255,22 @@ const CurvedPanorama = ({ src }) => {
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
         texture.minFilter = THREE.LinearMipmapLinearFilter
         texture.magFilter = THREE.LinearFilter
-        // Seen from inside the sphere the mapping is mirrored, so flip u back.
+        // Seen from inside the sphere the mapping is mirrored, so flip u back,
+        // reading only the cropped part of the frame when there is one.
+        const [u0, u1] = crop ?? [0, 1]
         texture.wrapS = THREE.ClampToEdgeWrapping
-        texture.repeat.x = -1
-        texture.offset.x = 1
+        texture.repeat.x = -(u1 - u0)
+        texture.offset.x = u1
 
         const imgAspect =
-          (texture.image?.width || 1) / (texture.image?.height || 1)
-        const hSpan = H_SPAN_DEG * DEG
+          ((texture.image?.width || 1) * (u1 - u0)) /
+          (texture.image?.height || 1)
+        // A cropped frame keeps the curve it has as part of the whole frame:
+        // it covers its own share of the band, not all of it. Bent across the
+        // full width instead, a narrow crop has to reach far above and below
+        // the horizon to keep its proportions, and its top and bottom edges
+        // bow into deep curves.
+        const hSpan = H_SPAN_DEG * (u1 - u0) * DEG
         const vSpan = hSpan / imgAspect
 
         const geometry = new THREE.SphereGeometry(
@@ -273,6 +294,7 @@ const CurvedPanorama = ({ src }) => {
 
         const mesh = new THREE.Mesh(geometry, material)
         mesh.userData.vSpanDeg = vSpan / DEG
+        mesh.userData.hSpanDeg = hSpan / DEG
         mesh.renderOrder = ++order
 
         const isFirst = layers.length === 0
@@ -376,9 +398,10 @@ const CurvedPanorama = ({ src }) => {
     [register, id],
   )
 
+  const cropKey = crop ? crop.join(',') : ''
   useEffect(() => {
-    if (src) engineRef.current?.show(src)
-  }, [src])
+    if (src) engineRef.current?.show(src, cropKey ? cropKey.split(',').map(Number) : null)
+  }, [src, cropKey])
 
   return (
     <div

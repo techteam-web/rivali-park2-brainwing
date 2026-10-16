@@ -62,6 +62,8 @@ const CentralCourtyardHotspot = () => {
 
   const initialIndex = Math.max(0, findCentralCourtyardHotspotIndex(hotspot))
   const [activeIndex, setActiveIndex] = useState(initialIndex)
+  // The slide this visit started on; the progress bar counts from here.
+  const entryIndexRef = useRef(initialIndex)
   const isAnimatingRef = useRef(false)
   const wheelLockRef = useRef(false)
 
@@ -178,7 +180,12 @@ const CentralCourtyardHotspot = () => {
     const path = progressRef.current
     if (!path) return
     progressIndexRef.current = idx
-    const target = centralCourtyardHotspots[idx]?.progress ?? 0
+    // Counted from the slide the visitor came in on, whichever hotspot that
+    // was: it reads as step 1 of N, and each step through the (looping)
+    // slider adds one. The per-slide `progress` values in the data are no
+    // longer used for this.
+    const total = centralCourtyardHotspots.length
+    const target = (((idx - entryIndexRef.current + total) % total) + 1) / total
     const end = `0% ${Math.max(0, Math.min(1, target)) * 100}%`
     gsap.killTweensOf(path)
     if (prefersReducedMotion()) {
@@ -412,7 +419,7 @@ const CentralCourtyardHotspot = () => {
         }}
       />
 
-      <ImageNote kind="stock" />
+      <ImageNote kind={centralCourtyardHotspots[activeIndex]?.note ?? 'stock'} />
       <div className="hidden lg:flex absolute top-5 left-5 z-50 items-center gap-2 xl:gap-2.5 2xl:gap-3 3xl:gap-4 4xl:gap-5 5xl:gap-8">
         <button
           type="button"

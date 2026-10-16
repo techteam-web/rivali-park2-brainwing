@@ -122,6 +122,13 @@ const UnitPlans = () => {
   }
 
 
+  // Skyleap's sheet is drawn the other way up: its courtyard side is the
+  // bottom of the plate (16 Oct, design team's marked-up plan).
+  const facing =
+    current.id === 'skyleap'
+      ? { top: 'External Facing', bottom: 'Courtyard Facing' }
+      : { top: 'Courtyard Facing', bottom: 'External Facing' }
+
   return (
     <div ref={pageRef} className="relative h-full w-full">
     {/* Outside <UnitArtboard> on purpose: the artboard's scale transform would
@@ -153,7 +160,7 @@ const UnitPlans = () => {
           color: '#7A4833',
         }}
       >
-        Courtyard Facing
+        {facing.top}
       </p>
 
       <div
@@ -244,7 +251,7 @@ const UnitPlans = () => {
           color: '#7A4833',
         }}
       >
-        External Facing
+        {facing.bottom}
       </p>
     </UnitArtboard>
     </div>

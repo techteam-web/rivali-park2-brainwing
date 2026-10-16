@@ -14,7 +14,7 @@ export const skyClubHotspots = [
     slug: 'viewing-decks',
     name: 'Viewing decks',
     bg: `${ASSET_BASE}/viewing decks bg.webp`,
-    progress: 1 / 6,
+    progress: 1 / 7,
     decoratives: [],
   },
   {
@@ -22,7 +22,7 @@ export const skyClubHotspots = [
     name: 'Kids club',
     bg: `${ASSET_BASE}/kids play area bg.webp`,
     objectPosition: 'center bottom',
-    progress: 2 / 6,
+    progress: 2 / 7,
     decoratives: [
       {
         name: 'left-car',
@@ -52,7 +52,7 @@ export const skyClubHotspots = [
     name: 'Sky suites',
     bg: `${ASSET_BASE}/guest suites bg.webp`,
     objectPosition: 'center bottom',
-    progress: 3 / 6,
+    progress: 3 / 7,
     decoratives: [
       {
         name: 'left-vase',
@@ -81,7 +81,7 @@ export const skyClubHotspots = [
     slug: 'banquet-hall',
     name: 'Banquet Hall',
     bg: `${ASSET_BASE}/banquet hall bg.webp`,
-    progress: 4 / 6,
+    progress: 4 / 7,
     // Placement measured from the design team's Figma export for this frame.
     // The delivered render is a 4x export of their 1440x1024 artboard, so the
     // numbers are normalized against that artboard; and because Figma reports a
@@ -102,7 +102,7 @@ export const skyClubHotspots = [
     slug: 'sky-fitness',
     name: 'Gymnasium',
     bg: `${ASSET_BASE}/gymnasium bg.webp`,
-    progress: 5 / 6,
+    progress: 5 / 7,
     decoratives: [
       {
         name: 'dumbell',
@@ -129,9 +129,9 @@ export const skyClubHotspots = [
   },
   {
     slug: 'spa',
-    name: 'Spa and Open to sky Jacuzzi',
+    name: 'Spa',
     bg: `${ASSET_BASE}/spa bg.webp`,
-    progress: 6 / 6,
+    progress: 6 / 7,
     decoratives: [
       {
         name: 'left-cloud',
@@ -148,6 +148,15 @@ export const skyClubHotspots = [
         width: 0.12,
       },
     ],
+  },
+  // Project render (16 Oct), so it carries the "Artist's impression" note.
+  {
+    slug: 'sky-lounge',
+    name: 'Sky Lounge',
+    bg: `${ASSET_BASE}/sky lounge bg.webp`,
+    note: 'render',
+    progress: 7 / 7,
+    decoratives: [],
   },
 ]
 

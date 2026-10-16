@@ -1,7 +1,7 @@
 import * as stargazeViews from './stargazeViews'
 import * as moonriseViews from './moonriseViews'
 import * as sunburstViews from './sunburstViews'
-import * as skyleapViews from './skyleapViews'
+import * as skyleapViews from './skyleapViewLayout'
 
 // Per-tower panorama manifests (each exposes floorsForPosition + viewImage over
 // its own /unit/views assets). Towers without panoramas are simply absent, so
@@ -23,6 +23,14 @@ export const floorsForTowerPosition = (tower, position) => {
 export const viewImageForTowerPosition = (tower, floor, position) => {
   const views = VIEW_SOURCES[tower]
   return views && floor != null ? views.viewImage(floor, position) : null
+}
+
+// [from, to] fractions of the panorama's width this apartment is limited to,
+// or null for the whole frame. Only towers whose panoramas are shared between
+// units (Skyleap) define it.
+export const viewCropForTowerPosition = (tower, floor, position) => {
+  const views = VIEW_SOURCES[tower]
+  return views?.viewCrop && floor != null ? views.viewCrop(floor, position) : null
 }
 
 // "1ST FLOOR", "2ND FLOOR", "23RD FLOOR", "25TH FLOOR" — handles the 11/12/13

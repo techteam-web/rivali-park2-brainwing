@@ -14,7 +14,7 @@ export const centralCourtyardHotspots = [
     slug: 'coffee-shop',
     name: 'Wellness Club',
     bg: `${ASSET_BASE}/coffee shop bg.webp`,
-    progress: 1 / 4,
+    progress: 1 / 8,
     decoratives: [
       // Placements measured from the design team's Figma export for this frame,
       // normalized against their 1440x1024 artboard and corrected for the stroke
@@ -41,7 +41,7 @@ export const centralCourtyardHotspots = [
     slug: 'liesure-pool',
     name: 'Leisure Pool',
     bg: `${ASSET_BASE}/leisure pool bg.webp`,
-    progress: 2 / 4,
+    progress: 2 / 8,
     decoratives: [
       {
         name: 'water-splash',
@@ -63,7 +63,7 @@ export const centralCourtyardHotspots = [
     slug: 'swimming-pool',
     name: 'Swimming Pool',
     bg: `${ASSET_BASE}/swimming pool bg.webp`,
-    progress: 3 / 4,
+    progress: 3 / 8,
     decoratives: [
       {
         name: 'flamingo',
@@ -76,9 +76,9 @@ export const centralCourtyardHotspots = [
   },
   {
     slug: 'kids-play-area',
-    name: 'Kids Play Area',
+    name: 'Kids Play',
     bg: `${ASSET_BASE}/kids play area bg.webp`,
-    progress: 4 / 4,
+    progress: 4 / 8,
     decoratives: [
       {
         name: 'kids',
@@ -88,6 +88,45 @@ export const centralCourtyardHotspots = [
         width: 0.142,
       },
     ],
+  },
+  // Project renders (16 Oct) rather than stock photos, so these slides carry
+  // the "Artist's impression" note. No line drawings over them yet.
+  {
+    slug: 'cocoon-seating',
+    name: 'Cocoon Seating',
+    bg: `${ASSET_BASE}/cocoon seating bg.webp`,
+    note: 'render',
+    progress: 5 / 8,
+    decoratives: [],
+  },
+  {
+    slug: 'cocoon-seating-2',
+    name: 'Cocoon Seating',
+    bg: `${ASSET_BASE}/cocoon seating 2 bg.webp`,
+    note: 'render',
+    // Very wide frame with the cocoon at its right end; keep that end in view
+    // where the screen crops the sides.
+    objectPosition: '85% center',
+    progress: 6 / 8,
+    decoratives: [],
+  },
+  {
+    slug: 'amphitheatre',
+    name: 'Amphitheatre',
+    bg: `${ASSET_BASE}/amphitheatre bg.webp`,
+    note: 'render',
+    progress: 7 / 8,
+    decoratives: [],
+  },
+  // The courtyard's previous landing render (night view over the central
+  // lawn), reused here since the landing moved to the 12 Oct daytime render.
+  {
+    slug: 'multi-purpose-lawns',
+    name: 'Multi purpose lawns',
+    bg: `${ASSET_BASE}/multi purpose lawns bg.webp`,
+    note: 'render',
+    progress: 8 / 8,
+    decoratives: [],
   },
 ]
 

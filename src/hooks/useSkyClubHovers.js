@@ -8,6 +8,7 @@ import {
   setupBarbell,
   setupLotus,
 } from './cardHoverSetups'
+import { setupTeenLounge } from './useSocialClubHovers'
 
 // Card names defined in SkyClub.jsx — must match `data-card-name` after
 // lowercasing. Re-keyed when the labels were reworded to the sales-team markup
@@ -17,9 +18,10 @@ const setups = {
   'gymnasium':                   setupBarbell,
   'viewing decks':               setupViewingDecks,
   'sky suites':                  setupGuestRoomsSC,
-  'spa and open to sky jacuzzi': setupLotus,
+  'spa':                         setupLotus,
   'kids club':                   setupKidsSlide,
   'banquet hall':                setupBanquetHall,
+  'sky lounge':                  setupTeenLounge,
 }
 
 export function useSkyClubHovers(scopeRef) {

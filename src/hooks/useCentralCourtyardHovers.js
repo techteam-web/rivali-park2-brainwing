@@ -6,6 +6,8 @@ import {
   setupKidsSlide,
   setupPool,
   setupCourts,
+  setupBanquetHall,
+  setupAmphitheatre,
 } from './cardHoverSetups'
 
 // Card names defined in CentralCourtyard.jsx (lowercased). Keep in step with
@@ -14,9 +16,14 @@ const setups = {
   'colonnade':           setupArtGallery,
   'wellness club':       setupSteamCup,
   'kids play area':      setupKidsSlide,
+  'kids play':           setupKidsSlide,
   'leisure pool':        setupPool,
   'swimming pool':       setupPool,
   'multipurpose courts': setupCourts,
+  'multi purpose lawns': setupCourts,
+  // Borrowed icons keep the animation written for them.
+  'cocoon seating':      setupBanquetHall,
+  'amphitheatre':        setupAmphitheatre,
 }
 
 export function useCentralCourtyardHovers(scopeRef) {

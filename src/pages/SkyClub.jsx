@@ -18,10 +18,9 @@ const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.505, span: 0.67 })
 
 // Placed per the 12 Oct markup of this render (Sales Tool Feedback 12.10, slide 26):
 // Gymnasium at the top of the left glazed block with Sky suites below it,
-// the Spa and open-to-sky Jacuzzi on the centre roof over the viewing deck,
+// the Spa (just "Spa" since 16 Oct) on the centre roof over the viewing deck,
 // Kids club in the right glazed block, Sky Lounge at the top of it. Sky Lounge
-// borrows the sofa icon from the Social Club's Teens Lounge and is not
-// clickable until its detail slide exists. Banquet hall is not on this markup,
+// borrows the sofa icon from the Social Club's Teens Lounge. Banquet hall is not on this markup,
 // so it is off this screen; its detail slide is untouched. The markup shows
 // three viewing decks (left terrace, centre, right terrace), each with its own
 // hotspot opening the same detail slide. The side two are optional: on screens
@@ -29,12 +28,12 @@ const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.505, span: 0.67 })
 const cards = [
   { name: 'Gymnasium',                    src: '/gallery/svgs/sky club/sky fitness.svg',    top: 0.360, left: 0.210, slug: 'sky-fitness' },
   { name: 'Sky suites',                   src: '/gallery/svgs/sky club/guest rooms.svg',    top: 0.470, left: 0.290, slug: 'guest-rooms' },
-  { name: 'Spa and Open to sky Jacuzzi',  src: '/gallery/svgs/sky club/spa.svg',            top: 0.300, left: 0.500, slug: 'spa' },
+  { name: 'Spa',                          src: '/gallery/svgs/sky club/spa.svg',            top: 0.300, left: 0.500, slug: 'spa' },
   { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.450, left: 0.500, slug: 'viewing-decks' },
   { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.453, left: 0.088, slug: 'viewing-decks', optional: true },
   { name: 'Viewing decks',                src: '/gallery/svgs/sky club/viewing decks.svg',  top: 0.428, left: 0.919, slug: 'viewing-decks', optional: true },
   { name: 'Kids club',                    src: '/gallery/svgs/sky club/kids play area.svg', top: 0.470, left: 0.720, slug: 'kids-play-area' },
-  { name: 'Sky Lounge',                   src: '/gallery/svgs/social club/teen lounge.svg', top: 0.360, left: 0.800 },
+  { name: 'Sky Lounge',                   src: '/gallery/svgs/social club/teen lounge.svg', top: 0.360, left: 0.800, slug: 'sky-lounge' },
 ]
 
 const PILL_BG =

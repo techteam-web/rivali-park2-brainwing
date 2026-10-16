@@ -14,54 +14,59 @@ const BG_W = SITE_AERIAL_W
 const BG_H = SITE_AERIAL_H
 
 // Central Courtyard, Wellness Club and Social Club are the design team's
-// outlines for this render (15 Oct), cropped from their 1852x1120 artboard; the
-// render sits at (144, 113), 1390.4 wide, in that artboard, which is where the
-// positions below come from. Central Courtyard is drawn at 85% of their size
+// outlines (15 Oct), cropped from their 1852x1120 artboard, in which the old
+// cropped aerial sat at (144, 113), 1390.4 wide. That crop is the middle
+// 78.69% of the full aerial now used (offset 5.97%, 4.19%), and the positions
+// below have been carried over onto it. Central Courtyard is drawn at 85% of their size
 // about its own centre, so it reads as a marker inside the courtyard rather
 // than covering all of it. Social Club is drawn at 85% of their size, held to
 // its bottom-right corner on the building and nudged 0.005 right, so its west
-// edge pulls clear of the Central Courtyard. Sky Club and Convention Center are
-// still the older outlines, placed by eye: their new versions only link to
-// PNGs that were not delivered.
+// edge pulls clear of the Central Courtyard. Sky Club is the design team's
+// cut-out of the Skyleap block (16 Oct), placed with the same mapping, with
+// its tower tops and east edge (drawn over the trees) pulled in to the roof
+// and wall measured on the render; its
+// label text is the earlier outline's lettering, since theirs came as live
+// text in a font the site doesn't load. Convention Center is still the older
+// outline, placed by eye.
 const sections = [
   {
     name: 'Sky Club',
     src: '/gallery/Skyclub.svg',
-    top: 0.172,
-    left: 0.409,
-    width: 0.25,
+    top: 0.0608,
+    left: 0.33,
+    width: 0.2935,
     href: '/gallery/sky-club',
   },
   {
     name: 'Wellness Club',
     src: '/gallery/Wellness Club.svg',
-    top: 0.327,
-    left: 0.533,
-    width: 0.092,
+    top: 0.2993,
+    left: 0.4791,
+    width: 0.0724,
     href: '/gallery/wellness-club',
   },
   {
     name: 'Central Courtyard',
     src: '/gallery/Central.svg',
-    top: 0.408,
-    left: 0.4559,
-    width: 0.3047,
+    top: 0.363,
+    left: 0.4184,
+    width: 0.2398,
     href: '/gallery/central-courtyard',
   },
   {
     name: 'Convention Center',
     src: '/gallery/Convention Center.svg',
-    top: 0.711,
-    left: 0.427,
-    width: 0.113,
+    top: 0.6015,
+    left: 0.3957,
+    width: 0.0889,
     href: '/gallery/convention-center',
   },
   {
     name: 'Social Club',
     src: '/gallery/Social Club.svg',
-    top: 0.503,
-    left: 0.6996,
-    width: 0.1221,
+    top: 0.4378,
+    left: 0.6102,
+    width: 0.0961,
     href: '/gallery/social-club',
   },
 ]
@@ -155,7 +160,7 @@ const Gallery = () => {
           type="button"
           aria-label="Back"
           onClick={() => exitTo('/')}
-          className="flex items-center justify-center rounded-full bg-white/20 text-white transition-[transform,background-color] duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+          className="flex items-center justify-center rounded-full bg-black/45 text-white ring-1 ring-white/30 backdrop-blur-sm shadow-[0_2px_10px_rgba(0,0,0,0.3)] transition-[transform,background-color] duration-200 hover:bg-black/60 hover:scale-[1.05] focus:outline-none focus-visible:bg-black/60 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         >
           <svg viewBox="0 0 25 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
             <path d="M22.332 12.0191H2.21366M11.2814 20.3545L2.21366 12.0191L11.2814 3.64453" />
@@ -165,9 +170,9 @@ const Gallery = () => {
           type="button"
           aria-label="Go to homepage"
           onClick={() => exitTo('/')}
-          className="flex items-center justify-center rounded-full bg-white/20 text-white transition-[transform,background-color] duration-200 hover:bg-white/30 hover:scale-[1.05] focus:outline-none focus-visible:bg-white/30 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
+          className="flex items-center justify-center rounded-full bg-black/45 text-white ring-1 ring-white/30 backdrop-blur-sm shadow-[0_2px_10px_rgba(0,0,0,0.3)] transition-[transform,background-color] duration-200 hover:bg-black/60 hover:scale-[1.05] focus:outline-none focus-visible:bg-black/60 focus-visible:scale-[1.05] h-8 w-8 xl:h-10 xl:w-10 2xl:h-12 2xl:w-12 3xl:h-15 3xl:w-15 4xl:h-20 4xl:w-20 5xl:h-30 5xl:w-30"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5 3xl:w-6 3xl:h-6 4xl:w-8 4xl:h-8 5xl:w-12 5xl:h-12">
             <path d="M4 11.5L12 4l8 7.5" />
             <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
           </svg>

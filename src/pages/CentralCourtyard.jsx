@@ -9,7 +9,7 @@ import AmenitiesButton from '../components/gallery/AmenitiesButton'
 
 const BG_W = 2600
 const BG_H = 1682
-// Hotspots run from Kids play area (x 0.09) to Amphitheatre (0.93).
+// Hotspots run from Kids play (x 0.09) to Amphitheatre (0.93).
 const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.51, span: 0.92 })
 
 // Background is the 12 Oct courtyard render (Sales Tool Feedback 12.10,
@@ -25,15 +25,15 @@ const STAGE = hotspotStageStyle({ w: BG_W, h: BG_H, mid: 0.51, span: 0.92 })
 // Wellness Club is not labelled on the new render, so it is off this screen;
 // its detail slide is untouched.
 const cards = [
-  { name: 'Kids play area',      src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.6100, left: 0.0900, slug: 'kids-play-area' },
+  { name: 'Kids play',           src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.6100, left: 0.0900, slug: 'kids-play-area' },
   { name: 'Leisure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.5400, left: 0.3400, slug: 'liesure-pool' },
   { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.3000, left: 0.8780, slug: 'swimming-pool' },
   { name: 'Trail Walkway',       src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.2000, left: 0.4750 },
-  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.6900, left: 0.5610 },
-  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.3260, left: 0.4380 },
+  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.6900, left: 0.5610, slug: 'cocoon-seating' },
+  { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.3260, left: 0.4380, slug: 'cocoon-seating-2' },
   { name: 'Pavilion',            src: '/gallery/svgs/wellness club/dining.svg',                  top: 0.1250, left: 0.8900 },
-  { name: 'Amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',    top: 0.4700, left: 0.9300 },
-  { name: 'Multi purpose lawns', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.6900, left: 0.2400 },
+  { name: 'Amphitheatre',        src: '/gallery/svgs/wellness club/outdoor amphitheatre.svg',    top: 0.4700, left: 0.9300, slug: 'amphitheatre' },
+  { name: 'Multi purpose lawns', src: '/gallery/svgs/central courtyard/multipurpose courts.svg', top: 0.7250, left: 0.1900, slug: 'multi-purpose-lawns' },
 ]
 
 const decoratives = [

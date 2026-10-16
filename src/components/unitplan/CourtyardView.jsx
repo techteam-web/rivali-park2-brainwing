@@ -121,6 +121,7 @@ const CourtyardView = ({
     () => initialFloor ?? floors[0] ?? null,
   )
   const src = views && floor != null ? views.viewImage(floor, position) : null
+  const crop = views?.viewCrop && floor != null ? views.viewCrop(floor, position) : null
   // Keep the current floor visible in the drop-up even if it isn't one of the
   // floors with a view, so the list never contradicts the button's label.
   const floorOptions =
@@ -188,7 +189,7 @@ const CourtyardView = ({
           sync group of one — the compare page groups several together. */}
       {src ? (
         <PanoramaSyncProvider>
-          <CurvedPanorama src={src} />
+          <CurvedPanorama src={src} crop={crop} />
         </PanoramaSyncProvider>
       ) : (
         <div

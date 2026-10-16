@@ -26,6 +26,7 @@ import {
 import {
   floorsForTowerPosition,
   viewImageForTowerPosition,
+  viewCropForTowerPosition,
   ordinal,
 } from '../data/courtyardViews'
 import { gsap } from '../lib/gsap'
@@ -268,6 +269,10 @@ const UnitPlanCompare = () => {
               floor != null
                 ? viewImageForTowerPosition(col.tower, floor, unit.n)
                 : null
+            const viewCrop =
+              floor != null
+                ? viewCropForTowerPosition(col.tower, floor, unit.n)
+                : null
             const floorOptions =
               floor != null && !floors.includes(floor)
                 ? [...floors, floor].sort((a, b) => a - b)
@@ -322,7 +327,7 @@ const UnitPlanCompare = () => {
                     <>
                       {viewSrc ? (
                         <>
-                          <CurvedPanorama src={viewSrc} />
+                          <CurvedPanorama src={viewSrc} crop={viewCrop} />
                           <button
                             type="button"
                             aria-label="View from apartment fullscreen"
