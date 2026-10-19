@@ -7,22 +7,25 @@
 export const locationsData = {
   access: {
     markerStyle: { shape: 'dot', color: '#9aa0a6' },
-    // Trimmed to the client's list (12 Oct feedback). Link Road, Malad,
+    // Exactly the client's list (12 Oct feedback). Link Road, Malad,
     // Kandivali, Dahisar, Ovaripada and Devipada were removed; their routes,
-    // cameras and card data stay in the sibling files. "Borivali-Thane Twin
-    // Tunnel" is on the client's list too but is not added yet: it needs a
-    // route, camera framing and card photo first (see the Damania note below).
+    // cameras and card data stay in the sibling files.
+    //
+    // Routes added or re-traced on 19 Oct start at the south gate and follow
+    // real roads (OpenStreetMap routing), with destinations taken from Google
+    // Maps; the twin tunnel ends at its Borivali portal by Magathane.
     locations: [
       { id: 'access-western-express-highway', name: 'Western Express Highway', position: null },
       { id: 'access-sv-road', name: 'SV Road', position: null },
       { id: 'access-borivali', name: 'Borivali Railway Station', position: null },
       { id: 'access-magathane', name: 'Magathane Metro Station', position: null },
+      { id: 'access-twin-tunnel', name: 'Borivali-Thane Twin Tunnel', position: null },
     ],
     // Display-only sub-groups (rendered by the drop-up); `locations` above stays
     // the flat source of truth the marker/camera passes read. ids reference the
     // locations above, no duplication. Every access location is in exactly one group.
     groups: [
-      { label: 'Highways & Roads', ids: ['access-western-express-highway', 'access-sv-road'] },
+      { label: 'Highways & Roads', ids: ['access-western-express-highway', 'access-sv-road', 'access-twin-tunnel'] },
       { label: 'Railway Stations', ids: ['access-borivali'] },
       { label: 'Metro', ids: ['access-magathane'] },
     ],
@@ -40,23 +43,18 @@ export const locationsData = {
       // camera and card data are left in place in the sibling files so it can
       // be restored by putting this row back if that turns out to be wrong.
       // Thakur Mall, Carnival Cinema and Evershine Dream Park removed (12 Oct
-      // feedback). "Oberoi Mall" is to be added once its route, camera and card
-      // photo exist.
-      {
-        id: 'leisure-pvr',
-        name: 'PVR',
-        position: null,
-        // optional card content (all may be absent -> LocationCard PLACEHOLDER fills in):
-        photo: null,
-        blurb: 'Premium screens and dining a short hop from the door.',
-        distance: '200 m',
-        times: { walk: '10 mins', bike: '5 mins', car: '8 mins', transit: '10 mins' },
-      },
+      // feedback), Oberoi Mall added. The old "PVR" pin already stood on Oberoi
+      // Mall in Goregaon, and the PVR INOX nearest the project is inside Sky City
+      // Mall, so PVR is folded into those two rather than kept as a third pin.
+      { id: 'leisure-oberoi-mall', name: 'Oberoi Mall', position: null },
+      // Upcoming, on the CCI land facing the highway (one of the three white
+      // blocks drawn next to the project, see SiteBlocks).
+      { id: 'leisure-dmart', name: "India's Largest DMart", position: null },
     ],
     // Display-only sub-groups; every leisure location is in exactly one group.
     groups: [
-      { label: 'Malls', ids: ['leisure-oberoi-sky-city', 'leisure-raghuleela-mall'] },
-      { label: 'Entertainment & Cinemas', ids: ['leisure-pvr'] },
+      { label: 'Malls', ids: ['leisure-oberoi-sky-city', 'leisure-raghuleela-mall', 'leisure-oberoi-mall'] },
+      { label: 'Shopping', ids: ['leisure-dmart'] },
     ],
   },
   healthcare: {
@@ -65,16 +63,10 @@ export const locationsData = {
       { id: 'healthcare-apex', name: 'Apex Hospital', position: null },
       { id: 'healthcare-surbhi', name: 'Surbhi Hospital', position: null },
       { id: 'healthcare-seven-star', name: 'Seven Star Hospital', position: null },
-      // TODO(client feedback 08 Aug): add "Upcoming Damania Hospital". Kept
-      // commented until the three pieces a healthcare row needs are supplied,
-      // because a row with none of them selects to a blank card and no route:
-      //   1. its route path      -> locationsPaths.js (traced on the map with
-      //      the dev capture panel in LocationsView, same as every other row)
-      //   2. its camera framing  -> locationCameras.js (dev CameraLogger)
-      //   3. card content        -> photo in src/assets/locations/images/
-      //      ("Damania Hospital.webp") + distance + walk/bike/car/transit times
-      // Everything else (blurb) is already written below in locationBlurbs.js.
-      // { id: 'healthcare-damania', name: 'Upcoming Damania Hospital', position: null },
+      // Upcoming, on the CCI land facing the highway (one of the three white
+      // blocks drawn next to the project, see SiteBlocks). Card photo still to
+      // come: drop "Damania Hospital.webp" into src/assets/locations/images/.
+      { id: 'healthcare-damania', name: 'Damania Hospital', position: null },
     ],
   },
   schools: {
@@ -85,8 +77,9 @@ export const locationsData = {
       { id: 'schools-chatrabhuj-narsee', name: 'Chatrabhuj Narsee School', position: null },
       { id: 'schools-cambridge', name: 'Cambridge School', position: null },
       { id: 'schools-oxford-international', name: 'Oxford International School', position: null },
-      // Children's Academy School removed (12 Oct feedback). "Oberoi
-      // International School" is to be added once its route, camera and photo exist.
+      // Children's Academy School removed (12 Oct feedback); Oberoi
+      // International School added (its Oberoi Garden City campus, Goregaon East).
+      { id: 'schools-oberoi-international', name: 'Oberoi International School', position: null },
     ],
   },
   business: {
@@ -96,6 +89,9 @@ export const locationsData = {
       { id: 'business-agora-business-plaza', name: 'Agora Business Plaza', position: null },
       { id: 'business-western-edge', name: 'Western Edge', position: null },
       { id: 'business-mahindra', name: 'Mahindra & Mahindra Ltd.', position: null },
+      // Upcoming Hines office tower on the CCI land facing the highway (12 Oct
+      // feedback; one of the three white blocks drawn next to the project).
+      { id: 'business-hines', name: 'Hines Tower', position: null },
     ],
   },
   parks: {

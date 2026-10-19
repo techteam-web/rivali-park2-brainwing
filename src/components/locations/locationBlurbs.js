@@ -19,6 +19,7 @@ export const locationBlurbs = {
   'access-magathane': 'A Metro Red Line station, gliding you effortlessly across the suburbs.',
   'access-ovaripada': 'Metro connectivity on the doorstep, the whole line within reach.',
   'access-devipada': 'A quick Metro halt nearby, quiet and seamless everyday travel.',
+  'access-twin-tunnel': 'An upcoming tunnel beneath the national park, putting Thane a short drive away.',
 
   // Leisure
   'leisure-oberoi-sky-city': 'Marquee brands, dining and retail therapy under one roof.',
@@ -28,13 +29,13 @@ export const locationBlurbs = {
   'leisure-carnival-cinema': 'Blockbuster nights and big-screen magic, moments from home.',
   'leisure-pvr': 'Premium screens and showtime whenever the mood calls.',
   'leisure-evershine-dream-park': 'Rides, green lawns and easy escapes for the whole family.',
+  'leisure-oberoi-mall': "Goregaon's landmark mall for brands, dining and the big screen.",
+  'leisure-dmart': "India's biggest DMart, coming up right next door.",
 
   // Healthcare
   'healthcare-apex': 'Trusted medical care, reassuringly close when it matters most.',
   'healthcare-surbhi': 'Dependable healthcare on hand, right around the corner.',
   'healthcare-seven-star': 'Quality care within easy reach, for peace of mind any hour.',
-  // Ready for the Damania row (see locationsData.js) once its map position,
-  // camera framing and photo land.
   'healthcare-damania': 'A new multi-speciality hospital on the way, minutes from your door.',
 
   // Schools
@@ -44,12 +45,14 @@ export const locationBlurbs = {
   'schools-cambridge': 'Quality schooling that puts a promising future within reach.',
   'schools-oxford-international': 'International education close by, opening doors from an early age.',
   'schools-childrens-academy': 'A well-loved academy where young learners truly thrive.',
+  'schools-oberoi-international': 'An IB World School known for its global, inquiry-led learning.',
 
   // Business
   'business-wadhwa-techno-park': 'A modern business address where careers take flight.',
   'business-agora-business-plaza': 'A thriving commercial hub, your workday just minutes away.',
   'business-western-edge': "Prime office space at the western suburbs' business edge.",
   'business-mahindra': "Beside one of India's industrial giants, opportunity close to home.",
+  'business-hines': 'A grade A office tower by global developer Hines, coming up next door.',
 
   // Parks
   'parks-sanjay-gandhi-national-park': "One of the world's largest urban forests, wild right on your doorstep.",
