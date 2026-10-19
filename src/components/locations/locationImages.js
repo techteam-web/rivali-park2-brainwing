@@ -1,10 +1,7 @@
 // Per-location card photos, keyed by location id.
 // Images live in src/assets/locations/images/ and are resolved at build time via
 // import.meta.glob (so the messy filenames - spaces, apostrophes, & - need no manual imports).
-// getLocationImage(id) returns the image URL, or null if that location has no image yet
-// (currently only healthcare-seven-star; drop "Seven Star Hospital.webp" into the folder and
-// it will resolve automatically with no code change). The card falls back to its placeholder
-// block when this returns null.
+// getLocationImage(id) returns the image URL, or null when the location has no photo.
 //
 // NOTE: keep this file in src/components/locations/ so the glob path below resolves.
 
@@ -41,8 +38,7 @@ const idToFile = {
   'leisure-evershine-dream-park': 'Evershine Dream Park.webp',
   'healthcare-apex': 'Apex Hospital.webp',
   'healthcare-surbhi': 'Surbhi Hospital.webp',
-  'healthcare-seven-star': 'Seven Star Hospital.webp', // no file yet; resolves when added
-  'healthcare-damania': 'Damania Hospital.webp', // no file yet; resolves when added
+  'healthcare-seven-star': 'Seven Star Hospital.webp',
   'schools-singapore-international': 'Singapore International School.webp',
   'schools-jbcn-international': 'JBCN International School.webp',
   'schools-chatrabhuj-narsee': 'Chatrabhuj Narsee School.webp',
@@ -56,5 +52,6 @@ const idToFile = {
   'parks-sanjay-gandhi-national-park': 'Sanjay Gandhi National Park.webp',
 }
 
-// null when the location has no image on disk yet (card shows its placeholder block).
+// null when the location has no photo (Twin Tunnel, Oberoi Mall, DMart, Damania, Hines,
+// Oberoi International School): the card then has no photo area at all.
 export const getLocationImage = (id) => byName[idToFile[id]] ?? null

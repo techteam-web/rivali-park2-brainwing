@@ -67,7 +67,8 @@ const LocationCard = ({ locationId, exiting }) => {
   // Real travel times keyed by id; null when a location has no entry yet (shows '--').
   const times = getLocationTimes(locationId)
 
-  // Per-location photo URL; null when there's no image on disk yet (shows placeholder block).
+  // Per-location photo URL; null for places with no photo (the card then drops the photo
+  // area entirely and carries the distance pill beside the title instead).
   const photo = getLocationImage(locationId)
 
   // Per-location card copy; null when a location has no blurb (falls back to PLACEHOLDER_BLURB).
@@ -95,13 +96,10 @@ const LocationCard = ({ locationId, exiting }) => {
       }}
     >
       <div ref={cardRef} className="pointer-events-auto overflow-hidden rounded-xs bg-white shadow-2xl w-72">
-        {/* Photo region */}
+        {/* Photo region, only for places that have a photo */}
+        {photo && (
         <div className="relative w-full h-52">
-          {photo ? (
-            <img src={photo} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className="h-full w-full bg-[#ECE7E0]" />
-          )}
+          <img src={photo} alt="" className="h-full w-full object-cover" />
 
           {/* Fine torn-paper edge: white body tears UP into the photo (solid bottom, raggedy top;
               -bottom-px kills the seam). preserveAspectRatio="none" stretches it to the card width. */}
@@ -116,9 +114,15 @@ const LocationCard = ({ locationId, exiting }) => {
             {distance ?? '200 m'}
           </div>
         </div>
+        )}
 
         {/* Body (extra bottom padding so the card reads longer on the y axis) */}
-        <div className="px-5 pt-4 pb-9">
+        <div className={`px-5 pb-9 ${photo ? 'pt-4' : 'pt-6'}`}>
+          {!photo && (
+            <div className="mb-3 inline-block rounded-full bg-white shadow px-2 py-0.5 font-medium text-brand-brown text-[11px]">
+              {distance ?? '200 m'}
+            </div>
+          )}
           <h3 className="font-semibold leading-tight text-on-light-black text-xl">{location.name}</h3>
           <p className="mt-2.5 leading-snug text-on-light-grey text-xs">{blurb ?? PLACEHOLDER_BLURB}</p>
 

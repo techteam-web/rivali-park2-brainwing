@@ -64,6 +64,29 @@ function makeRouteMaterial() {
   })
 }
 
+// Keeps the route shader compiled for the life of the map. Three.js deletes a
+// shader program once no material uses it, so every category close (all routes
+// unmount) threw it away and the next open recompiled it, which stalled the GPU
+// for 1-3 s (19 Oct). This draws one quad with that shader, every fragment
+// discarded (uProgress -1), so the program stays alive and is compiled while
+// the loader is still up. Mounted once by LocationsCanvas.
+export function RouteShaderWarmup() {
+  const material = useMemo(() => {
+    const m = makeRouteMaterial()
+    m.uniforms.uProgress.value = -1
+    return m
+  }, [])
+  const geometry = useMemo(() => new THREE.PlaneGeometry(1, 1), [])
+  useEffect(
+    () => () => {
+      material.dispose()
+      geometry.dispose()
+    },
+    [material, geometry],
+  )
+  return <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={999} />
+}
+
 function buildRouteCurve(points) {
   // Dedupe near-coincident points: centripetal Catmull-Rom divides by the gap
   // between consecutive points and yields NaN (blank curve) on duplicates.

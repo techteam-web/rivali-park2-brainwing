@@ -17,7 +17,21 @@ import { locationsConfig } from './locationsConfig'
 // the "return to default" now). Mounted at Canvas root as a sibling of RivaliMap/RouteLayer, so the
 // route draw-on and the flight fire together off the same props. No fly on mount; an interruption
 // redirects from the CURRENT framing (no snap).
-const { cameraViews, cameraFlightDuration } = locationsConfig
+const { cameraViews, cameraFlightDuration, fogNear, fogFar } = locationsConfig
+
+// The haze is tuned for the idle orbit (camera ~2.5 km out). A route several km
+// long needs the camera much further back than that, which would bury the far end
+// of the route in fog, so the fog recedes with the camera for those views and
+// returns to its tuned depth for everything else.
+const fogFor = (dist) => {
+  const near = Math.max(fogNear, dist * 0.9)
+  return { near, far: Math.min(11500, Math.max(fogFar, dist * 1.7, near + 3000)) }
+}
+const easeFog = (scene, { near, far }) => {
+  if (!scene.fog) return
+  gsap.killTweensOf(scene.fog)
+  gsap.to(scene.fog, { near, far, duration: cameraFlightDuration, ease: 'power2.inOut' })
+}
 
 // The framing a given (category, route) pair resolves to. The flight effect fires only when this key
 // changes, so selecting a location with no saved camera keeps the category key and does not re-fly.
@@ -62,7 +76,7 @@ export default function CameraRig({ activeCategory, selectedLocationId }) {
   useLayoutEffect(() => {
     const flyKey = resolveFlyKey(activeCategory, selectedLocationId)
     if (prevRef.current === flyKey) return
-    const { camera, controls } = get()
+    const { camera, controls, scene } = get()
     if (!controls) return
     prevRef.current = flyKey
 
@@ -82,9 +96,27 @@ export default function CameraRig({ activeCategory, selectedLocationId }) {
       gsap.killTweensOf(camera.quaternion) // in case a pole-slerp flight was mid-air
       gsap.killTweensOf(controls.target)
       slerpingRef.current = false
+      easeFog(scene, { near: fogNear, far: fogFar })
       return
     }
-    const view = routeView || categoryView
+    // Route framings are solved for a 16:10 screen (see locationCameras.js). On a
+    // narrower one (4:3 tablets) the picture loses width, so the camera backs off
+    // along its own line of sight until the same route, towers and pin fit again.
+    const aspect = camera.aspect || 1.6
+    const pullBack = routeView && aspect < 1.6 ? (1.6 / aspect) * 1.05 : 1
+    const view =
+      pullBack === 1
+        ? routeView || categoryView
+        : {
+            target: routeView.target,
+            position: routeView.position.map((v, i) => routeView.target[i] + (v - routeView.target[i]) * pullBack),
+          }
+    easeFog(
+      scene,
+      routeView
+        ? fogFor(Math.hypot(...view.position.map((v, i) => v - view.target[i])))
+        : { near: fogNear, far: fogFar },
+    )
 
     // Interrupt any running flight and start fresh FROM the current framing (no snap). Killing a
     // timeline leaves camera.position/controls.target where they are, so the new tweens snapshot

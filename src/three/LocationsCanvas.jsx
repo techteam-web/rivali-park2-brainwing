@@ -8,8 +8,10 @@ import RivaliMap from './RivaliMap'
 // BirdFlock's module-scope preload relies on, and ES modules evaluate in import order.
 import BirdFlock from './BirdFlock'
 import MainBuildingRig from './MainBuildingRig'
+import SiteBlocks from './SiteBlocks'
+import InfillBuildings from './InfillBuildings'
 import RouteLayer from './RouteLayer'
-import LocationMarkers from './LocationMarkers'
+import { RouteShaderWarmup } from './RouteCurve'
 import CameraRig from './CameraRig'
 import IdleOrbitController from './IdleOrbitController'
 // [dev camera capture - commented out, restore together] Re-enable with its render below and the
@@ -30,7 +32,7 @@ const { fogColor, fogNear, fogFar, camera, controls, bloom } = locationsConfig
 // [dev camera capture - commented out, restore together] The captureMode prop below was threaded
 // from LocationsView down to CameraRig. Restore the signature as:
 // ({ activeCategory, selectedLocationId, captureMode, onReady })
-const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExitComplete, onSelectLocation, onReady }) => {
+const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExitComplete, onReady }) => {
   // Idle = nothing selected. Drives the IdleOrbitController on/off; CameraRig owns the camera
   // whenever this is false.
   const isIdle = activeCategory == null && selectedLocationId == null
@@ -72,6 +74,9 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExit
           loads no assets. Dims while a location is selected so the route line reads clearly. */}
       <RoadPulses selectedLocationId={selectedLocationId} />
       <MainBuildingRig />
+      <SiteBlocks />
+      <RouteShaderWarmup />
+      <InfillBuildings />
       {/* One flock per locationsConfig.flocks entry, each circling its own world-space center.
           World-space siblings, not children of the rig, so they do not inherit the building's
           placement transform. Each mount clones the shared bird GLB (see BirdFlock.jsx). */}
@@ -103,17 +108,9 @@ const LocationsCanvas = ({ activeCategory, selectedLocationId, isExiting, onExit
       />
     )}
 
-    {/* Standing pins for the rest of the open category, so a second destination can be
-        picked straight off the map instead of reopening the list. Only renders once a
-        location is selected -- before that every route carries its own pin. Sibling of
-        RouteLayer for the same world-space reason. */}
-    {activeCategory && !isExiting && (
-      <LocationMarkers
-        category={activeCategory}
-        selectedLocationId={selectedLocationId}
-        onSelect={onSelectLocation}
-      />
-    )}
+    {/* Once a location is selected only its own route and pin stay on the map; the
+        rest of the category's pins are not redrawn faded alongside it (19 Oct: they
+        read as part of the selection). Another destination is picked from the list. */}
 
     {/* Flies the camera to the selected route's saved framing, else the active category's, and locks
         orbit for as long as a category is open. On deselect it does NOT fly - it hands the camera to

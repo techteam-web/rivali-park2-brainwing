@@ -27,7 +27,7 @@ export const locationsConfig = {
   // horizontal drag-scrub, and gets a small self-centering vertical parallax on mouse move. The
   // ring is centered on mainBuilding.position below. All values are tunable from here.
   idleOrbit: {
-    radius: 2550,            // fixed distance from the building (TUNE for world scale)
+    radius: 1500,            // fixed distance from the building (was 2550; brought in 19 Oct, felt too far)
     // Where the orbit STARTS on first load, in degrees around the building
     // (0 = camera due +X of it, 90 = due +Z, counter-clockwise looking down).
     // null = derive it from `camera.position` above, which is the old
@@ -49,7 +49,8 @@ export const locationsConfig = {
   // controls.target default above and unlocks. Captured with the dev CameraLogger.
   cameraViews: {
     access:     { position: [1624.5, 5947.5, 217.1],  target: [1624.5, -23.2, 217.1] },
-    leisure:    { position: [-3057.1, 3206.2, 335.9],  target: [1701.8, 119.7, 313.1] },
+    // Pulled back and south (19 Oct) so Oberoi Mall, 7 km down the highway, is in frame too.
+    leisure:    { position: [-2423.1, 2671.9, 1969.6], target: [1604, 60, 1950.3] },
     healthcare: { position: [1580.6, 1442, -1843.4],   target: [2305.1, -8, -112] },
     schools:    { position: [-1201.2, 2617.7, 1805.5], target: [2077.3, 153, -321] },
     business:   { position: [-2320.9, 2079.9, 381],    target: [1531.8, -208.9, -742.5] },
@@ -87,6 +88,31 @@ export const locationsConfig = {
   // Placement for MainBuilding.glb, dialed in with the dev gizmo on /locations.
   // rotation in radians (~6 deg yaw); re-log and paste here to adjust.
   mainBuilding: { position: MAIN_BUILDING_POSITION, rotation: [0, 0.099, 0], scale: [1, 1, 1] },
+  // Real-world buildings the OSM map lacks (mostly informal settlements), drawn
+  // as low-rise blocks around the project; see InfillBuildings. Colours are the
+  // baked buildings' grey.
+  infill: {
+    enabled: true,
+    roof: '#a4a9ab',
+    wall: '#8b9092',
+  },
+  // Blocks for the upcoming Hines Tower and DMart on the open strip between the
+  // project's access road and the highway (see SiteBlocks), placed per the
+  // 19 Oct markup. Damania Hospital is the existing building just west of the
+  // DMart block, so it has no block of its own. [x, z] centres in world units
+  // (metres); each route ends at its block's face on the access road.
+  siteBlocks: {
+    size: 44,
+    baseY: 40,
+    // Yaw (radians) that squares the blocks to the highway in front of them,
+    // which runs 17.6 deg off north-south here (fitted to the map's road mesh).
+    rotationY: 0.307,
+    blocks: [
+      { id: 'business-hines', position: [2505, -55] },
+      { id: 'leisure-dmart', position: [2488, -128] },
+    ],
+  },
+
   // One entry per flock of birds circling in the sky (see src/three/BirdFlock.jsx). The GLB
   // bakes flap + bob for a stationary formation; the orbit is added there. Vary scale, radius
   // and speed between entries so the flocks do not read as copies of one another.
