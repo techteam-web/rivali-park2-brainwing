@@ -24,6 +24,7 @@ const setups = {
   // Borrowed icons keep the animation written for them.
   'cocoon seating':      setupBanquetHall,
   'amphitheatre':        setupAmphitheatre,
+  'trail walkway':       setupArtGallery,
 }
 
 export function useCentralCourtyardHovers(scopeRef) {
