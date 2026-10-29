@@ -14,7 +14,7 @@ export const centralCourtyardHotspots = [
     slug: 'coffee-shop',
     name: 'Wellness Club',
     bg: `${ASSET_BASE}/coffee shop bg.webp`,
-    progress: 1 / 8,
+    progress: 1 / 9,
     decoratives: [
       // Placements measured from the design team's Figma export for this frame,
       // normalized against their 1440x1024 artboard and corrected for the stroke
@@ -41,7 +41,7 @@ export const centralCourtyardHotspots = [
     slug: 'liesure-pool',
     name: 'Leisure Pool',
     bg: `${ASSET_BASE}/leisure pool bg.webp`,
-    progress: 2 / 8,
+    progress: 2 / 9,
     decoratives: [
       {
         name: 'water-splash',
@@ -63,7 +63,7 @@ export const centralCourtyardHotspots = [
     slug: 'swimming-pool',
     name: 'Swimming Pool',
     bg: `${ASSET_BASE}/swimming pool bg.webp`,
-    progress: 3 / 8,
+    progress: 3 / 9,
     decoratives: [
       {
         name: 'flamingo',
@@ -78,7 +78,7 @@ export const centralCourtyardHotspots = [
     slug: 'kids-play-area',
     name: 'Kids Play',
     bg: `${ASSET_BASE}/kids play area bg.webp`,
-    progress: 4 / 8,
+    progress: 4 / 9,
     decoratives: [
       {
         name: 'kids',
@@ -89,14 +89,23 @@ export const centralCourtyardHotspots = [
       },
     ],
   },
-  // Project renders (16 Oct) rather than stock photos, so these slides carry
-  // the "Artist's impression" note. No line drawings over them yet.
+  // Project renders (16 Oct; Trail Walkway and Amphitheatre 29 Oct) rather
+  // than stock photos, so these slides carry the "Artist's impression" note.
+  // No line drawings over them yet.
+  {
+    slug: 'trail-walkway',
+    name: 'Trail Walkway',
+    bg: `${ASSET_BASE}/trail walkway bg.webp`,
+    note: 'render',
+    progress: 5 / 9,
+    decoratives: [],
+  },
   {
     slug: 'cocoon-seating',
     name: 'Cocoon Seating',
     bg: `${ASSET_BASE}/cocoon seating bg.webp`,
     note: 'render',
-    progress: 5 / 8,
+    progress: 6 / 9,
     decoratives: [],
   },
   {
@@ -107,7 +116,7 @@ export const centralCourtyardHotspots = [
     // Very wide frame with the cocoon at its right end; keep that end in view
     // where the screen crops the sides.
     objectPosition: '85% center',
-    progress: 6 / 8,
+    progress: 7 / 9,
     decoratives: [],
   },
   {
@@ -115,7 +124,7 @@ export const centralCourtyardHotspots = [
     name: 'Amphitheatre',
     bg: `${ASSET_BASE}/amphitheatre bg.webp`,
     note: 'render',
-    progress: 7 / 8,
+    progress: 8 / 9,
     decoratives: [],
   },
   // The courtyard's previous landing render (night view over the central
@@ -125,7 +134,7 @@ export const centralCourtyardHotspots = [
     name: 'Multi purpose lawns',
     bg: `${ASSET_BASE}/multi purpose lawns bg.webp`,
     note: 'render',
-    progress: 8 / 8,
+    progress: 9 / 9,
     decoratives: [],
   },
 ]

@@ -2,13 +2,14 @@
 // Maps a slide background to its srcset (see that script for how the
 // candidates are described).
 const SRCSETS = {
-  "/gallery/hotspots/central courtyard/amphitheatre bg.webp": "/gallery/hotspots/central%20courtyard/amphitheatre%20bg@1920.webp 1920w, /gallery/hotspots/central%20courtyard/amphitheatre%20bg.webp 3200w",
+  "/gallery/hotspots/central courtyard/amphitheatre bg.webp": "/gallery/hotspots/central%20courtyard/amphitheatre%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/amphitheatre%20bg.webp 3164w",
   "/gallery/hotspots/central courtyard/art gallery bg.webp": "/gallery/hotspots/central%20courtyard/art%20gallery%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/art%20gallery%20bg.webp 3600w",
   "/gallery/hotspots/central courtyard/cocoon seating 2 bg.webp": "/gallery/hotspots/central%20courtyard/cocoon%20seating%202%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/cocoon%20seating%202%20bg.webp 2527w",
   "/gallery/hotspots/central courtyard/cocoon seating bg.webp": "/gallery/hotspots/central%20courtyard/cocoon%20seating%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/cocoon%20seating%20bg.webp 2981w",
   "/gallery/hotspots/central courtyard/coffee shop bg.webp": "/gallery/hotspots/central%20courtyard/coffee%20shop%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/coffee%20shop%20bg.webp 3600w",
   "/gallery/hotspots/central courtyard/kids play area bg.webp": "/gallery/hotspots/central%20courtyard/kids%20play%20area%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/kids%20play%20area%20bg.webp 2499w",
   "/gallery/hotspots/central courtyard/multipurpose courts bg.webp": "/gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg@1920.webp 1920w, /gallery/hotspots/central%20courtyard/multipurpose%20courts%20bg.webp 2652w",
+  "/gallery/hotspots/central courtyard/trail walkway bg.webp": "/gallery/hotspots/central%20courtyard/trail%20walkway%20bg@1920.webp 1922w, /gallery/hotspots/central%20courtyard/trail%20walkway%20bg.webp 3180w",
   "/gallery/hotspots/convention center/banquet hall bg.webp": "/gallery/hotspots/convention%20center/banquet%20hall%20bg@1920.webp 1922w, /gallery/hotspots/convention%20center/banquet%20hall%20bg.webp 3600w",
   "/gallery/hotspots/convention center/cafe bg.webp": "/gallery/hotspots/convention%20center/cafe%20bg@1920.webp 1920w, /gallery/hotspots/convention%20center/cafe%20bg.webp 3664w",
   "/gallery/hotspots/convention center/guests room bg.webp": "/gallery/hotspots/convention%20center/guests%20room%20bg@1920.webp 1922w, /gallery/hotspots/convention%20center/guests%20room%20bg.webp 3971w",

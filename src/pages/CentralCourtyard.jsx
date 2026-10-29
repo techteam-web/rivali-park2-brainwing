@@ -28,7 +28,7 @@ const cards = [
   { name: 'Kids play',           src: '/gallery/svgs/central courtyard/kids play area.svg',      top: 0.6100, left: 0.0900, slug: 'kids-play-area' },
   { name: 'Leisure pool',        src: '/gallery/svgs/central courtyard/leisure pool.svg',        top: 0.5400, left: 0.3400, slug: 'liesure-pool' },
   { name: 'Swimming pool',       src: '/gallery/svgs/central courtyard/swimming pool.svg',       top: 0.3000, left: 0.8780, slug: 'swimming-pool' },
-  { name: 'Trail Walkway',       src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.2000, left: 0.4750 },
+  { name: 'Trail Walkway',       src: '/gallery/svgs/central courtyard/art gallery.svg',         top: 0.2000, left: 0.4750, slug: 'trail-walkway' },
   { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.6900, left: 0.5610, slug: 'cocoon-seating' },
   { name: 'Cocoon Seating',      src: '/gallery/svgs/sky club/banquette hall.svg',               top: 0.3260, left: 0.4380, slug: 'cocoon-seating-2' },
   { name: 'Pavilion',            src: '/gallery/svgs/wellness club/dining.svg',                  top: 0.1250, left: 0.8900 },
